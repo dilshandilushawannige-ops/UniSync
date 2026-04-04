@@ -1,12 +1,15 @@
 package com.smartcampus.unisync.common.enums;
 
 /**
- * Category of the issue being reported in the ticket.
+ * Represents the category of the issue reported in a ticket.
+ * Helps route and assign tickets to the right technician.
  */
 public enum TicketCategory {
-    MAINTENANCE,   // Physical repair or upkeep (e.g., broken chair, leaking pipe)
-    IT_SUPPORT,    // Computer, network, or software issues
-    CLEANING,      // Cleaning or hygiene requests
-    SECURITY,      // Security-related concerns
-    OTHER          // Any issue that does not fit the above categories
+    ELECTRICAL,      // Issues related to electrical systems (lights, sockets, wiring)
+    NETWORK,         // Network or internet connectivity issues
+    PROJECTOR,       // Projector not working or damaged
+    COMPUTER,        // Desktop or laptop hardware/software issues
+    AIR_CONDITIONING, // AC unit not working or needs servicing
+    FURNITURE,       // Broken or missing furniture (chairs, desks, boards)
+    OTHER            // Any issue that does not fit the above categories
 }
