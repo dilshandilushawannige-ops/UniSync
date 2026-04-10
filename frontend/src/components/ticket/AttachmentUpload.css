@@ -1,0 +1,90 @@
+/* AttachmentUpload.css */
+
+.attachment-upload {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 24px;
+}
+
+.upload-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.upload-hint {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-bottom: 14px;
+}
+
+.upload-error {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+/* Hide the default browser file input */
+.file-input {
+  display: none;
+}
+
+/* Custom styled label acts as the file button */
+.file-label {
+  display: inline-block;
+  padding: 9px 18px;
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.file-label:hover {
+  background-color: #e2e8f0;
+}
+
+/* List of selected file names */
+.selected-files {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+
+.selected-files li {
+  font-size: 0.85rem;
+  color: #475569;
+  padding: 4px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.upload-btn {
+  margin-top: 12px;
+  padding: 9px 22px;
+  background-color: #6366f1;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.upload-btn:hover {
+  background-color: #4f46e5;
+}
+
+.upload-btn:disabled {
+  background-color: #a5b4fc;
+  cursor: not-allowed;
+}

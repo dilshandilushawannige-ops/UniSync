@@ -1,0 +1,77 @@
+/* AttachmentPreview.css */
+
+.attachment-preview {
+  margin-top: 24px;
+}
+
+.preview-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 14px;
+}
+
+.preview-loading,
+.no-attachments {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  padding: 12px 0;
+}
+
+/* Responsive image grid */
+.attachment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.attachment-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 10px;
+  transition: box-shadow 0.2s;
+}
+
+.attachment-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Thumbnail image */
+.attachment-img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+  cursor: pointer;
+}
+
+.attachment-name {
+  font-size: 0.75rem;
+  color: #475569;
+  padding: 8px 8px 4px;
+  text-align: center;
+  word-break: break-all;
+  margin: 0;
+}
+
+.delete-attachment-btn {
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: all 0.2s;
+}
+
+.delete-attachment-btn:hover {
+  background: #fee2e2;
+}

@@ -1,0 +1,114 @@
+/* TicketDetailsCard.css */
+
+.ticket-details-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 28px;
+}
+
+/* Header row with title and badge */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.card-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* 2-column grid for key-value fields */
+.card-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  font-size: 0.9rem;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+/* Priority colour tags */
+.priority-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.priority-LOW    { background: #dcfce7; color: #15803d; }
+.priority-MEDIUM { background: #fef9c3; color: #a16207; }
+.priority-HIGH   { background: #fee2e2; color: #b91c1c; }
+
+/* Description and notes sections */
+.card-section {
+  margin-bottom: 20px;
+}
+
+.section-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.section-text {
+  font-size: 0.9rem;
+  color: #334155;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* Resolution notes — green tint */
+.resolution-section {
+  background: #f0fdf4;
+  border-left: 4px solid #22c55e;
+  padding: 12px 16px;
+  border-radius: 8px;
+}
+
+/* Rejected reason — red tint */
+.rejected-section {
+  background: #fff1f2;
+  border-left: 4px solid #f43f5e;
+  padding: 12px 16px;
+  border-radius: 8px;
+}
+
+/* Responsive: stack grid on small screens */
+@media (max-width: 600px) {
+  .card-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
