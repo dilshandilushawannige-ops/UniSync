@@ -1,0 +1,45 @@
+/* TicketDetailsPage.css */
+
+.ticket-details-page {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 32px 20px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #6366f1;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 20px;
+  display: inline-block;
+  transition: color 0.2s;
+}
+
+.back-btn:hover {
+  color: #4f46e5;
+}
+
+/* Spacing between sections (attachments, comments) */
+.section-block {
+  margin-top: 24px;
+}
+
+.status-msg {
+  text-align: center;
+  color: #94a3b8;
+  padding: 60px 0;
+  font-size: 0.95rem;
+}
+
+.error-msg {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  margin: 20px;
+}
