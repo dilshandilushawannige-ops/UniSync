@@ -1,25 +1,18 @@
-import { useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Booking from "../../components/booking/Booking";
 import BookingStats from "../../components/booking/BookingStats";
 import BookingTable from "../../components/booking/BookingTable";
 import BookingTopBar from "../../components/booking/BookingTopBar";
-import {
-  cancelBooking,
-  createBooking,
-  getAllBookings,
-  getMyBookings,
-  updateBookingStatus,
-} from "../../services/bookingService";
+import { cancelBooking, createBooking, getMyBookings } from "../../services/bookingService";
 import "./BookingPage.css";
 
-function BookingPage() {
+function MyBookingsPage() {
   const navigate = useNavigate();
   const currentUserId = 1;
   const currentUserName = "Demo Student";
 
   const [showModal, setShowModal] = useState(false);
-  const [isAdminView, setIsAdminView] = useState(false);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -36,14 +29,14 @@ function BookingPage() {
     setLoading(true);
     setError("");
     try {
-      const data = isAdminView ? await getAllBookings() : await getMyBookings(currentUserId);
+      const data = await getMyBookings(currentUserId);
       setBookings(data);
     } catch (fetchError) {
       setError(fetchError?.response?.data?.message || "Failed to load bookings.");
     } finally {
       setLoading(false);
     }
-  }, [currentUserId, isAdminView]);
+  }, [currentUserId]);
 
   useEffect(() => {
     fetchBookings();
@@ -68,7 +61,6 @@ function BookingPage() {
       setBookings((prev) => [created, ...prev]);
       setError("");
     } catch (createError) {
-      // If backend is unavailable in local setup, keep UI usable with local fallback.
       const fallbackBooking = {
         id: Date.now(),
         userId: payload.userId,
@@ -84,9 +76,7 @@ function BookingPage() {
         status: "PENDING",
       };
       setBookings((prev) => [fallbackBooking, ...prev]);
-      setError(
-        "Backend unavailable. Booking added in local demo mode only (not saved to database)."
-      );
+      setError("Backend unavailable. Booking added in local demo mode only (not saved to database).");
       if (createError?.response?.data?.message) {
         throw createError;
       }
@@ -102,48 +92,35 @@ function BookingPage() {
     }
   };
 
-  const handleAdminStatusUpdate = async (bookingId, status) => {
-    try {
-      let reason;
-      if (status === "REJECTED") {
-        reason = window.prompt("Enter rejection reason:");
-        if (!reason) return;
-      }
-      await updateBookingStatus(bookingId, status, reason);
-      await fetchBookings();
-    } catch (actionError) {
-      setError(actionError?.response?.data?.message || "Failed to update booking status.");
-    }
-  };
-
   return (
     <div className="booking-site booking-page-light">
       <BookingTopBar
-        isAdminView={isAdminView}
+        isAdminView={false}
         onBack={() => navigate(-1)}
-        onToggleView={() => setIsAdminView((prev) => !prev)}
+        onToggleView={() => navigate("/admin/bookings")}
         onOpenModal={() => setShowModal(true)}
+        toggleLabel="Admin View"
+        showNewBooking={true}
       />
 
       <div className="booking-page">
         <div className="booking-page-header">
           <div className="booking-page-title-wrap">
-            <h2 className="booking-page-title">Booking Dashboard</h2>
-            <p className="booking-page-subtitle">Create, review, and manage bookings in one place.</p>
+            <h2 className="booking-page-title">My Bookings</h2>
+            <p className="booking-page-subtitle">Create requests and track your booking status.</p>
           </div>
-          <div className="booking-page-chip">{isAdminView ? "Admin Panel" : "My Bookings"}</div>
+          <div className="booking-page-chip">User Panel</div>
         </div>
 
         <BookingStats stats={stats} />
-
         {error && <p className="booking-page-error">{error}</p>}
 
         <BookingTable
           bookings={bookings}
           loading={loading}
-          isAdminView={isAdminView}
+          isAdminView={false}
           onCancelBooking={handleCancelBooking}
-          onAdminStatusUpdate={handleAdminStatusUpdate}
+          onAdminStatusUpdate={() => {}}
         />
       </div>
 
@@ -157,4 +134,4 @@ function BookingPage() {
   );
 }
 
-export default BookingPage;
+export default MyBookingsPage;
