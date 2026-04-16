@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import ResourceCard from '../../components/resource/ResourceCard';
 import { getAllResources, searchResources } from '../../services/resourceService';
@@ -65,77 +65,55 @@ const BrowseResourcesPage = () => {
     }
   };
 
-  const stats = useMemo(() => {
-    const total = resources.length;
-    const available = resources.filter((resource) => resource.status === 'ACTIVE').length;
-    const outOfService = resources.filter((resource) => resource.status === 'OUT_OF_SERVICE').length;
-    return { total, available, outOfService };
-  }, [resources]);
-
   return (
-    <div className="min-h-screen bg-[#F7FAFE] text-slate-900">
-      <nav className="bg-gradient-to-r from-[#0C447C] to-[#378ADD] text-white shadow-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="text-lg font-bold tracking-tight">Smart Campus Hub</div>
-          <div className="flex items-center gap-2">
+    <div className="min-h-screen bg-[#f4f7fb] text-slate-900">
+      <nav className="bg-[#2464a7] text-white shadow-sm">
+        <div className="mx-auto flex h-14 max-w-[1880px] items-center justify-between px-8">
+          <div className="text-xl font-semibold tracking-tight sm:text-2xl">Smart Campus</div>
+          <div className="flex items-center gap-6 text-sm sm:text-base">
             <NavLink
               to="/"
               className={({ isActive }) =>
-                `rounded-full px-4 py-1.5 text-sm font-medium transition ${
-                  isActive ? 'bg-white text-[#185FA5]' : 'text-white/90 hover:bg-white/20'
+                `rounded-full px-3 py-1 transition ${
+                  isActive ? 'font-semibold text-white' : 'text-white/80 hover:text-white'
                 }`
               }
             >
-              Browse
+              Browse Resources
             </NavLink>
             <NavLink
               to="/admin/resources"
               className={({ isActive }) =>
-                `rounded-full px-4 py-1.5 text-sm font-medium transition ${
-                  isActive ? 'bg-white text-[#185FA5]' : 'text-white/90 hover:bg-white/20'
+                `rounded-full px-3 py-1 transition ${
+                  isActive ? 'font-semibold text-white' : 'text-white/80 hover:text-white'
                 }`
               }
             >
-              Admin
+              Manage Resources
             </NavLink>
           </div>
         </div>
       </nav>
 
-      <header className="bg-gradient-to-r from-[#0C447C] to-[#185FA5] text-white">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+      <header className="bg-[#c9d6e3] py-14 text-center text-[#0f4985]">
+        <div className="mx-auto max-w-[1200px] px-6">
+          <h1 className="text-3xl font-medium sm:text-5xl">
             Find &amp; Book Campus Resources
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-blue-100 sm:text-base">
-            Discover lecture halls, labs, meeting rooms, and equipment across campus using smart filters.
+          <p className="mt-2 text-base sm:text-2xl">
+            Search labs, lecture halls, meeting rooms and equipment
           </p>
-
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="rounded-xl bg-white/15 p-4 backdrop-blur">
-              <p className="text-xs uppercase tracking-wide text-blue-100">Total</p>
-              <p className="mt-1 text-2xl font-bold">{stats.total}</p>
-            </div>
-            <div className="rounded-xl bg-white/15 p-4 backdrop-blur">
-              <p className="text-xs uppercase tracking-wide text-blue-100">Available</p>
-              <p className="mt-1 text-2xl font-bold">{stats.available}</p>
-            </div>
-            <div className="rounded-xl bg-white/15 p-4 backdrop-blur">
-              <p className="text-xs uppercase tracking-wide text-blue-100">Out of Service</p>
-              <p className="mt-1 text-2xl font-bold">{stats.outOfService}</p>
-            </div>
-          </div>
         </div>
       </header>
 
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <form onSubmit={handleSearch} className="rounded-2xl border border-[#d4e6f7] bg-white p-4 shadow-sm sm:p-6">
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+      <section className="mx-auto max-w-[1880px] px-8 py-6">
+        <form onSubmit={handleSearch} className="rounded-2xl border border-[#9ec3ea] bg-[#f4f7fb] p-5">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
             <select
               name="type"
               value={filters.type}
               onChange={handleChange}
-              className="rounded-xl border border-[#c8dcf0] bg-[#E6F1FB] px-3 py-2.5 text-sm outline-none ring-[#8cb8e3] focus:ring"
+              className="rounded-xl border border-[#9ec3ea] bg-[#c9d6e3] px-4 py-2.5 text-base text-[#0f4985] outline-none sm:text-xl"
             >
               <option value="">All Types</option>
               <option value="LECTURE_HALL">LECTURE_HALL</option>
@@ -151,7 +129,7 @@ const BrowseResourcesPage = () => {
               value={filters.minCapacity}
               onChange={handleChange}
               placeholder="Min Capacity"
-              className="rounded-xl border border-[#c8dcf0] bg-[#E6F1FB] px-3 py-2.5 text-sm outline-none ring-[#8cb8e3] focus:ring"
+              className="rounded-xl border border-[#9ec3ea] bg-[#c9d6e3] px-4 py-2.5 text-base text-[#0f4985] outline-none sm:text-xl"
             />
 
             <input
@@ -159,34 +137,35 @@ const BrowseResourcesPage = () => {
               value={filters.location}
               onChange={handleChange}
               placeholder="Location"
-              className="rounded-xl border border-[#c8dcf0] bg-[#E6F1FB] px-3 py-2.5 text-sm outline-none ring-[#8cb8e3] focus:ring"
+              className="rounded-xl border border-[#9ec3ea] bg-[#c9d6e3] px-4 py-2.5 text-base text-[#0f4985] outline-none sm:text-xl"
             />
 
             <button
               type="submit"
               disabled={loading}
-              className="rounded-xl bg-gradient-to-r from-[#0C447C] to-[#378ADD] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-xl bg-[#2464a7] px-6 py-2.5 text-base font-medium text-white transition hover:bg-[#1d558f] disabled:cursor-not-allowed disabled:opacity-60 sm:text-xl"
             >
               {loading ? 'Searching...' : 'Search'}
             </button>
           </div>
         </form>
 
+        <h2 className="mt-5 text-2xl font-semibold text-[#0f3d74] sm:text-3xl">Available Resources</h2>
+
         {searched && results.length === 0 && (
-          <div className="mt-8 rounded-2xl border border-[#d4e6f7] bg-white p-12 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#E6F1FB] text-[#185FA5]">
+          <div className="mt-6 rounded-2xl border border-[#9ec3ea] bg-white p-12 text-center">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#E6F1FB] text-[#2464a7]">
               <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="11" cy="11" r="7" />
                 <path d="m20 20-3.5-3.5" />
               </svg>
             </div>
-            <p className="text-base font-medium text-slate-700">No resources found</p>
-            <p className="mt-1 text-sm text-slate-500">Try adjusting the filters and search again.</p>
+            <p className="text-xl font-medium text-[#0f3d74] sm:text-2xl">No resources found</p>
           </div>
         )}
 
         {results.length > 0 && (
-          <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {results.map((resource) => (
               <ResourceCard key={resource.id} resource={resource} />
             ))}

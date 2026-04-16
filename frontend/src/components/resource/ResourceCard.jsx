@@ -1,34 +1,14 @@
 import React from 'react';
 
 const ResourceCard = ({ resource }) => {
-  const styleByType = {
-    LAB: {
-      stripe: 'from-blue-500 to-blue-400',
-      iconBg: 'bg-blue-100',
-      iconText: 'text-blue-600',
-      dot: 'bg-blue-500',
-    },
-    LECTURE_HALL: {
-      stripe: 'from-emerald-500 to-emerald-400',
-      iconBg: 'bg-emerald-100',
-      iconText: 'text-emerald-600',
-      dot: 'bg-emerald-500',
-    },
-    EQUIPMENT: {
-      stripe: 'from-amber-500 to-amber-400',
-      iconBg: 'bg-amber-100',
-      iconText: 'text-amber-600',
-      dot: 'bg-amber-500',
-    },
-    MEETING_ROOM: {
-      stripe: 'from-pink-500 to-pink-400',
-      iconBg: 'bg-pink-100',
-      iconText: 'text-pink-600',
-      dot: 'bg-pink-500',
-    },
+  const iconClassByType = {
+    LAB: 'text-[#2567AE]',
+    LECTURE_HALL: 'text-[#2E8B57]',
+    EQUIPMENT: 'text-[#9B6B00]',
+    MEETING_ROOM: 'text-[#A33A6B]',
   };
 
-  const typeStyle = styleByType[resource.type] || styleByType.LAB;
+  const iconClass = iconClassByType[resource.type] || 'text-[#2567AE]';
   const isActive = resource.status === 'ACTIVE';
 
   const renderTypeIcon = (type) => {
@@ -69,63 +49,30 @@ const ResourceCard = ({ resource }) => {
   };
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-[#D6E5F4] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
-      <div className={`h-1.5 bg-gradient-to-r ${typeStyle.stripe}`} />
-
-      <div className="p-5">
-        <div className="mb-4 flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${typeStyle.iconBg} ${typeStyle.iconText}`}>
+    <article className="rounded-2xl border border-[#9ec3ea] bg-white p-5 shadow-sm transition hover:shadow-md">
+      <div className="mb-4">
+        <div className={`flex h-11 w-11 items-center justify-center rounded-xl bg-[#E6F1FB] ${iconClass}`}>
               {renderTypeIcon(resource.type)}
-            </div>
-            <h3 className="text-lg font-bold text-slate-900">{resource.name}</h3>
-          </div>
-          <span
-            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-              isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
-            }`}
-          >
-            {resource.status}
-          </span>
         </div>
+      </div>
 
-        <div className="space-y-2.5 text-sm text-slate-600">
-          <div className="flex items-center gap-2">
-            <span className={`h-2.5 w-2.5 rounded-full ${typeStyle.dot}`} />
-            <span className="font-medium text-slate-500">Type:</span>
-            <span className="font-semibold text-slate-800">{resource.type}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#185FA5]" />
-            <span className="font-medium text-slate-500">Capacity:</span>
-            <span className="font-semibold text-slate-800">{resource.capacity}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#378ADD]" />
-            <span className="font-medium text-slate-500">Location:</span>
-            <span className="font-semibold text-slate-800">{resource.location}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#A8CBEA]" />
-            <span className="font-medium text-slate-500">Availability:</span>
-            <span className="font-semibold text-slate-800">
-              {resource.availabilityWindows || 'Not specified'}
-            </span>
-          </div>
-        </div>
+      <h3 className="mb-2 text-[32px] font-semibold text-[#0f3d74]">{resource.name}</h3>
 
-        <div className="mt-5 flex items-center justify-between border-t border-[#E6F1FB] pt-4">
-          <span
-            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-              isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
-            }`}
-          >
-            {resource.status}
-          </span>
-          <button className="rounded-lg bg-[#E6F1FB] px-3.5 py-1.5 text-xs font-semibold text-[#185FA5] transition hover:bg-[#d7e8f7]">
-            View Details
-          </button>
-        </div>
+      <div className="space-y-1.5 text-[28px] text-[#164f8d]">
+        <p>Type: {resource.type}</p>
+        <p>Capacity: {resource.capacity}</p>
+        <p>Location: {resource.location}</p>
+        {resource.availabilityWindows && <p>Availability: {resource.availabilityWindows}</p>}
+      </div>
+
+      <div className="mt-6">
+        <span
+          className={`inline-flex rounded-full px-4 py-1.5 text-[24px] font-semibold ${
+            isActive ? 'bg-[#dce7cf] text-[#447a2e]' : 'bg-[#f2dfdf] text-[#a34040]'
+          }`}
+        >
+          {resource.status}
+        </span>
       </div>
     </article>
   );
