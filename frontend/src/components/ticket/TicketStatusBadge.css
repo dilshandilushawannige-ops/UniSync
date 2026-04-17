@@ -1,0 +1,38 @@
+/* TicketStatusBadge.css */
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;       /* pill shape */
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Each status gets its own colour */
+
+.status-OPEN {
+  background-color: #dbeafe;  /* light blue */
+  color: #1d4ed8;
+}
+
+.status-IN_PROGRESS {
+  background-color: #fef9c3;  /* light yellow */
+  color: #a16207;
+}
+
+.status-RESOLVED {
+  background-color: #dcfce7;  /* light green */
+  color: #15803d;
+}
+
+.status-CLOSED {
+  background-color: #f3f4f6;  /* light grey */
+  color: #374151;
+}
+
+.status-REJECTED {
+  background-color: #fee2e2;  /* light red */
+  color: #b91c1c;
+}
