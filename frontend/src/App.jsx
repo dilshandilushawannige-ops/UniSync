@@ -7,11 +7,13 @@ import MyNotificationsPage from "./pages/user/MyNotificationsPage";
 import ProfilePage from "./pages/user/ProfilePage";
 import StudentDashboardPage from "./pages/user/StudentDashboardPage";
 import TicketDetailsPage from "./pages/user/TicketDetailsPage";
+import MyBookingsPage from "./pages/user/MyBookingsPage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import ManageNotificationsPage from "./pages/admin/ManageNotificationsPage";
 import ManageTicketsPage from "./pages/admin/ManageTicketsPage";
 import ManageUsersPage from "./pages/admin/ManageUsersPage";
 import TicketManagementDetailsPage from "./pages/admin/TicketManagementDetailsPage";
+import ManageBookingsPage from "./pages/admin/ManageBookingsPage";
 import TechnicianDashboardPage from "./pages/technician/TechnicianDashboardPage";
 import TechnicianProfilePage from "./pages/technician/TechnicianProfilePage";
 import AssignedTicketsPage from "./pages/technician/AssignedTicketsPage";
@@ -28,10 +30,14 @@ function App() {
         <Route path="/oauth-success" element={<OAuthSuccess />} />
         <Route path="/dashboard" element={<StudentDashboardPage />} />
         <Route path="/create-ticket" element={<CreateTicketPage />} />
+        <Route path="/booking" element={<MyBookingsPage />} />
+        <Route path="/resource-booking" element={<MyBookingsPage />} />
+        <Route path="/my-bookings" element={<MyBookingsPage />} />
+        <Route path="/admin/bookings" element={<ManageBookingsPage />} />
         <Route path="/my-tickets" element={<MyTicketsPage />} />
         <Route path="/my-notifications" element={<MyNotificationsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/resources" element={<StatusPage title="Resources" message="Student resources will appear here." />} />
+        <Route path="/resources" element={<MyBookingsPage />} />
         <Route path="/grades" element={<StatusPage title="View Grades" message="Grade access will appear here." />} />
         <Route path="/tickets/:id" element={<TicketDetailsPage />} />
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
