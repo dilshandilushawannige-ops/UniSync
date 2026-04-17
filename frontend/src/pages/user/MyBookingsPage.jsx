@@ -1,18 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Booking from "../../components/booking/Booking";
 import BookingStats from "../../components/booking/BookingStats";
 import BookingTable from "../../components/booking/BookingTable";
-import BookingTopBar from "../../components/booking/BookingTopBar";
 import { cancelBooking, createBooking, getMyBookings } from "../../services/bookingService";
 import "./BookingPage.css";
 
 function MyBookingsPage() {
-  const navigate = useNavigate();
   const currentUserId = 1;
   const currentUserName = "Demo Student";
-
-  const [showModal, setShowModal] = useState(false);
+  const [activeView, setActiveView] = useState("form");
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -93,43 +89,51 @@ function MyBookingsPage() {
   };
 
   return (
-    <div className="booking-site booking-page-light">
-      <BookingTopBar
-        isAdminView={false}
-        onBack={() => navigate(-1)}
-        onToggleView={() => navigate("/admin/bookings")}
-        onOpenModal={() => setShowModal(true)}
-        toggleLabel="Admin View"
-        showNewBooking={true}
-      />
-
+    <div className="booking-site booking-page-light booking-dashboard-shell">
       <div className="booking-page">
-        <div className="booking-page-header">
-          <div className="booking-page-title-wrap">
-            <h2 className="booking-page-title">My Bookings</h2>
-            <p className="booking-page-subtitle">Create requests and track your booking status.</p>
+        <h1 className="booking-page-main-title">Welcome to Student Dashboard</h1>
+
+        <div className="booking-panel-card">
+          <div className="booking-panel-header">
+            <div>
+              <h2 className="booking-panel-title">Resource Booking</h2>
+              <p className="booking-panel-subtitle">
+                Submit a booking request, then track approval and cancellation from your bookings list.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="booking-view-btn"
+              onClick={() => setActiveView((prev) => (prev === "form" ? "list" : "form"))}
+            >
+              {activeView === "form" ? "View My Bookings" : "Create Booking"}
+            </button>
           </div>
-          <div className="booking-page-chip">User Panel</div>
+
+          {activeView === "form" ? (
+            <Booking
+              isOpen={true}
+              onClose={() => {}}
+              onCreate={handleCreateBooking}
+              theme="light"
+              mode="inline"
+            />
+          ) : (
+            <>
+              <BookingStats stats={stats} />
+              {error && <p className="booking-page-error">{error}</p>}
+
+              <BookingTable
+                bookings={bookings}
+                loading={loading}
+                isAdminView={false}
+                onCancelBooking={handleCancelBooking}
+                onAdminStatusUpdate={() => {}}
+              />
+            </>
+          )}
         </div>
-
-        <BookingStats stats={stats} />
-        {error && <p className="booking-page-error">{error}</p>}
-
-        <BookingTable
-          bookings={bookings}
-          loading={loading}
-          isAdminView={false}
-          onCancelBooking={handleCancelBooking}
-          onAdminStatusUpdate={() => {}}
-        />
       </div>
-
-      <Booking
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onCreate={handleCreateBooking}
-        theme="light"
-      />
     </div>
   );
 }

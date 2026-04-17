@@ -1,12 +1,10 @@
 import "./Booking.css";
 import { useState } from "react";
 
-function Booking({ isOpen, onClose, onCreate, theme = "light" }) {
+function Booking({ isOpen, onClose, onCreate, theme = "light", mode = "modal" }) {
   const [formData, setFormData] = useState({
     resource: "",
     resourceType: "lab",
-    userId: "",
-    userName: "",
     date: "",
     startTime: "",
     endTime: "",
@@ -30,8 +28,6 @@ function Booking({ isOpen, onClose, onCreate, theme = "light" }) {
     setFormData({
       resource: "",
       resourceType: "lab",
-      userId: "",
-      userName: "",
       date: "",
       startTime: "",
       endTime: "",
@@ -41,7 +37,9 @@ function Booking({ isOpen, onClose, onCreate, theme = "light" }) {
       needsWhiteboard: false,
     });
     setError("");
-    onClose();
+    if (onClose) {
+      onClose();
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -57,8 +55,6 @@ function Booking({ isOpen, onClose, onCreate, theme = "light" }) {
       id: Date.now(),
       resource: formData.resource,
       resourceType: formData.resourceType,
-      userId: formData.userId,
-      userName: formData.userName,
       date: formData.date,
       startTime: formData.startTime,
       endTime: formData.endTime,
@@ -81,88 +77,64 @@ function Booking({ isOpen, onClose, onCreate, theme = "light" }) {
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen && mode !== "inline") return null;
 
-  return (
-    <section className="booking-modal-overlay">
-      <div className={`booking-modal booking-modal-${theme}`}>
+  const bookingContent = (
+    <div className={`booking-modal booking-modal-${theme} ${mode === "inline" ? "booking-inline" : ""}`}>
       <div className="booking-card">
         <div className="booking-header">
           <div>
-            <h2 className="booking-title">Create New Booking</h2>
-            <p className="booking-subtitle">Add all required details and submit your request.</p>
+            <h2 className="booking-title">Resource Booking</h2>
+            <p className="booking-subtitle">Fill all required details to submit your booking request.</p>
           </div>
-          <button className="booking-close-btn" type="button" aria-label="Close" onClick={handleCancel}>
-            x
-          </button>
+          {mode !== "inline" && (
+            <button className="booking-close-btn" type="button" aria-label="Close" onClick={handleCancel}>
+              x
+            </button>
+          )}
         </div>
 
         <form className="booking-form" onSubmit={handleSubmit}>
-          <label className="booking-label" htmlFor="resource">
-            Resource Name *
-          </label>
-          <input
-            className="booking-input"
-            id="resource"
-            name="resource"
-            type="text"
-            value={formData.resource}
-            onChange={handleChange}
-            placeholder="e.g. Computer Lab A"
-            required
-          />
-
-          <label className="booking-label" htmlFor="resourceType">
-            Resource Type *
-          </label>
-          <select
-            className="booking-input"
-            id="resourceType"
-            name="resourceType"
-            value={formData.resourceType}
-            onChange={handleChange}
-            required
-          >
-            <option value="lab">Lab</option>
-            <option value="lecture_hall">Lecture Hall</option>
-            <option value="meeting_room">Meeting Room</option>
-            <option value="equipment">Equipment</option>
-          </select>
-
-          <div className="booking-grid-two">
+          <div className="booking-grid-four">
             <div>
-              <label className="booking-label" htmlFor="userId">
-                User ID *
+              <label className="booking-label" htmlFor="resource">
+                Resource *
               </label>
-              <input
+              <select
                 className="booking-input"
-                id="userId"
-                name="userId"
-                type="text"
-                value={formData.userId}
+                id="resource"
+                name="resource"
+                value={formData.resource}
                 onChange={handleChange}
-                placeholder="e.g. STU001"
                 required
-              />
+              >
+                <option value="">Select resource</option>
+                <option value="Lab 1">Lab 1</option>
+                <option value="Lab 2">Lab 2</option>
+                <option value="Lecture Hall A">Lecture Hall A</option>
+                <option value="Meeting Room 2">Meeting Room 2</option>
+              </select>
             </div>
-            <div>
-              <label className="booking-label" htmlFor="userName">
-                User Name *
-              </label>
-              <input
-                className="booking-input"
-                id="userName"
-                name="userName"
-                type="text"
-                value={formData.userName}
-                onChange={handleChange}
-                placeholder="Full name"
-                required
-              />
-            </div>
-          </div>
 
-          <div className="booking-grid-three">
+            <div>
+              <label className="booking-label" htmlFor="resourceType">
+                Category *
+              </label>
+              <select
+                className="booking-input"
+                id="resourceType"
+                name="resourceType"
+                value={formData.resourceType}
+                onChange={handleChange}
+                required
+              >
+                <option value="lab">Lab</option>
+                <option value="lecture_hall">Lecture Hall</option>
+                <option value="meeting_room">Meeting Room</option>
+                <option value="equipment">Equipment</option>
+              </select>
+            </div>
+
             <div>
               <label className="booking-label" htmlFor="date">
                 Date *
@@ -177,6 +149,25 @@ function Booking({ isOpen, onClose, onCreate, theme = "light" }) {
                 required
               />
             </div>
+
+            <div>
+              <label className="booking-label" htmlFor="attendees">
+                Number of People
+              </label>
+              <input
+                className="booking-input"
+                id="attendees"
+                name="attendees"
+                type="number"
+                min="1"
+                value={formData.attendees}
+                onChange={handleChange}
+                placeholder="e.g. 25"
+              />
+            </div>
+          </div>
+
+          <div className="booking-grid-two">
             <div>
               <label className="booking-label" htmlFor="startTime">
                 Start Time *
@@ -207,36 +198,18 @@ function Booking({ isOpen, onClose, onCreate, theme = "light" }) {
             </div>
           </div>
 
-          <div className="booking-grid-two">
-            <div>
-              <label className="booking-label" htmlFor="purpose">
-                Purpose
-              </label>
-              <input
-                className="booking-input"
-                id="purpose"
-                name="purpose"
-                value={formData.purpose}
-                onChange={handleChange}
-                placeholder="What's this for?"
-              />
-            </div>
-            <div>
-              <label className="booking-label" htmlFor="attendees">
-                Expected Attendees
-              </label>
-              <input
-                className="booking-input"
-                id="attendees"
-                name="attendees"
-                type="number"
-                min="1"
-                value={formData.attendees}
-                onChange={handleChange}
-                placeholder="e.g. 1"
-              />
-            </div>
-          </div>
+          <label className="booking-label" htmlFor="purpose">
+            Purpose
+          </label>
+          <textarea
+            className="booking-input booking-textarea"
+            id="purpose"
+            name="purpose"
+            rows="4"
+            value={formData.purpose}
+            onChange={handleChange}
+            placeholder="Describe the purpose (lecture, meeting, event, etc.)"
+          />
 
           <div className="booking-options">
             <label className="booking-check">
@@ -260,20 +233,27 @@ function Booking({ isOpen, onClose, onCreate, theme = "light" }) {
           </div>
 
           <div className="booking-actions">
-            <button className="booking-cancel-btn" type="button" onClick={handleCancel}>
-              Cancel
-            </button>
+            {mode !== "inline" && (
+              <button className="booking-cancel-btn" type="button" onClick={handleCancel}>
+                Cancel
+              </button>
+            )}
             <button className="booking-submit-btn" type="submit">
-              {submitting ? "Creating..." : "Create Booking"}
+              {submitting ? "Submitting..." : "Submit Booking"}
             </button>
           </div>
 
           {error && <p className="booking-error">{error}</p>}
         </form>
       </div>
-      </div>
-    </section>
+    </div>
   );
+
+  if (mode === "inline") {
+    return bookingContent;
+  }
+
+  return <section className="booking-modal-overlay">{bookingContent}</section>;
 }
 
 export default Booking;
