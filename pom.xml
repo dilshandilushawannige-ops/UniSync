@@ -97,7 +97,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>3.5.13</version>
                 <configuration>
-                    <mainClass>com.smartcampus.UnisyncApplication</mainClass>
+                    <mainClass>com.smartcampus.unisync.UnisyncApplication</mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

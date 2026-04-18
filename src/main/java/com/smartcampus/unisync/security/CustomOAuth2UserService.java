@@ -31,24 +31,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         
         User user = userRepository.findByEmail(email)
                 .map(existingUser -> {
-                    // Update role for existing user based on email
-                    UserRole correctRole = determineRoleByEmail(email);
-                    System.out.println("Existing user found. Current role: " + existingUser.getRole() + ", Correct role: " + correctRole);
-                    if (existingUser.getRole() != correctRole) {
-                        existingUser.setRole(correctRole);
-                        System.out.println("Updating user role to: " + correctRole);
-                        return userRepository.save(existingUser);
-                    }
+                    // Use the role from database for existing users
+                    System.out.println("Existing user found with role: " + existingUser.getRole());
                     return existingUser;
                 })
                 .orElseGet(() -> {
-                    // Create new user with correct role
-                    UserRole correctRole = determineRoleByEmail(email);
-                    System.out.println("Creating new user with role: " + correctRole);
+                    // Create new user with default role (USER/student)
+                    System.out.println("Creating new user with default role: USER");
                     User newUser = new User();
                     newUser.setEmail(email);
                     newUser.setFullName(name != null ? name : email);
-                    newUser.setRole(correctRole);
+                    newUser.setRole(UserRole.USER); // Default role for new users
                     return userRepository.save(newUser);
                 });
         
@@ -56,23 +49,5 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         System.out.println("=========================");
         
         return new CustomUserPrincipal(user, oauth2User.getAttributes());
-    }
-    
-    private UserRole determineRoleByEmail(String email) {
-        if (email == null) {
-            return UserRole.USER;
-        }
-        
-        // Map specific emails to roles
-        switch (email.toLowerCase()) {
-            case "ravinduthathsara38@gmail.com":
-                return UserRole.ADMIN;
-            case "nithakshidishara2002@gmail.com":
-                return UserRole.TECHNICIAN;
-            case "ravinduthathsara47@gmail.com":
-                return UserRole.USER;
-            default:
-                return UserRole.USER; // Default role for other users
-        }
     }
 }
