@@ -13,17 +13,15 @@ const defaultFormData = {
 };
 
 const categoryOptions = [
-    "ELECTRICAL",
     "NETWORK",
-    "PROJECTOR",
-    "COMPUTER",
-    "AIR_CONDITIONING",
-    "FURNITURE",
+    "HARDWARE",
+    "SOFTWARE",
+    "FACILITY",
     "OTHER",
 ];
 
-const priorityOptions = ["LOW", "MEDIUM", "HIGH"];
-const contactOptions = ["EMAIL", "PHONE", "IN_APP"];
+const priorityOptions = ["LOW", "MEDIUM", "HIGH", "URGENT"];
+const contactOptions = ["EMAIL", "PHONE", "SMS"];
 
 function CreateTicketPage() {
     const navigate = useNavigate();
