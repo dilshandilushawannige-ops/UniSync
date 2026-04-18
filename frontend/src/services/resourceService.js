@@ -20,3 +20,15 @@ export const updateResourceStatus = (id, status) =>
   api.patch(`/resources/${id}/status`, null, {
     params: { status },
   });
+
+const resourceService = {
+  getAllResources,
+  getResourceById,
+  searchResources,
+  createResource,
+  updateResource,
+  deleteResource,
+  updateResourceStatus,
+};
+
+export default resourceService;
