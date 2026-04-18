@@ -71,12 +71,10 @@ function TicketForm({ userId, onSuccess }) {
         <label htmlFor="category">Category *</label>
         <select id="category" name="category" value={formData.category} onChange={handleChange} required>
           <option value="">Select a category</option>
-          <option value="ELECTRICAL">Electrical</option>
           <option value="NETWORK">Network</option>
-          <option value="PROJECTOR">Projector</option>
-          <option value="COMPUTER">Computer</option>
-          <option value="AIR_CONDITIONING">Air Conditioning</option>
-          <option value="FURNITURE">Furniture</option>
+          <option value="HARDWARE">Hardware</option>
+          <option value="SOFTWARE">Software</option>
+          <option value="FACILITY">Facility</option>
           <option value="OTHER">Other</option>
         </select>
       </div>
@@ -89,6 +87,7 @@ function TicketForm({ userId, onSuccess }) {
           <option value="LOW">Low</option>
           <option value="MEDIUM">Medium</option>
           <option value="HIGH">High</option>
+          <option value="URGENT">Urgent</option>
         </select>
       </div>
 
@@ -126,7 +125,7 @@ function TicketForm({ userId, onSuccess }) {
           <option value="">Select contact method</option>
           <option value="EMAIL">Email</option>
           <option value="PHONE">Phone</option>
-          <option value="IN_APP">In-App Notification</option>
+          <option value="SMS">SMS</option>
         </select>
       </div>
 
