@@ -1,0 +1,22 @@
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'http://localhost:8080/api',
+});
+
+export const getAllResources = () => api.get('/resources');
+
+export const getResourceById = (id) => api.get(`/resources/${id}`);
+
+export const searchResources = (params) => api.get('/resources/search', { params });
+
+export const createResource = (data) => api.post('/resources', data);
+
+export const updateResource = (id, data) => api.put(`/resources/${id}`, data);
+
+export const deleteResource = (id) => api.delete(`/resources/${id}`);
+
+export const updateResourceStatus = (id, status) =>
+  api.patch(`/resources/${id}/status`, null, {
+    params: { status },
+  });

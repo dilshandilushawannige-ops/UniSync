@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+﻿import { BrowserRouter, Route, Routes } from "react-router-dom";
 import CreateTicketPage from "./pages/user/CreateTicketPage";
 import HomePage from "./pages/user/HomePage";
 import LoginPage from "./pages/user/LoginPage";
@@ -20,6 +20,8 @@ import AssignedTicketsPage from "./pages/technician/AssignedTicketsPage";
 import TechnicianNotificationsPage from "./pages/technician/TechnicianNotificationsPage";
 import MaintenanceLogsPage from "./pages/technician/MaintenanceLogsPage";
 import OAuthSuccess from "./pages/OAuthSuccess";
+import BrowseResourcesPage from "./pages/user/BrowseResourcesPage";
+import ManageResourcesPage from "./pages/admin/ManageResourcesPage";
 
 function App() {
   return (
@@ -37,8 +39,7 @@ function App() {
         <Route path="/my-tickets" element={<MyTicketsPage />} />
         <Route path="/my-notifications" element={<MyNotificationsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/resources" element={<MyBookingsPage />} />
-        <Route path="/grades" element={<StatusPage title="View Grades" message="Grade access will appear here." />} />
+        <Route path="/resources" element={<BrowseResourcesPage />} />
         <Route path="/tickets/:id" element={<TicketDetailsPage />} />
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
         <Route path="/admin/profile" element={<StatusPage title="Admin Profile" message="Admin profile details will appear here." />} />
@@ -47,7 +48,7 @@ function App() {
         <Route path="/admin/tickets" element={<ManageTicketsPage />} />
         <Route path="/admin/tickets/:id" element={<TicketManagementDetailsPage />} />
         <Route path="/admin/bookings" element={<StatusPage title="Booking Management" message="Booking management tools will appear here." />} />
-        <Route path="/admin/resources" element={<StatusPage title="Resource Management" message="Resource management tools will appear here." />} />
+        <Route path="/admin/resources" element={<ManageResourcesPage />} />
         <Route path="/technician/dashboard" element={<TechnicianDashboardPage />} />
         <Route path="/technician/profile" element={<TechnicianProfilePage />} />
         <Route path="/technician/tickets" element={<AssignedTicketsPage />} />

@@ -1,12 +1,13 @@
-﻿package com.smartcampus.unisync;
+package com.smartcampus.smart_campus;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class UnisyncApplicationTests {
+class SmartCampusApplicationTests {
 
-    @Test
-    void contextLoads() {
-    }
+	@Test
+	void contextLoads() {
+	}
+
 }
