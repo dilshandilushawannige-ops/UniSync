@@ -1,33 +1,71 @@
 import { useEffect, useState } from "react";
 import TechnicianPortalLayout from "../../components/technician/TechnicianPortalLayout";
+import api from "../../services/api";
+import { jwtDecode } from "jwt-decode";
 
 function TechnicianDashboardPage() {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        // Simulate loading ticket statistics
-        setTimeout(() => {
-            setStats({
-                assigned: 12,
-                inProgress: 5,
-                completed: 28,
-                pending: 7
-            });
-            setLoading(false);
-        }, 1000);
+        fetchTicketStats();
     }, []);
+
+    const fetchTicketStats = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            // Get technician ID from JWT token
+            const token = localStorage.getItem("token");
+            if (!token) {
+                setError("No authentication token found");
+                setLoading(false);
+                return;
+            }
+
+            // Decode token to get user info
+            const decoded = jwtDecode(token);
+            const email = decoded.sub;
+
+            // First, get the user ID from email
+            const userResponse = await api.get(`/users/email/${email}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const technicianId = userResponse.data.id;
+
+            // Fetch tickets assigned to this technician
+            const response = await api.get(`/tickets/technician/${technicianId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            const tickets = response.data;
+
+            // Calculate statistics
+            const assigned = tickets.length;
+            const inProgress = tickets.filter(t => t.status === "IN_PROGRESS").length;
+            const completed = tickets.filter(t => t.status === "RESOLVED" || t.status === "CLOSED").length;
+            const pending = tickets.filter(t => t.status === "OPEN").length;
+
+            setStats({ assigned, inProgress, completed, pending });
+        } catch (err) {
+            console.error("Error fetching ticket statistics:", err);
+            setError(err.response?.data?.message || "Failed to load statistics");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <TechnicianPortalLayout title="Technician Dashboard">
             <div style={styles.welcomeSection}>
                 <h2 style={styles.welcomeText}>Welcome TECHNICIAN!!</h2>
-                <p style={styles.loadingText}>
-                    {loading ? "Loading ticket statistics..." : ""}
-                </p>
+                {loading && <p style={styles.loadingText}>Loading ticket statistics...</p>}
+                {error && <p style={styles.errorText}>{error}</p>}
             </div>
 
-            {!loading && stats && (
+            {!loading && !error && stats && (
                 <div style={styles.statsGrid}>
                     <div style={{ ...styles.statCard, ...styles.statCardBlue }}>
                         <div style={styles.statNumber}>{stats.assigned}</div>
@@ -63,6 +101,11 @@ const styles = {
     },
     loadingText: {
         color: "#64748b",
+        fontSize: "1rem",
+        margin: 0,
+    },
+    errorText: {
+        color: "#ef4444",
         fontSize: "1rem",
         margin: 0,
     },

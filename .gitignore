@@ -1,5 +1,7 @@
 ﻿HELP.md
 
+.env
+
 # Java / Spring
 *.class
 *.log

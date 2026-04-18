@@ -33,6 +33,14 @@ function AttachmentUpload({ ticketId, onUploadSuccess }) {
       return;
     }
 
+    // Validate: max 5MB per file
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    const oversizedFile = files.find((f) => f.size > maxSize);
+    if (oversizedFile) {
+      setError(`File "${oversizedFile.name}" is too large. Maximum size is 5MB.`);
+      return;
+    }
+
     setError("");
     setSelectedFiles(files);
   };
@@ -52,7 +60,9 @@ function AttachmentUpload({ ticketId, onUploadSuccess }) {
       setSelectedFiles([]); // clear selection
       onUploadSuccess();    // refresh the attachment preview list
     } catch (err) {
-      setError("Upload failed. Please try again.");
+      console.error("Upload error:", err);
+      const errorMessage = err.response?.data?.message || err.message || "Upload failed. Please try again.";
+      setError(errorMessage);
     } finally {
       setUploading(false);
     }
