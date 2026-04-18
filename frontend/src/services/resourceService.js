@@ -1,18 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-	baseURL: 'http://localhost:8080/api',
+  baseURL: 'http://localhost:8080/api',
 });
-
-const authHeader = {
-	Authorization: 'Basic ' + btoa('admin:admin123'),
-	'Content-Type': 'application/json',
-};
-
-api.defaults.headers.common = {
-	...api.defaults.headers.common,
-	...authHeader,
-};
 
 export const getAllResources = () => api.get('/resources');
 
@@ -27,18 +17,6 @@ export const updateResource = (id, data) => api.put(`/resources/${id}`, data);
 export const deleteResource = (id) => api.delete(`/resources/${id}`);
 
 export const updateResourceStatus = (id, status) =>
-	api.patch(`/resources/${id}/status`, null, {
-		params: { status },
-	});
-
-const resourceService = {
-	getAllResources,
-	getResourceById,
-	searchResources,
-	createResource,
-	updateResource,
-	deleteResource,
-	updateResourceStatus,
-};
-
-export default resourceService;
+  api.patch(`/resources/${id}/status`, null, {
+    params: { status },
+  });

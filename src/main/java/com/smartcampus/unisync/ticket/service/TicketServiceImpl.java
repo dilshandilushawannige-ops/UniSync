@@ -9,6 +9,7 @@ import com.smartcampus.unisync.ticket.dto.TicketStatusUpdateDto;
 import com.smartcampus.unisync.ticket.entity.Ticket;
 import com.smartcampus.unisync.ticket.repository.TicketRepository;
 import com.smartcampus.unisync.common.enums.ContactMethod;
+import com.smartcampus.unisync.common.enums.PriorityLevel;
 import com.smartcampus.unisync.user.entity.User;
 import com.smartcampus.unisync.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -44,9 +45,9 @@ public class TicketServiceImpl implements TicketService {
         ticket.setTitle(requestDto.getTitle());
         ticket.setCategory(requestDto.getCategory());
         ticket.setDescription(requestDto.getDescription());
-        ticket.setPriority(requestDto.getPriority());
+        ticket.setPriority(mapPriorityLevelToTicketPriority(requestDto.getPriority()));
         ticket.setLocation(requestDto.getLocation());
-        ticket.setPreferredContact(requestDto.getPreferredContact());
+        ticket.setPreferredContact(mapStringToContactMethod(requestDto.getPreferredContact()));
         ticket.setStatus(TicketStatus.OPEN); // Every new ticket starts as OPEN
         ticket.setReportedBy(reporter);
 
@@ -165,9 +166,9 @@ public class TicketServiceImpl implements TicketService {
         dto.setTitle(ticket.getTitle());
         dto.setCategory(ticket.getCategory());
         dto.setDescription(ticket.getDescription());
-        dto.setPriority(ticket.getPriority());
+        dto.setPriority(mapTicketPriorityToPriorityLevel(ticket.getPriority()));
         dto.setLocation(ticket.getLocation());
-        dto.setPreferredContact(ticket.getPreferredContact());
+        dto.setPreferredContact(ticket.getPreferredContact() != null ? ticket.getPreferredContact().name() : null);
         dto.setStatus(ticket.getStatus());
         dto.setResolutionNotes(ticket.getResolutionNotes());
         dto.setRejectedReason(ticket.getRejectedReason());
@@ -195,4 +196,44 @@ public class TicketServiceImpl implements TicketService {
         return dto;
     }
 
+    // Map PriorityLevel (DTO) -> TicketPriority (entity)
+    private com.smartcampus.unisync.common.enums.TicketPriority mapPriorityLevelToTicketPriority(
+            PriorityLevel priorityLevel
+    ) {
+        if (priorityLevel == null) {
+            return null;
+        }
+        return switch (priorityLevel) {
+            case LOW -> com.smartcampus.unisync.common.enums.TicketPriority.LOW;
+            case MEDIUM -> com.smartcampus.unisync.common.enums.TicketPriority.MEDIUM;
+            case HIGH -> com.smartcampus.unisync.common.enums.TicketPriority.HIGH;
+        };
+    }
+
+    // Map TicketPriority (entity) -> PriorityLevel (DTO)
+    private PriorityLevel mapTicketPriorityToPriorityLevel(
+            com.smartcampus.unisync.common.enums.TicketPriority ticketPriority
+    ) {
+        if (ticketPriority == null) {
+            return null;
+        }
+        return switch (ticketPriority) {
+            case LOW -> PriorityLevel.LOW;
+            case MEDIUM -> PriorityLevel.MEDIUM;
+            case HIGH, URGENT -> PriorityLevel.HIGH;
+        };
+    }
+
+    // Convert frontend string (e.g. "EMAIL") to ContactMethod enum
+    private ContactMethod mapStringToContactMethod(String preferredContact) {
+        if (preferredContact == null || preferredContact.isBlank()) {
+            return null;
+        }
+        try {
+            return ContactMethod.valueOf(preferredContact.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            // If frontend sends an unexpected value, ignore it instead of failing request
+            return null;
+        }
+    }
 }
