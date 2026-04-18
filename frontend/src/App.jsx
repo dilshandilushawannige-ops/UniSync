@@ -1,7 +1,8 @@
 ﻿import { BrowserRouter, Route, Routes } from "react-router-dom";
 import CreateTicketPage from "./pages/user/CreateTicketPage";
-import HomePage from "./pages/user/HomePage";
+import LandingPage from "./pages/HomePage";
 import LoginPage from "./pages/user/LoginPage";
+import "./pages/HomePage.css";
 import MyTicketsPage from "./pages/user/MyTicketsPage";
 import MyNotificationsPage from "./pages/user/MyNotificationsPage";
 import ProfilePage from "./pages/user/ProfilePage";
@@ -27,7 +28,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/oauth-success" element={<OAuthSuccess />} />
         <Route path="/dashboard" element={<StudentDashboardPage />} />
