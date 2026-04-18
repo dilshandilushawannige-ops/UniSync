@@ -1,4 +1,4 @@
-﻿import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import CreateTicketPage from "./pages/user/CreateTicketPage";
 import LandingPage from "./pages/HomePage";
 import LoginPage from "./pages/user/LoginPage";
@@ -41,6 +41,7 @@ function App() {
         <Route path="/my-notifications" element={<MyNotificationsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/resources" element={<BrowseResourcesPage />} />
+        <Route path="/grades" element={<StatusPage title="View Grades" message="Grade access will appear here." />} />
         <Route path="/tickets/:id" element={<TicketDetailsPage />} />
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
         <Route path="/admin/profile" element={<StatusPage title="Admin Profile" message="Admin profile details will appear here." />} />
