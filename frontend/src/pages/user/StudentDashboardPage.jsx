@@ -7,7 +7,7 @@ function StudentDashboardPage() {
             <section style={styles.card}>
                 <h2 style={styles.cardTitle}>Quick Actions</h2>
                 <p style={styles.cardText}>
-                    Welcome to your portal. Use the sidebar to publish tickets or view resources.
+                    Welcome to your portal. Use the sidebar to publish tickets or open resource booking.
                 </p>
 
                 <div style={styles.actionGrid}>
