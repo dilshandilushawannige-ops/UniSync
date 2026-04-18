@@ -24,10 +24,10 @@ function OAuthSuccess() {
 
         console.log("Role check:", role);
 
-        if (role === "ROLE_ADMIN") {
+        if (role === "admin") {
             console.log("Redirecting to Admin Dashboard");
             navigate("/admin/dashboard", { replace: true });
-        } else if (role === "ROLE_TECHNICIAN") {
+        } else if (role === "technician") {
             console.log("Redirecting to Technician Dashboard");
             navigate("/technician/dashboard", { replace: true });
         } else {
