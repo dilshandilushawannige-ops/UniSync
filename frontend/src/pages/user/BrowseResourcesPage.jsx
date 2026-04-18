@@ -17,6 +17,11 @@ const BrowseResourcesPage = () => {
   const [viewingResource, setViewingResource] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
 
+  // Get user role from localStorage
+  const storedUser = localStorage.getItem('user');
+  const currentUser = storedUser ? JSON.parse(storedUser) : null;
+  const isAdmin = currentUser?.role === 'ADMIN' || currentUser?.roles?.includes('ROLE_ADMIN');
+
   const showMessage = (type, text) => {
     setMessage({ type, text });
     window.setTimeout(() => {
@@ -224,16 +229,18 @@ const BrowseResourcesPage = () => {
 
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 pt-5 text-sm text-slate-600 sm:px-6 lg:px-8">
         <span>Facilities / Resources</span>
-        <button
-          type="button"
-          onClick={() => {
-            setEditingResource(null);
-            setIsAddResourceOpen(true);
-          }}
-          className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
-        >
-          + Add Resource
-        </button>
+        {isAdmin && (
+          <button
+            type="button"
+            onClick={() => {
+              setEditingResource(null);
+              setIsAddResourceOpen(true);
+            }}
+            className="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
+          >
+            + Add Resource
+          </button>
+        )}
       </div>
 
       {message.text ? (
@@ -380,29 +387,31 @@ const BrowseResourcesPage = () => {
                     </button>
                   </div>
 
-                  <div className="mt-3 flex items-center justify-end gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenEdit(resource)}
-                      className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteResource(resource.id)}
-                      className="rounded-lg border border-rose-200 px-2.5 py-1.5 text-rose-600 hover:bg-rose-50"
-                      aria-label="Delete resource"
-                    >
-                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M3 6h18" />
-                        <path d="M8 6V4h8v2" />
-                        <path d="M19 6l-1 14H6L5 6" />
-                        <path d="M10 11v6" />
-                        <path d="M14 11v6" />
-                      </svg>
-                    </button>
-                  </div>
+                  {isAdmin && (
+                    <div className="mt-3 flex items-center justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEdit(resource)}
+                        className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteResource(resource.id)}
+                        className="rounded-lg border border-rose-200 px-2.5 py-1.5 text-rose-600 hover:bg-rose-50"
+                        aria-label="Delete resource"
+                      >
+                        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M3 6h18" />
+                          <path d="M8 6V4h8v2" />
+                          <path d="M19 6l-1 14H6L5 6" />
+                          <path d="M10 11v6" />
+                          <path d="M14 11v6" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
                 </article>
               );
             })}
@@ -458,13 +467,15 @@ const BrowseResourcesPage = () => {
               >
                 Close
               </button>
-              <button
-                type="button"
-                onClick={handleActivateResource}
-                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
-              >
-                ACTIVATE
-              </button>
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={handleActivateResource}
+                  className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+                >
+                  ACTIVATE
+                </button>
+              )}
             </div>
           </div>
         </div>
