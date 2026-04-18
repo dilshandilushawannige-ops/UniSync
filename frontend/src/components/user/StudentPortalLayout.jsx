@@ -5,7 +5,7 @@ const sidebarItems = [
     { label: "Profile", path: "/profile", shortLabel: "P" },
     { label: "Notifications", path: "/my-notifications", shortLabel: "N" },
     { label: "Publish Ticket", path: "/create-ticket", shortLabel: "T" },
-    { label: "Resource Booking", path: "/resource-booking", shortLabel: "R" },
+    { label: "Resources", path: "/resources", shortLabel: "R" },
     { label: "View Grades", path: "/grades", shortLabel: "G" },
 ];
 
