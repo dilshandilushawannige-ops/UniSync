@@ -11,6 +11,7 @@ import TicketDetailsPage from "./pages/user/TicketDetailsPage";
 import MyBookingsPage from "./pages/user/MyBookingsPage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import ManageNotificationsPage from "./pages/admin/ManageNotificationsPage";
+import ManageAnnouncementsPage from "./pages/admin/ManageAnnouncementsPage";
 import ManageTicketsPage from "./pages/admin/ManageTicketsPage";
 import ManageUsersPage from "./pages/admin/ManageUsersPage";
 import TicketManagementDetailsPage from "./pages/admin/TicketManagementDetailsPage";
@@ -50,7 +51,7 @@ function App() {
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
         <Route path="/admin/profile" element={<StatusPage title="Admin Profile" message="Admin profile details will appear here." />} />
         <Route path="/admin/users" element={<ManageUsersPage />} />
-        <Route path="/admin/notifications" element={<ManageNotificationsPage />} />
+        <Route path="/admin/notifications" element={<ManageAnnouncementsPage />} />
         <Route path="/admin/tickets" element={<ManageTicketsPage />} />
         <Route path="/admin/tickets/:id" element={<TicketManagementDetailsPage />} />
         <Route path="/admin/bookings" element={<StatusPage title="Booking Management" message="Booking management tools will appear here." />} />
