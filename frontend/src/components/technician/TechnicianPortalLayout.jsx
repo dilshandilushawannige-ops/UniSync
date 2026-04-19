@@ -1,38 +1,20 @@
 import { Link, NavLink } from "react-router-dom";
 
 const sidebarItems = [
-    { label: "Dashboard Home", path: "/technician/dashboard", icon: "🏠" },
+    { label: "Technician Dashboard", path: "/technician/dashboard", icon: "📊" },
+    { label: "Assign Ticket", path: "/technician/tickets", icon: "🎫" },
+    { label: "In Progress", path: "/technician/in-progress", icon: "⏳" },
+    { label: "Result", path: "/technician/logs", icon: "✅" },
+    { label: "Notification", path: "/technician/notifications", icon: "🔔" },
     { label: "Profile", path: "/technician/profile", icon: "👤" },
-    { label: "Assigned Tickets", path: "/technician/tickets", icon: "🎫" },
-    { label: "Technician Notifications", path: "/technician/notifications", icon: "🔔" },
-    { label: "Maintenance Logs", path: "/technician/logs", icon: "🔧" },
 ];
 
 function TechnicianPortalLayout({ title, children }) {
     return (
         <div style={styles.page}>
-            <header style={styles.header}>
-                <div style={styles.logoWrap}>
-                    <span style={styles.logoMark} />
-                    <span style={styles.logoText}>UniSync</span>
-                </div>
-
-                <nav style={styles.topNav}>
-                    <Link to="/" style={styles.topLink}>Home</Link>
-                    <a href="#services" style={styles.topLink}>Services</a>
-                    <a href="#achievements" style={styles.topLink}>Achievements</a>
-                    <a href="#about" style={styles.topLink}>About Us</a>
-                    <a href="#contact" style={styles.topLink}>Contact</a>
-                    <NavLink to="/technician/dashboard" style={({ isActive }) => ({ ...styles.topLink, ...(isActive ? styles.topLinkActive : {}) })}>
-                        Dashboard
-                    </NavLink>
-                    <Link to="/login" style={styles.logoutButton}>Logout</Link>
-                </nav>
-            </header>
-
             <div style={styles.contentShell}>
                 <aside style={styles.sidebar}>
-                    <div style={styles.sidebarTitle}>Campus Portal</div>
+                    <div style={styles.sidebarTitle}>Technician Portal</div>
                     <div style={styles.sidebarList}>
                         {sidebarItems.map((item) => (
                             <NavLink
@@ -47,6 +29,12 @@ function TechnicianPortalLayout({ title, children }) {
                                 <span>{item.label}</span>
                             </NavLink>
                         ))}
+                    </div>
+                    <div style={styles.sidebarFooter}>
+                        <Link to="/login" style={styles.logoutLink}>
+                            <span style={styles.sidebarIcon}>🚪</span>
+                            <span>Logout</span>
+                        </Link>
                     </div>
                 </aside>
 
@@ -64,100 +52,77 @@ const styles = {
         minHeight: "100vh",
         backgroundColor: "#f8fafc",
     },
-    header: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: "24px",
-        padding: "14px 28px",
-        borderBottom: "1px solid #e2e8f0",
-        backgroundColor: "#ffffff",
-    },
-    logoWrap: {
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-    },
-    logoMark: {
-        width: "22px",
-        height: "22px",
-        borderRadius: "6px",
-        background: "linear-gradient(135deg, #f59e0b 0%, #2563eb 100%)",
-    },
-    logoText: {
-        fontSize: "1rem",
-        fontWeight: 800,
-        color: "#1e3a8a",
-        letterSpacing: "-0.02em",
-    },
-    topNav: {
-        display: "flex",
-        alignItems: "center",
-        gap: "18px",
-        flexWrap: "wrap",
-        justifyContent: "flex-end",
-    },
-    topLink: {
-        textDecoration: "none",
-        color: "#475569",
-        fontSize: "0.92rem",
-        fontWeight: 600,
-    },
-    topLinkActive: {
-        color: "#1e3a8a",
-    },
-    logoutButton: {
-        textDecoration: "none",
-        padding: "10px 18px",
-        borderRadius: "999px",
-        backgroundColor: "#fee2e2",
-        color: "#dc2626",
-        fontWeight: 700,
-    },
     contentShell: {
         display: "flex",
-        minHeight: "calc(100vh - 70px)",
+        minHeight: "100vh",
     },
     sidebar: {
-        width: "260px",
-        backgroundColor: "#2c3e50",
-        color: "#ffffff",
+        width: "280px",
+        backgroundColor: "#f8f9fa",
+        color: "#495057",
         padding: "24px 16px",
         boxSizing: "border-box",
+        borderRight: "1px solid #e9ecef",
+        display: "flex",
+        flexDirection: "column",
     },
     sidebarTitle: {
-        marginBottom: "18px",
+        marginBottom: "24px",
         paddingBottom: "16px",
-        borderBottom: "1px solid rgba(255,255,255,0.12)",
-        fontWeight: 800,
-        color: "#3498db",
+        borderBottom: "1px solid #dee2e6",
+        fontWeight: 700,
+        color: "#212529",
         textAlign: "left",
+        fontSize: "1.1rem",
     },
     sidebarList: {
         display: "flex",
         flexDirection: "column",
-        gap: "8px",
+        gap: "6px",
+        flex: 1,
     },
     sidebarLink: {
         display: "flex",
         alignItems: "center",
-        gap: "12px",
+        gap: "14px",
         textDecoration: "none",
-        color: "#ecf0f1",
-        padding: "12px 14px",
-        borderRadius: "8px",
-        fontWeight: 600,
+        color: "#6c757d",
+        padding: "14px 16px",
+        borderRadius: "10px",
+        fontWeight: 500,
         textAlign: "left",
         transition: "all 0.2s ease",
     },
     sidebarLinkActive: {
-        backgroundColor: "#3498db",
-        color: "#ffffff",
-        boxShadow: "0 4px 12px rgba(52, 152, 219, 0.3)",
+        backgroundColor: "#e7f1ff",
+        color: "#0d6efd",
+        fontWeight: 600,
     },
     sidebarIcon: {
+        width: "24px",
+        height: "24px",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
         fontSize: "1.2rem",
         flexShrink: 0,
+    },
+    sidebarFooter: {
+        marginTop: "auto",
+        paddingTop: "16px",
+        borderTop: "1px solid #dee2e6",
+    },
+    logoutLink: {
+        display: "flex",
+        alignItems: "center",
+        gap: "14px",
+        textDecoration: "none",
+        color: "#dc3545",
+        padding: "14px 16px",
+        borderRadius: "10px",
+        fontWeight: 500,
+        textAlign: "left",
+        transition: "all 0.2s ease",
     },
     main: {
         flex: 1,
