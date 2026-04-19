@@ -1,8 +1,8 @@
 ﻿import { BrowserRouter, Route, Routes } from "react-router-dom";
 import StatusPage from "./components/StatusPage";
-import LandingPage from "./pages/LandingPage";
-import LoginPage from "./pages/LoginPage";
-import OAuthSuccessModernPage from "./pages/OAuthSuccessModernPage";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/user/LoginPage";
+import OAuthSuccess from "./pages/OAuthSuccess";
 import AdminDashboardModernPage from "./pages/admin/AdminDashboardModernPage";
 import AdminProfileModernPage from "./pages/admin/AdminProfileModernPage";
 import ManageBookingsModernPage from "./pages/admin/ManageBookingsModernPage";
@@ -29,9 +29,9 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/oauth-success" element={<OAuthSuccessModernPage />} />
+        <Route path="/oauth-success" element={<OAuthSuccess />} />
 
         <Route path="/dashboard" element={<StudentDashboardModernPage />} />
         <Route path="/create-ticket" element={<CreateTicketModernPage />} />

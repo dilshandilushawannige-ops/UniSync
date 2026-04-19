@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import './HomePage.css';
 import heroImage from '../assets/hero.png';
 import arrow1 from '../assets/arrow1.png';
 import schoolGroupNarrow from '../assets/school-group-narrow.png';

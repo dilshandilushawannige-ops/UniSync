@@ -3,6 +3,7 @@ package com.smartcampus.unisync.security;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -14,6 +15,12 @@ import java.nio.charset.StandardCharsets;
 
 @Component
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
+    private final String frontendBaseUrl;
+
+    public OAuth2LoginSuccessHandler(@Value("${app.frontend-base-url:http://localhost:5173}") String frontendBaseUrl) {
+        this.frontendBaseUrl = frontendBaseUrl;
+    }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -51,7 +58,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8);
         String encodedRole = URLEncoder.encode(frontendRole, StandardCharsets.UTF_8);
 
-        String targetUrl = "http://localhost:5173/oauth-success?token=" + encodedToken + "&role=" + encodedRole;
+        String normalizedFrontendBaseUrl = frontendBaseUrl.replaceAll("/+$", "");
+        String targetUrl = normalizedFrontendBaseUrl + "/oauth-success?token=" + encodedToken + "&role=" + encodedRole;
 
         System.out.println("Mapped frontend role: " + frontendRole);
         System.out.println("Redirecting to: " + targetUrl);

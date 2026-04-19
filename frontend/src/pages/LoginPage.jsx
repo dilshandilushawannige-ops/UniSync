@@ -3,8 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 
 function LoginPage() {
   const navigate = useNavigate();
+  const fallbackApiBaseUrl = `${window.location.protocol}//${window.location.hostname}:8081`;
+  const backendBaseUrl = (import.meta.env.VITE_API_BASE_URL || fallbackApiBaseUrl).replace(/\/$/, '');
+  const googleOAuthUrl = `${backendBaseUrl}/oauth2/authorization/google`;
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
+  const [isRedirectingGoogle, setIsRedirectingGoogle] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -22,6 +26,16 @@ function LoginPage() {
     }
   };
 
+  const handleGoogleLogin = () => {
+    setIsRedirectingGoogle(true);
+    if (window.self !== window.top) {
+      window.open(googleOAuthUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    window.location.assign(googleOAuthUrl);
+  };
+
   return (
     <div className="public-shell page-shell" style={styles.wrap}>
       <form onSubmit={handleSubmit} className="glass-card" style={styles.form}>
@@ -37,6 +51,15 @@ function LoginPage() {
         {errors.password ? <p className="form-error">{errors.password}</p> : null}
 
         <button className="btn btn-primary" style={styles.submit} type="submit">Sign In</button>
+        <button
+          className="btn"
+          style={styles.oauthButton}
+          type="button"
+          onClick={handleGoogleLogin}
+          disabled={isRedirectingGoogle}
+        >
+          {isRedirectingGoogle ? 'Redirecting...' : 'Continue with Google'}
+        </button>
         <Link style={styles.backLink} to="/">Back to Home</Link>
       </form>
     </div>
@@ -71,6 +94,16 @@ const styles = {
   submit: {
     width: '100%',
     marginTop: '1rem',
+  },
+  oauthButton: {
+    width: '100%',
+    marginTop: '0.6rem',
+    border: '1px solid #cbd5e1',
+    backgroundColor: '#ffffff',
+    color: '#0f172a',
+    borderRadius: '10px',
+    padding: '0.65rem 0.9rem',
+    cursor: 'pointer',
   },
   backLink: {
     display: 'inline-block',

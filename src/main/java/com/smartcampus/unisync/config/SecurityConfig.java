@@ -2,11 +2,8 @@ package com.smartcampus.unisync.config;
 
 import com.smartcampus.unisync.security.CustomOAuth2UserService;
 import com.smartcampus.unisync.security.OAuth2LoginSuccessHandler;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
@@ -14,16 +11,18 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 public class SecurityConfig {
 
-        @Autowired(required = false)
-        private CustomOAuth2UserService customOAuth2UserService;
-        
-        @Autowired(required = false)
-        private OAuth2LoginSuccessHandler successHandler;
+        private final CustomOAuth2UserService customOAuth2UserService;
+        private final OAuth2LoginSuccessHandler successHandler;
+
+        public SecurityConfig(CustomOAuth2UserService customOAuth2UserService,
+                        OAuth2LoginSuccessHandler successHandler) {
+                this.customOAuth2UserService = customOAuth2UserService;
+                this.successHandler = successHandler;
+        }
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -31,15 +30,15 @@ public class SecurityConfig {
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .csrf(csrf -> csrf.disable())
                                 .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/oauth2/**", "/login/oauth2/**", "/error").permitAll()
                                                 .anyRequest().permitAll()); // Allow all requests for development
-                
-                // Only configure OAuth2 if the beans are available
-                if (customOAuth2UserService != null && successHandler != null) {
-                        http.oauth2Login(oauth -> oauth
-                                        .userInfoEndpoint(userInfo -> userInfo
-                                                        .userService(customOAuth2UserService))
-                                        .successHandler(successHandler));
-                }
+
+                http.oauth2Login(oauth -> oauth
+                                .authorizationEndpoint(endpoint -> endpoint.baseUri("/oauth2/authorization"))
+                                .redirectionEndpoint(endpoint -> endpoint.baseUri("/login/oauth2/code/*"))
+                                .userInfoEndpoint(userInfo -> userInfo
+                                                .userService(customOAuth2UserService))
+                                .successHandler(successHandler));
 
                 return http.build();
         }
