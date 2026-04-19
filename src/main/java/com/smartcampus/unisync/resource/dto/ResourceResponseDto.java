@@ -3,6 +3,7 @@ package com.smartcampus.unisync.resource.dto;
 import com.smartcampus.unisync.common.enums.ResourceStatus;
 import com.smartcampus.unisync.common.enums.ResourceType;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,7 +27,9 @@ public class ResourceResponseDto {
 
     private String description;
 
-    private String availabilityWindows;
+    private LocalTime availableFrom;
+
+    private LocalTime availableTo;
 
     private String visibleTo;
 

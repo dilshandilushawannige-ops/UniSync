@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalTime;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,7 +43,9 @@ public class Resource {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private String availabilityWindows;
+    private LocalTime availableFrom;
+
+    private LocalTime availableTo;
 
     @Builder.Default
     private String visibleTo = "ALL";

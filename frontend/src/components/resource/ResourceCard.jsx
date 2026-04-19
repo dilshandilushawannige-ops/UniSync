@@ -56,9 +56,9 @@ const ResourceCard = ({ resource, onViewDetails, onBookNow }) => {
         </div>
       </div>
 
-      <h3 className="mb-2 text-[32px] font-semibold text-[#0f3d74]">{resource.name}</h3>
+      <h3 className="mb-2 text-sm font-semibold text-[#0f3d74]">{resource.name}</h3>
 
-      <div className="space-y-1.5 text-[28px] text-[#164f8d]">
+      <div className="space-y-1.5 text-xs text-[#164f8d]">
         <p>Type: {resource.type}</p>
         <p>Capacity: {resource.capacity}</p>
         <p>Location: {resource.location}</p>

@@ -21,17 +21,11 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     public ResourceResponseDto createResource(ResourceRequestDto dto) {
-        Resource resource = Resource.builder()
-                .name(dto.getName())
-                .type(dto.getType())
-                .capacity(dto.getCapacity())
-                .location(dto.getLocation())
-                .description(dto.getDescription())
-                .availabilityWindows(dto.getAvailabilityWindows())
-                .visibleTo(dto.getVisibleTo() != null ? dto.getVisibleTo() : "ALL")
-                .assignedUsers(dto.getAssignedUsers())
-                .status(dto.getStatus() != null ? dto.getStatus() : ResourceStatus.ACTIVE)
-                .build();
+        Resource resource = new Resource();
+        mapDtoToEntity(dto, resource);
+        if (resource.getStatus() == null) {
+            resource.setStatus(ResourceStatus.ACTIVE);
+        }
 
         Resource savedResource = resourceRepository.save(resource);
         return mapToResponseDto(savedResource);
@@ -65,19 +59,7 @@ public class ResourceServiceImpl implements ResourceService {
         Resource resource = resourceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Resource not found with ID: " + id));
 
-        resource.setName(dto.getName());
-        resource.setType(dto.getType());
-        resource.setCapacity(dto.getCapacity());
-        resource.setLocation(dto.getLocation());
-        resource.setDescription(dto.getDescription());
-        resource.setAvailabilityWindows(dto.getAvailabilityWindows());
-        if (dto.getVisibleTo() != null) {
-            resource.setVisibleTo(dto.getVisibleTo());
-        }
-        resource.setAssignedUsers(dto.getAssignedUsers());
-        if (dto.getStatus() != null) {
-            resource.setStatus(dto.getStatus());
-        }
+        mapDtoToEntity(dto, resource);
 
         Resource updatedResource = resourceRepository.save(resource);
         return mapToResponseDto(updatedResource);
@@ -120,7 +102,8 @@ public class ResourceServiceImpl implements ResourceService {
                 .capacity(resource.getCapacity())
                 .location(resource.getLocation())
                 .description(resource.getDescription())
-                .availabilityWindows(resource.getAvailabilityWindows())
+                .availableFrom(resource.getAvailableFrom())
+                .availableTo(resource.getAvailableTo())
                 .visibleTo(resource.getVisibleTo())
                 .assignedUsers(resource.getAssignedUsers())
                 .status(resource.getStatus())
@@ -129,8 +112,31 @@ public class ResourceServiceImpl implements ResourceService {
                 .build();
     }
 
+    private void mapDtoToEntity(ResourceRequestDto dto, Resource resource) {
+        resource.setName(dto.getName());
+        resource.setType(dto.getType());
+        resource.setCapacity(dto.getCapacity());
+        resource.setLocation(dto.getLocation());
+        resource.setDescription(dto.getDescription());
+        resource.setAvailableFrom(dto.getAvailableFrom());
+        resource.setAvailableTo(dto.getAvailableTo());
+        resource.setVisibleTo(normalizeVisibleTo(dto.getVisibleTo()));
+        resource.setAssignedUsers(dto.getAssignedUsers());
+        if (dto.getStatus() != null) {
+            resource.setStatus(dto.getStatus());
+        }
+    }
+
     private boolean isVisibleToAll(Resource resource) {
-        return "ALL".equalsIgnoreCase(resource.getVisibleTo());
+        return normalizeVisibleTo(resource.getVisibleTo()).equalsIgnoreCase("ALL");
+    }
+
+    private String normalizeVisibleTo(String visibleTo) {
+        if (visibleTo == null || visibleTo.isBlank()) {
+            return "ALL";
+        }
+
+        return visibleTo.trim().toUpperCase();
     }
 
     private boolean isAssignedToUser(Resource resource, Long userId) {
