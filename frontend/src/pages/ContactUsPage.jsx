@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import sliit1Background from '../assets/sliit1.png';
 import './ContactUsPage.css';
 
 const ContactUsPage = () => {
@@ -32,7 +33,7 @@ const ContactUsPage = () => {
             <Navbar />
 
             {/* Hero Section */}
-            <section className="contact-hero">
+            <section className="contact-hero" style={{ backgroundImage: `url(${sliit1Background})` }}>
                 <div className="contact-hero-content">
                     <div className="hero-badge">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
