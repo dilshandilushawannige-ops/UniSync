@@ -25,7 +25,7 @@ function TicketDetailsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   // Get userId from localStorage (set during OAuth login)
-  const currentUserId = localStorage.getItem("userId");
+  const currentUserId = Number(localStorage.getItem("userId"));
 
   useEffect(() => {
     const fetchTicket = async () => {
