@@ -6,6 +6,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -81,6 +82,24 @@ public class GlobalExceptionHandler {
         error.put("timestamp", LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Handle missing static/resource paths
+    // Triggered when: requesting an unmapped path (e.g., GET /)
+    // Returns: 404 Not Found instead of generic 500
+    // ─────────────────────────────────────────────────────────
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNoResourceFoundException(
+            NoResourceFoundException ex
+    ) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("status", 404);
+        error.put("error", "Not Found");
+        error.put("message", ex.getMessage());
+        error.put("timestamp", LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     // ─────────────────────────────────────────────────────────
