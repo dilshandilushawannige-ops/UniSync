@@ -1,13 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './AnnouncementForm.css';
 
-function AnnouncementForm({ isOpen, onClose, onSubmit }) {
+function AnnouncementForm({ isOpen, onClose, onSubmit, editData }) {
     const [formData, setFormData] = useState({
         title: '',
         message: '',
         targetRoles: [],
         priority: 'NORMAL'
     });
+
+    useEffect(() => {
+        if (editData) {
+            setFormData({
+                title: editData.title,
+                message: editData.message,
+                targetRoles: editData.target,
+                priority: editData.priority
+            });
+        } else {
+            setFormData({
+                title: '',
+                message: '',
+                targetRoles: [],
+                priority: 'NORMAL'
+            });
+        }
+    }, [editData, isOpen]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -58,7 +76,7 @@ function AnnouncementForm({ isOpen, onClose, onSubmit }) {
                 <div className="modal-header-announcement">
                     <div className="modal-header-content">
                         <span className="modal-badge">ADMIN ANNOUNCEMENT CENTER</span>
-                        <h2 className="modal-title">Create Announcement</h2>
+                        <h2 className="modal-title">{editData ? 'Update Announcement' : 'Create Announcement'}</h2>
                         <p className="modal-subtitle">Send system-wide or role-based announcements to users through notifications.</p>
                     </div>
                     <button className="btn-close-announcement" onClick={handleClose}>
@@ -161,7 +179,7 @@ function AnnouncementForm({ isOpen, onClose, onSubmit }) {
 
                     <div className="form-actions-announcement">
                         <button type="submit" className="btn-create-announcement-submit">
-                            Create Announcement
+                            {editData ? 'Update Announcement' : 'Create Announcement'}
                         </button>
                         <button type="button" className="btn-cancel-announcement" onClick={handleClose}>
                             Cancel

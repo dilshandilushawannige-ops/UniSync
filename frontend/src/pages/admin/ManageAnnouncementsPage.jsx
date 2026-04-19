@@ -1,77 +1,82 @@
 import { useState } from 'react';
 import AdminPortalLayout from '../../components/admin/AdminPortalLayout';
 import AnnouncementForm from '../../components/announcement/AnnouncementForm';
+import { useAnnouncements } from '../../context/AnnouncementContext';
 import './ManageAnnouncementsPage.css';
 
 function ManageAnnouncementsPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [targetRole, setTargetRole] = useState('ALL');
     const [isFormOpen, setIsFormOpen] = useState(false);
+    const [editingAnnouncement, setEditingAnnouncement] = useState(null);
 
-    // Sample data - replace with actual API call
-    const [announcements] = useState([
-        {
-            id: 6,
-            title: 'mid exam is postponed',
-            message: 'It will announce later within website.',
-            target: ['STUDENT', 'LECTURER'],
-            priority: 'IMPORTANT',
-            status: 'ACTIVE',
-            createdAt: '4/11/2026, 1:13:05 PM'
-        },
-        {
-            id: 5,
-            title: 'Lectures canceled',
-            message: 'Due to the aluth awrudda this week lectures are cancelled',
-            target: ['LECTURER', 'STUDENT'],
-            priority: 'NORMAL',
-            status: 'ACTIVE',
-            createdAt: '4/9/2026, 11:50:35 PM'
-        },
-        {
-            id: 3,
-            title: 'Library is closed',
-            message: 'Due to the Aluth Awrudda Library is closed on April 13th and 14th',
-            target: ['ALL'],
-            priority: 'NORMAL',
-            status: 'INACTIVE',
-            createdAt: '4/9/2026, 11:29:55 PM'
-        }
-    ]);
+    const { announcements, addAnnouncement, updateAnnouncement, deleteAnnouncement } = useAnnouncements();
 
     const stats = {
-        total: 3,
-        active: 2,
-        important: 1,
-        forAll: 1
+        total: announcements.length,
+        active: announcements.filter(a => a.status === 'ACTIVE').length,
+        important: announcements.filter(a => a.priority === 'IMPORTANT').length,
+        forAll: announcements.filter(a => a.target.includes('ALL')).length
     };
 
     const handleEdit = (id) => {
-        console.log('Edit announcement:', id);
-        // TODO: Implement edit functionality
+        const announcement = announcements.find(a => a.id === id);
+        if (announcement) {
+            setEditingAnnouncement(announcement);
+            setIsFormOpen(true);
+        }
     };
 
     const handleDelete = (id) => {
-        console.log('Delete announcement:', id);
-        // TODO: Implement delete functionality
+        if (window.confirm('Are you sure you want to delete this announcement?')) {
+            deleteAnnouncement(id);
+            alert('Announcement deleted successfully!');
+        }
     };
 
     const handleCreateAnnouncement = () => {
+        setEditingAnnouncement(null);
         setIsFormOpen(true);
     };
 
     const handleFormSubmit = (newAnnouncement) => {
-        console.log('New announcement:', newAnnouncement);
-        // TODO: Add API call to save announcement
-        alert('Announcement created successfully!');
+        if (editingAnnouncement) {
+            // Update existing announcement
+            updateAnnouncement(editingAnnouncement.id, {
+                title: newAnnouncement.title,
+                message: newAnnouncement.message,
+                target: newAnnouncement.targetRoles,
+                priority: newAnnouncement.priority,
+                status: newAnnouncement.status
+            });
+            alert('Announcement updated successfully!');
+        } else {
+            // Create new announcement
+            const announcement = {
+                id: Date.now(),
+                title: newAnnouncement.title,
+                message: newAnnouncement.message,
+                target: newAnnouncement.targetRoles,
+                priority: newAnnouncement.priority,
+                status: newAnnouncement.status,
+                createdAt: newAnnouncement.createdAt
+            };
+            addAnnouncement(announcement);
+            alert('Announcement created successfully!');
+        }
+        setEditingAnnouncement(null);
     };
 
     return (
         <AdminPortalLayout>
             <AnnouncementForm
                 isOpen={isFormOpen}
-                onClose={() => setIsFormOpen(false)}
+                onClose={() => {
+                    setIsFormOpen(false);
+                    setEditingAnnouncement(null);
+                }}
                 onSubmit={handleFormSubmit}
+                editData={editingAnnouncement}
             />
             <div className="announcements-page">
                 {/* Header Section */}
@@ -176,78 +181,92 @@ function ManageAnnouncementsPage() {
 
                 {/* Announcements Table */}
                 <div className="announcements-table-container">
-                    <table className="announcements-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>TITLE</th>
-                                <th>TARGET</th>
-                                <th>PRIORITY</th>
-                                <th>STATUS</th>
-                                <th>CREATED</th>
-                                <th>ACTIONS</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {announcements.map((announcement) => (
-                                <tr key={announcement.id}>
-                                    <td>{announcement.id}</td>
-                                    <td>
-                                        <div className="announcement-title-cell">
-                                            <div className="announcement-title">{announcement.title}</div>
-                                            <div className="announcement-message">{announcement.message}</div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div className="target-roles">
-                                            {announcement.target.length === 1 && announcement.target[0] === 'ALL' ? (
-                                                <div className="role-badge-group">
-                                                    <span className="role-label">ALL USERS</span>
-                                                    <span className="role-badge all">ALL</span>
-                                                </div>
-                                            ) : (
-                                                <div className="role-badge-group">
-                                                    <span className="role-label">{announcement.target.length} ROLES</span>
-                                                    {announcement.target.map((role, idx) => (
-                                                        <span key={idx} className={`role-badge ${role.toLowerCase()}`}>
-                                                            {role}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span className={`priority-badge ${announcement.priority.toLowerCase()}`}>
-                                            {announcement.priority}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span className={`status-badge ${announcement.status.toLowerCase()}`}>
-                                            {announcement.status}
-                                        </span>
-                                    </td>
-                                    <td className="created-date">{announcement.createdAt}</td>
-                                    <td>
-                                        <div className="action-buttons">
-                                            <button
-                                                className="btn-action edit"
-                                                onClick={() => handleEdit(announcement.id)}
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                className="btn-action delete"
-                                                onClick={() => handleDelete(announcement.id)}
-                                            >
-                                                Delete
-                                            </button>
-                                        </div>
-                                    </td>
+                    {announcements.length === 0 ? (
+                        <div style={{ padding: '60px 20px', textAlign: 'center' }}>
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="2" style={{ margin: '0 auto 20px' }}>
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                            </svg>
+                            <h3 style={{ color: '#64748b', marginBottom: '8px' }}>No Announcements Yet</h3>
+                            <p style={{ color: '#94a3b8', marginBottom: '24px' }}>Create your first announcement to notify users</p>
+                            <button className="btn-create-announcement" onClick={handleCreateAnnouncement}>
+                                Create Announcement
+                            </button>
+                        </div>
+                    ) : (
+                        <table className="announcements-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>TITLE</th>
+                                    <th>TARGET</th>
+                                    <th>PRIORITY</th>
+                                    <th>STATUS</th>
+                                    <th>CREATED</th>
+                                    <th>ACTIONS</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {announcements.map((announcement) => (
+                                    <tr key={announcement.id}>
+                                        <td>{announcement.id}</td>
+                                        <td>
+                                            <div className="announcement-title-cell">
+                                                <div className="announcement-title">{announcement.title}</div>
+                                                <div className="announcement-message">{announcement.message}</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className="target-roles">
+                                                {announcement.target.length === 1 && announcement.target[0] === 'ALL' ? (
+                                                    <div className="role-badge-group">
+                                                        <span className="role-label">ALL USERS</span>
+                                                        <span className="role-badge all">ALL</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="role-badge-group">
+                                                        <span className="role-label">{announcement.target.length} ROLES</span>
+                                                        {announcement.target.map((role, idx) => (
+                                                            <span key={idx} className={`role-badge ${role.toLowerCase()}`}>
+                                                                {role}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span className={`priority-badge ${announcement.priority.toLowerCase()}`}>
+                                                {announcement.priority}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className={`status-badge ${announcement.status.toLowerCase()}`}>
+                                                {announcement.status}
+                                            </span>
+                                        </td>
+                                        <td className="created-date">{announcement.createdAt}</td>
+                                        <td>
+                                            <div className="action-buttons">
+                                                <button
+                                                    className="btn-action edit"
+                                                    onClick={() => handleEdit(announcement.id)}
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    className="btn-action delete"
+                                                    onClick={() => handleDelete(announcement.id)}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
             </div>
         </AdminPortalLayout>
