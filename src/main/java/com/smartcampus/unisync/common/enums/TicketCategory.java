@@ -11,5 +11,8 @@ public enum TicketCategory {
     COMPUTER,        // Desktop or laptop hardware/software issues
     AIR_CONDITIONING, // AC unit not working or needs servicing
     FURNITURE,       // Broken or missing furniture (chairs, desks, boards)
+    HARDWARE,        // Hardware-related issues
+    SOFTWARE,        // Software-related issues
+    FACILITY,        // Facility-related issues (building, rooms, etc.)
     OTHER            // Any issue that does not fit the above categories
 }

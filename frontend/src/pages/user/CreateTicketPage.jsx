@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import StudentPortalLayout from "../../components/user/StudentPortalLayout";
 import { createTicket, uploadAttachments } from "../../services/ticketService";
@@ -32,7 +32,16 @@ function CreateTicketPage() {
     const [message, setMessage] = useState("");
     const [isError, setIsError] = useState(false);
 
-    const currentUserId = 1;
+    // Get userId from localStorage (set during OAuth login)
+    const currentUserId = localStorage.getItem("userId");
+
+    // Redirect to login if user is not authenticated
+    useEffect(() => {
+        if (!currentUserId) {
+            console.warn("No userId found in localStorage. Redirecting to login.");
+            navigate("/login");
+        }
+    }, [currentUserId, navigate]);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
