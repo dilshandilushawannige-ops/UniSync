@@ -1,10 +1,9 @@
-import axios from 'axios';
+import api from './api';
 
-const api = axios.create({
-  baseURL: 'http://localhost:8080/api',
-});
-
-export const getAllResources = () => api.get('/resources');
+export const getAllResources = (userId) =>
+  api.get('/resources', {
+    params: userId ? { userId } : {},
+  });
 
 export const getResourceById = (id) => api.get(`/resources/${id}`);
 

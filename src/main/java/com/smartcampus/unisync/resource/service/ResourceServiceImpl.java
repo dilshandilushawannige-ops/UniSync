@@ -6,7 +6,9 @@ import com.smartcampus.unisync.resource.dto.ResourceRequestDto;
 import com.smartcampus.unisync.resource.dto.ResourceResponseDto;
 import com.smartcampus.unisync.resource.entity.Resource;
 import com.smartcampus.unisync.resource.repository.ResourceRepository;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,8 +26,10 @@ public class ResourceServiceImpl implements ResourceService {
                 .type(dto.getType())
                 .capacity(dto.getCapacity())
                 .location(dto.getLocation())
-            .description(dto.getDescription())
+                .description(dto.getDescription())
                 .availabilityWindows(dto.getAvailabilityWindows())
+                .visibleTo(dto.getVisibleTo() != null ? dto.getVisibleTo() : "ALL")
+                .assignedUsers(dto.getAssignedUsers())
                 .status(dto.getStatus() != null ? dto.getStatus() : ResourceStatus.ACTIVE)
                 .build();
 
@@ -41,9 +45,17 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    public List<ResourceResponseDto> getAllResources() {
-        return resourceRepository.findAll()
-                .stream()
+    public List<ResourceResponseDto> getAllResources(Long userId) {
+        List<Resource> resources = resourceRepository.findAll();
+
+        if (userId == null) {
+            return resources.stream()
+                    .map(this::mapToResponseDto)
+                    .collect(Collectors.toList());
+        }
+
+        return resources.stream()
+                .filter(resource -> isVisibleToAll(resource) || isAssignedToUser(resource, userId))
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
     }
@@ -59,6 +71,10 @@ public class ResourceServiceImpl implements ResourceService {
         resource.setLocation(dto.getLocation());
         resource.setDescription(dto.getDescription());
         resource.setAvailabilityWindows(dto.getAvailabilityWindows());
+        if (dto.getVisibleTo() != null) {
+            resource.setVisibleTo(dto.getVisibleTo());
+        }
+        resource.setAssignedUsers(dto.getAssignedUsers());
         if (dto.getStatus() != null) {
             resource.setStatus(dto.getStatus());
         }
@@ -105,9 +121,36 @@ public class ResourceServiceImpl implements ResourceService {
                 .location(resource.getLocation())
                 .description(resource.getDescription())
                 .availabilityWindows(resource.getAvailabilityWindows())
+                .visibleTo(resource.getVisibleTo())
+                .assignedUsers(resource.getAssignedUsers())
                 .status(resource.getStatus())
                 .createdAt(resource.getCreatedAt())
                 .updatedAt(resource.getUpdatedAt())
                 .build();
+    }
+
+    private boolean isVisibleToAll(Resource resource) {
+        return "ALL".equalsIgnoreCase(resource.getVisibleTo());
+    }
+
+    private boolean isAssignedToUser(Resource resource, Long userId) {
+        if (resource.getAssignedUsers() == null || resource.getAssignedUsers().isBlank()) {
+            return false;
+        }
+
+        return Arrays.stream(resource.getAssignedUsers().split(","))
+                .map(String::trim)
+                .filter(id -> !id.isBlank())
+                .map(this::safeParseLong)
+                .filter(Objects::nonNull)
+                .anyMatch(assignedUserId -> assignedUserId.equals(userId));
+    }
+
+    private Long safeParseLong(String value) {
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
     }
 }

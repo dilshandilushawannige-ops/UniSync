@@ -8,7 +8,7 @@
   background-size: cover;
   background-position: center;
   color: #fff;
-  padding: 2.8rem 1.2rem 2.6rem;
+  padding: 2.2rem 1.1rem 2rem;
 }
 
 .browse-hero-content {
@@ -19,7 +19,7 @@
 
 .browse-hero h1 {
   margin: 0;
-  font-size: clamp(1.9rem, 4vw, 3.2rem);
+  font-size: clamp(1.55rem, 3.2vw, 2.55rem);
   line-height: 1.1;
   font-weight: 800;
 }
@@ -28,15 +28,15 @@
   margin: 0.75rem auto 0;
   max-width: 730px;
   color: #dbe8f6;
-  font-size: clamp(0.96rem, 1.4vw, 1.55rem);
+  font-size: clamp(0.9rem, 1.05vw, 1.15rem);
   font-weight: 500;
 }
 
 .browse-stats-grid {
-  margin-top: 1.8rem;
+  margin-top: 1.3rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.85rem;
 }
 
 .browse-stat-glass {
@@ -44,7 +44,7 @@
   border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 18px;
   backdrop-filter: blur(7px);
-  padding: 1rem;
+  padding: 0.78rem;
   text-align: center;
 }
 
@@ -55,9 +55,9 @@
 }
 
 .browse-stat-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   margin: 0 auto;
   display: grid;
   place-items: center;
@@ -65,8 +65,8 @@
 }
 
 .browse-stat-value {
-  margin: 0.55rem 0 0;
-  font-size: clamp(1.7rem, 2vw, 2.15rem);
+  margin: 0.45rem 0 0;
+  font-size: clamp(1.28rem, 1.5vw, 1.65rem);
   font-weight: 800;
 }
 
@@ -74,7 +74,7 @@
   margin: 0;
   color: #e4ebf4;
   letter-spacing: 0.04em;
-  font-size: 0.9rem;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 

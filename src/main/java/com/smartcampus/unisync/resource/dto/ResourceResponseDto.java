@@ -28,6 +28,10 @@ public class ResourceResponseDto {
 
     private String availabilityWindows;
 
+    private String visibleTo;
+
+    private String assignedUsers;
+
     private ResourceStatus status;
 
     private LocalDateTime createdAt;

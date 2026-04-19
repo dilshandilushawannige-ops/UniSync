@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ResourceCard = ({ resource }) => {
+const ResourceCard = ({ resource, onViewDetails, onBookNow }) => {
   const iconClassByType = {
     LAB: 'text-[#2567AE]',
     LECTURE_HALL: 'text-[#2E8B57]',
@@ -73,6 +73,23 @@ const ResourceCard = ({ resource }) => {
         >
           {resource.status}
         </span>
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        <button
+          type="button"
+          onClick={() => onViewDetails?.(resource)}
+          className="rounded-xl border border-[#c9d8ea] bg-white px-3 py-2 text-[16px] font-semibold text-[#0f3d74] transition hover:bg-[#f3f8ff]"
+        >
+          View Details
+        </button>
+        <button
+          type="button"
+          onClick={() => onBookNow?.(resource)}
+          className="rounded-xl bg-[#123a66] px-3 py-2 text-[16px] font-semibold text-white transition hover:bg-[#0f3154]"
+        >
+          Booking Now
+        </button>
       </div>
     </article>
   );

@@ -35,8 +35,9 @@ public class ResourceController {
      * @return List of ResourceResponseDto with HTTP 200
      */
     @GetMapping
-    public ResponseEntity<List<ResourceResponseDto>> getAllResources() {
-        List<ResourceResponseDto> resources = resourceService.getAllResources();
+    public ResponseEntity<List<ResourceResponseDto>> getAllResources(
+            @RequestParam(required = false) Long userId) {
+        List<ResourceResponseDto> resources = resourceService.getAllResources(userId);
         return ResponseEntity.ok(resources);
     }
 

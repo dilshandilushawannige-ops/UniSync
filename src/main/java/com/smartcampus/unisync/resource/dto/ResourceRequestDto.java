@@ -31,5 +31,9 @@ public class ResourceRequestDto {
 
     private String availabilityWindows;
 
+    private String visibleTo;
+
+    private String assignedUsers;
+
     private ResourceStatus status;
 }

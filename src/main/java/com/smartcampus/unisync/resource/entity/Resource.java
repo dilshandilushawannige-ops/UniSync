@@ -44,6 +44,12 @@ public class Resource {
 
     private String availabilityWindows;
 
+    @Builder.Default
+    private String visibleTo = "ALL";
+
+    @Column(columnDefinition = "TEXT")
+    private String assignedUsers;
+
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private ResourceStatus status = ResourceStatus.ACTIVE;
