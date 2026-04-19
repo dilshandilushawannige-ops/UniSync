@@ -6,7 +6,8 @@ import { cancelBooking, createBooking, getMyBookings } from "../../services/book
 import "./BookingPage.css";
 
 function MyBookingsPage() {
-  const currentUserId = 1;
+  // Get userId from localStorage (set during OAuth login)
+  const currentUserId = localStorage.getItem("userId");
   const currentUserName = "Demo Student";
   const [activeView, setActiveView] = useState("form");
   const [bookings, setBookings] = useState([]);

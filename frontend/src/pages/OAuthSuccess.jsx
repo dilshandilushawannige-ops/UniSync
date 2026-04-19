@@ -8,10 +8,12 @@ function OAuthSuccess() {
     useEffect(() => {
         const token = searchParams.get("token");
         const role = searchParams.get("role");
+        const userId = searchParams.get("userId");
 
         console.log("=== OAuth Success Page ===");
         console.log("Token:", token);
         console.log("Role:", role);
+        console.log("User ID:", userId);
 
         if (!token || !role) {
             console.log("Missing token or role, redirecting to login");
@@ -21,6 +23,9 @@ function OAuthSuccess() {
 
         localStorage.setItem("token", token);
         localStorage.setItem("role", role);
+        if (userId) {
+            localStorage.setItem("userId", userId);
+        }
 
         console.log("Role check:", role);
 
