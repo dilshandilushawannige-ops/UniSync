@@ -51,6 +51,19 @@ CREATE DATABASE smartcampus_db;
 
 Backend will start on: http://localhost:8081
 
+### 6. Create test users in database
+
+**Important:** After the application starts, you need to add users to login!
+
+See [DATABASE-SETUP.md](DATABASE-SETUP.md) for detailed instructions.
+
+Quick command:
+```bash
+mysql -u root -p smartcampus_db < init-user-roles.sql
+```
+
+Or create your own users with your email addresses - see DATABASE-SETUP.md
+
 ## Frontend Setup
 
 ### 1. Navigate to frontend folder
