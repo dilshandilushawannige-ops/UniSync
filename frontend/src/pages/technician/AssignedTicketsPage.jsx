@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import TechnicianPortalLayout from "../../components/technician/TechnicianPortalLayout";
 import TicketTable from "../../components/ticket/TicketTable";
 import api from "../../services/api";
-import { jwtDecode } from "jwt-decode";
 
 function AssignedTicketsPage() {
     const [tickets, setTickets] = useState([]);
@@ -18,28 +17,16 @@ function AssignedTicketsPage() {
             setLoading(true);
             setError(null);
 
-            // Get technician ID from JWT token
-            const token = localStorage.getItem("token");
-            if (!token) {
-                setError("No authentication token found");
+            // Get technician ID from localStorage (set during OAuth login)
+            const technicianId = localStorage.getItem("userId");
+            if (!technicianId) {
+                setError("User not authenticated. Please log in.");
                 setLoading(false);
                 return;
             }
 
-            // Decode token to get user info
-            const decoded = jwtDecode(token);
-            const email = decoded.sub;
-
-            // First, get the user ID from email
-            const userResponse = await api.get(`/users/email/${email}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            const technicianId = userResponse.data.id;
-
             // Fetch tickets assigned to this technician
-            const response = await api.get(`/tickets/technician/${technicianId}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await api.get(`/tickets/technician/${technicianId}`);
 
             setTickets(response.data);
         } catch (err) {

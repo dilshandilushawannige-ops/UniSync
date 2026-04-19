@@ -16,12 +16,26 @@ function MyTicketsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Temporary: hardcoded until auth context is integrated
-  const currentUserId = 1;
+  // Get userId from localStorage (set during OAuth login)
+  const currentUserId = localStorage.getItem("userId");
+
+  // Redirect to login if user is not authenticated
+  useEffect(() => {
+    if (!currentUserId) {
+      console.warn("No userId found in localStorage. Redirecting to login.");
+      navigate("/login");
+    }
+  }, [currentUserId, navigate]);
 
   // Load tickets when the page mounts
   useEffect(() => {
     const fetchTickets = async () => {
+      if (!currentUserId) {
+        setError("User not authenticated. Please log in.");
+        setLoading(false);
+        return;
+      }
+
       try {
         const data = await getMyTickets(currentUserId);
         setTickets(data);
@@ -33,7 +47,7 @@ function MyTicketsPage() {
     };
 
     fetchTickets();
-  }, []);
+  }, [currentUserId]);
 
   return (
     <div className="my-tickets-page">

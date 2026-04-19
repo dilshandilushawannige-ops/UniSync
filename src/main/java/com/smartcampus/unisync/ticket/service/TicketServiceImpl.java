@@ -14,6 +14,7 @@ import com.smartcampus.unisync.user.entity.User;
 import com.smartcampus.unisync.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -63,8 +64,8 @@ public class TicketServiceImpl implements TicketService {
     // ─────────────────────────────────────────────────
     @Override
     public List<TicketResponseDto> getAllTickets() {
-        // Get all tickets from DB and convert each one to a DTO
-        return ticketRepository.findAll()
+        // Get all tickets from DB with relationships eagerly loaded
+        return ticketRepository.findAllWithRelations()
                 .stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
@@ -75,8 +76,8 @@ public class TicketServiceImpl implements TicketService {
     // ─────────────────────────────────────────────────
     @Override
     public TicketResponseDto getTicketById(Long ticketId) {
-        // Look for the ticket — throw exception if not found
-        Ticket ticket = ticketRepository.findById(ticketId)
+        // Look for the ticket with relationships eagerly loaded
+        Ticket ticket = ticketRepository.findByIdWithRelations(ticketId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + ticketId));
 
         return mapToDto(ticket);
@@ -87,7 +88,18 @@ public class TicketServiceImpl implements TicketService {
     // ─────────────────────────────────────────────────
     @Override
     public List<TicketResponseDto> getTicketsByUser(Long userId) {
-        return ticketRepository.findByReportedById(userId)
+        return ticketRepository.findByReportedByIdWithRelations(userId)
+                .stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    // ─────────────────────────────────────────────────
+    // GET all tickets assigned to a specific technician
+    // ─────────────────────────────────────────────────
+    @Override
+    public List<TicketResponseDto> getTicketsByTechnician(Long technicianId) {
+        return ticketRepository.findByAssignedTechnicianIdWithRelations(technicianId)
                 .stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());

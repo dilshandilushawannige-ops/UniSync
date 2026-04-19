@@ -26,6 +26,9 @@ public interface TicketService {
     // Get all tickets submitted by a specific user
     List<TicketResponseDto> getTicketsByUser(Long userId);
 
+    // Get all tickets assigned to a specific technician
+    List<TicketResponseDto> getTicketsByTechnician(Long technicianId);
+
     // Update the status of a ticket (e.g., OPEN → IN_PROGRESS)
     TicketResponseDto updateTicketStatus(Long ticketId, TicketStatusUpdateDto statusUpdateDto);
 

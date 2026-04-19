@@ -15,7 +15,8 @@ import "./BookingPage.css";
 
 function BookingPage() {
   const navigate = useNavigate();
-  const currentUserId = 1;
+  // Get userId from localStorage (set during OAuth login)
+  const currentUserId = localStorage.getItem("userId");
   const currentUserName = "Demo Student";
 
   const [showModal, setShowModal] = useState(false);

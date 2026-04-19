@@ -73,6 +73,17 @@ public class TicketController {
     }
 
     // ─────────────────────────────────────────────────────────
+    // GET /api/tickets/technician/{technicianId}
+    // Get all tickets assigned to a specific technician
+    // Called by: technician to see their assigned tickets
+    // ─────────────────────────────────────────────────────────
+    @GetMapping("/technician/{technicianId}")
+    public ResponseEntity<List<TicketResponseDto>> getTicketsByTechnician(@PathVariable Long technicianId) {
+        List<TicketResponseDto> tickets = ticketService.getTicketsByTechnician(technicianId);
+        return ResponseEntity.ok(tickets); // 200 OK
+    }
+
+    // ─────────────────────────────────────────────────────────
     // PATCH /api/tickets/{id}/status
     // Update the status of a ticket
     // Called by: admin or technician (e.g., OPEN → IN_PROGRESS → RESOLVED)
