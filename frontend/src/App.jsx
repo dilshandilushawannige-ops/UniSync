@@ -9,6 +9,7 @@ import ProfilePage from "./pages/user/ProfilePage";
 import StudentDashboardPage from "./pages/user/StudentDashboardPage";
 import TicketDetailsPage from "./pages/user/TicketDetailsPage";
 import MyBookingsPage from "./pages/user/MyBookingsPage";
+import ResourceBookingPage from "./pages/user/ResourceBookingPage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import ManageNotificationsPage from "./pages/admin/ManageNotificationsPage";
 import ManageTicketsPage from "./pages/admin/ManageTicketsPage";
@@ -35,7 +36,7 @@ function App() {
         <Route path="/dashboard" element={<StudentDashboardPage />} />
         <Route path="/create-ticket" element={<CreateTicketPage />} />
         <Route path="/booking" element={<MyBookingsPage />} />
-        <Route path="/resource-booking" element={<MyBookingsPage />} />
+        <Route path="/resource-booking" element={<ResourceBookingPage />} />
         <Route path="/my-bookings" element={<MyBookingsPage />} />
         <Route path="/admin/bookings" element={<ManageBookingsPage />} />
         <Route path="/my-tickets" element={<MyTicketsPage />} />
@@ -49,7 +50,6 @@ function App() {
         <Route path="/admin/notifications" element={<ManageNotificationsPage />} />
         <Route path="/admin/tickets" element={<ManageTicketsPage />} />
         <Route path="/admin/tickets/:id" element={<TicketManagementDetailsPage />} />
-        <Route path="/admin/bookings" element={<StatusPage title="Booking Management" message="Booking management tools will appear here." />} />
         <Route path="/admin/resources" element={<ManageResourcesPage />} />
         <Route path="/technician/dashboard" element={<TechnicianDashboardPage />} />
         <Route path="/technician/profile" element={<TechnicianProfilePage />} />

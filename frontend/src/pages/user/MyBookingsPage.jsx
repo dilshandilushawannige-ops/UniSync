@@ -2,7 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Booking from "../../components/booking/Booking";
 import BookingStats from "../../components/booking/BookingStats";
 import BookingTable from "../../components/booking/BookingTable";
-import { cancelBooking, createBooking, getMyBookings } from "../../services/bookingService";
+import {
+  cancelBooking,
+  checkBookingAvailability,
+  createBooking,
+  formatBookingApiError,
+  getMyBookings,
+  shouldUseBookingDemoFallback,
+} from "../../services/bookingService";
 import "./BookingPage.css";
 
 function MyBookingsPage() {
@@ -54,28 +61,47 @@ function MyBookingsPage() {
     };
 
     try {
+      try {
+        const availability = await checkBookingAvailability({
+          resourceId: payload.resourceId,
+          date: payload.bookingDate,
+          startTime: payload.startTime,
+          endTime: payload.endTime,
+        });
+        if (!availability.available) {
+          setError(
+            "This resource is already booked for that time (PENDING or APPROVED). Pick another slot or room."
+          );
+          return;
+        }
+      } catch {
+        /* availability optional; backend create still enforces conflicts */
+      }
       const created = await createBooking(payload);
       setBookings((prev) => [created, ...prev]);
       setError("");
     } catch (createError) {
-      const fallbackBooking = {
-        id: Date.now(),
-        userId: payload.userId,
-        userName: payload.userName,
-        resourceId: payload.resourceId,
-        resourceName: payload.resourceName,
-        resourceType: payload.resourceType,
-        bookingDate: payload.bookingDate,
-        startTime: payload.startTime,
-        endTime: payload.endTime,
-        purpose: payload.purpose,
-        expectedAttendees: payload.expectedAttendees,
-        status: "PENDING",
-      };
-      setBookings((prev) => [fallbackBooking, ...prev]);
-      setError("Backend unavailable. Booking added in local demo mode only (not saved to database).");
-      if (createError?.response?.data?.message) {
-        throw createError;
+      if (shouldUseBookingDemoFallback(createError)) {
+        const fallbackBooking = {
+          id: Date.now(),
+          userId: payload.userId,
+          userName: payload.userName,
+          resourceId: payload.resourceId,
+          resourceName: payload.resourceName,
+          resourceType: payload.resourceType,
+          bookingDate: payload.bookingDate,
+          startTime: payload.startTime,
+          endTime: payload.endTime,
+          purpose: payload.purpose,
+          expectedAttendees: payload.expectedAttendees,
+          status: "PENDING",
+        };
+        setBookings((prev) => [fallbackBooking, ...prev]);
+        setError(
+          "Backend unavailable. Booking shown in demo mode only (not saved to the database)."
+        );
+      } else {
+        setError(formatBookingApiError(createError));
       }
     }
   };
@@ -98,9 +124,6 @@ function MyBookingsPage() {
           <div className="booking-panel-header">
             <div>
               <h2 className="booking-panel-title">Resource Booking</h2>
-              <p className="booking-panel-subtitle">
-                Submit a booking request, then track approval and cancellation from your bookings list.
-              </p>
             </div>
             <button
               type="button"
