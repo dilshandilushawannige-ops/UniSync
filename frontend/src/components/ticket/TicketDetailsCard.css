@@ -68,6 +68,7 @@
 .priority-LOW    { background: #dcfce7; color: #15803d; }
 .priority-MEDIUM { background: #fef9c3; color: #a16207; }
 .priority-HIGH   { background: #fee2e2; color: #b91c1c; }
+.priority-URGENT { background: #ede9fe; color: #5b21b6; }
 
 /* Description and notes sections */
 .card-section {

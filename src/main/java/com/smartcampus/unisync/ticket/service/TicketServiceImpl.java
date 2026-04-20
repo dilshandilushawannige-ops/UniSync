@@ -8,8 +8,6 @@ import com.smartcampus.unisync.ticket.dto.TicketResponseDto;
 import com.smartcampus.unisync.ticket.dto.TicketStatusUpdateDto;
 import com.smartcampus.unisync.ticket.entity.Ticket;
 import com.smartcampus.unisync.ticket.repository.TicketRepository;
-import com.smartcampus.unisync.common.enums.ContactMethod;
-import com.smartcampus.unisync.common.enums.PriorityLevel;
 import com.smartcampus.unisync.user.entity.User;
 import com.smartcampus.unisync.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

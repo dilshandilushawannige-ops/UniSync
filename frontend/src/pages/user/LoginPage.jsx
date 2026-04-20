@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { API_ORIGIN } from "../../config/apiConfig";
 
 function LoginPage() {
 
     const [loadingProvider, setLoadingProvider] = useState("");
 
-    // ✅ Google OAuth redirect
+    // Google OAuth — must hit the Spring Boot server (same host as API_ORIGIN)
     const handleGoogleLogin = () => {
         setLoadingProvider("google");
-        window.location.href = "http://localhost:8081/oauth2/authorization/google";
+        window.location.href = `${API_ORIGIN}/oauth2/authorization/google`;
     };
 
     return (

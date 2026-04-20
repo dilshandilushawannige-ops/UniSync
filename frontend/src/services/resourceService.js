@@ -1,16 +1,12 @@
-import axios from 'axios';
+import api from "./api";
 
-const api = axios.create({
-  baseURL: 'http://localhost:8080/api',
-});
-
-export const getAllResources = () => api.get('/resources');
+export const getAllResources = () => api.get("/resources");
 
 export const getResourceById = (id) => api.get(`/resources/${id}`);
 
-export const searchResources = (params) => api.get('/resources/search', { params });
+export const searchResources = (params) => api.get("/resources/search", { params });
 
-export const createResource = (data) => api.post('/resources', data);
+export const createResource = (data) => api.post("/resources", data);
 
 export const updateResource = (id, data) => api.put(`/resources/${id}`, data);
 
