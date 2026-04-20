@@ -25,12 +25,16 @@ import InProgressTicketsPage from "./pages/technician/InProgressTicketsPage";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import BrowseResourcesPage from "./pages/user/BrowseResourcesPage";
 import ManageResourcesPage from "./pages/admin/ManageResourcesPage";
+import AboutUsPage from "./pages/AboutUsPage";
+import ContactUsPage from "./pages/ContactUsPage";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/about" element={<AboutUsPage />} />
+        <Route path="/contact" element={<ContactUsPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/oauth-success" element={<OAuthSuccess />} />
         <Route path="/dashboard" element={<StudentDashboardPage />} />

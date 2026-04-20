@@ -39,8 +39,8 @@ function TicketManagementDetailsPage() {
   const [technicianId, setTechnicianId] = useState("");
   const [assignMsg, setAssignMsg] = useState("");
 
-  // Temp admin userId — replace with auth context later
-  const adminUserId = 1;
+  // Get admin userId from localStorage (set during OAuth login)
+  const adminUserId = Number(localStorage.getItem("userId"));
 
   // Load ticket on mount
   useEffect(() => {

@@ -7,13 +7,13 @@ const Navbar = () => {
     <nav className="navbar-landing">
       <div className="navbar-container">
         <Link to="/" className="brand-text">UniSync™</Link>
-        
+
         <div className="nav-center">
           <Link to="/" className="nav-link">Home</Link>
           <a href="#services" className="nav-link">Services</a>
           <a href="#achievements" className="nav-link">Achievements</a>
-          <a href="#about" className="nav-link">About Us</a>
-          <a href="#contact" className="nav-link">Contact Us</a>
+          <Link to="/about" className="nav-link">About Us</Link>
+          <Link to="/contact" className="nav-link">Contact Us</Link>
         </div>
 
         <div className="nav-actions">

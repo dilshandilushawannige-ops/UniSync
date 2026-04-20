@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import StudentPortalLayout from "../../components/user/StudentPortalLayout";
 import { createTicket, uploadAttachments } from "../../services/ticketService";
+import "./CreateTicketPage.css";
 
 const defaultFormData = {
     title: "",
@@ -9,7 +10,7 @@ const defaultFormData = {
     description: "",
     priority: "",
     location: "",
-    preferredContact: "",
+    preferredContact: "EMAIL",
 };
 
 const categoryOptions = [
@@ -22,6 +23,7 @@ const categoryOptions = [
 
 const priorityOptions = ["LOW", "MEDIUM", "HIGH", "URGENT"];
 const contactOptions = ["EMAIL", "PHONE", "IN_APP"];
+ 
 
 function CreateTicketPage() {
     const navigate = useNavigate();
@@ -70,6 +72,10 @@ function CreateTicketPage() {
         setSelectedFiles(files);
     };
 
+    const handleRemoveFile = (indexToRemove) => {
+        setSelectedFiles(files => files.filter((_, index) => index !== indexToRemove));
+    };
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         setSubmitting(true);
@@ -98,159 +104,272 @@ function CreateTicketPage() {
         }
     };
 
-    return (
-        <StudentPortalLayout title="Welcome to Student Dashboard">
-            <section style={styles.card}>
-                <div style={styles.cardHeader}>
-                    <div>
-                        <h2 style={styles.cardTitle}>Tickets</h2>
-                        <p style={styles.cardText}>
-                            Publish a support request, attach up to three images, and send complete details to the support team.
-                        </p>
-                    </div>
+    const getPriorityColor = (priority) => {
+        switch (priority) {
+            case "HIGH": return "#ef4444";
+            case "URGENT": return "#dc2626";
+            case "MEDIUM": return "#f59e0b";
+            case "LOW": return "#10b981";
+            default: return "#94a3b8";
+        }
+    };
 
-                    <button type="button" style={styles.secondaryButton} onClick={() => navigate("/my-tickets")}>
-                        View My Tickets
-                    </button>
+    return (
+        <StudentPortalLayout>
+            <div className="create-ticket-page">
+                {/* Page Header */}
+                <div className="page-header">
+                    <h1 className="page-title">Create New Ticket</h1>
+                    <p className="page-subtitle">
+                        Fill out the details below to report a maintenance issue or request service from the campus facilities and IT teams.
+                    </p>
                 </div>
 
-                <form style={styles.form} onSubmit={handleSubmit}>
-                    <div style={styles.grid}>
-                        <Field label="Issue Title">
-                            <input
-                                name="title"
-                                value={formData.title}
-                                onChange={handleChange}
-                                placeholder="Short description of the issue"
-                                style={styles.input}
-                                required
-                            />
-                        </Field>
+                <form className="ticket-form" onSubmit={handleSubmit}>
+                    <div className="form-grid">
+                        {/* Left Column - Ticket Details */}
+                        <div className="form-section">
+                            <div className="section-header">
+                                <div className="section-indicator"></div>
+                                <h2 className="section-title">Ticket Details</h2>
+                            </div>
 
-                        <Field label="Category">
-                            <select
-                                name="category"
-                                value={formData.category}
-                                onChange={handleChange}
-                                style={styles.input}
-                                required
-                            >
-                                <option value="">Select a category</option>
-                                {categoryOptions.map((option) => (
-                                    <option key={option} value={option}>{formatLabel(option)}</option>
-                                ))}
-                            </select>
-                        </Field>
+                            <div className="form-group">
+                                <label className="form-label">Issue Title</label>
+                                <input
+                                    type="text"
+                                    name="title"
+                                    value={formData.title}
+                                    onChange={handleChange}
+                                    placeholder="e.g., Broken projector in Lab 3"
+                                    className="form-input"
+                                    required
+                                />
+                            </div>
 
-                        <Field label="Priority">
-                            <select
-                                name="priority"
-                                value={formData.priority}
-                                onChange={handleChange}
-                                style={styles.input}
-                                required
-                            >
-                                <option value="">Select priority</option>
-                                {priorityOptions.map((option) => (
-                                    <option key={option} value={option}>{formatLabel(option)}</option>
-                                ))}
-                            </select>
-                        </Field>
-
-                        <Field label="Preferred Contact">
-                            <select
-                                name="preferredContact"
-                                value={formData.preferredContact}
-                                onChange={handleChange}
-                                style={styles.input}
-                            >
-                                <option value="">Select contact method</option>
-                                {contactOptions.map((option) => (
-                                    <option key={option} value={option}>{formatLabel(option)}</option>
-                                ))}
-                            </select>
-                        </Field>
-                    </div>
-
-                    <Field label="Location">
-                        <input
-                            name="location"
-                            value={formData.location}
-                            onChange={handleChange}
-                            placeholder="e.g. Lab 3, Block B"
-                            style={styles.input}
-                        />
-                    </Field>
-
-                    <Field label="Description">
-                        <textarea
-                            name="description"
-                            value={formData.description}
-                            onChange={handleChange}
-                            placeholder="Describe the issue in detail..."
-                            rows={6}
-                            style={styles.textarea}
-                            required
-                        />
-                    </Field>
-
-                    <div style={styles.uploadCard}>
-                        <div>
-                            <h3 style={styles.uploadTitle}>Upload Images</h3>
-                            <p style={styles.uploadHint}>Add up to 3 JPG or PNG images. They will upload after the ticket is created.</p>
-                        </div>
-
-                        <label style={styles.uploadButton}>
-                            Choose Images
-                            <input
-                                type="file"
-                                accept="image/jpeg,image/jpg,image/png"
-                                multiple
-                                onChange={handleFileChange}
-                                style={styles.hiddenInput}
-                            />
-                        </label>
-                    </div>
-
-                    {uploadError ? <p style={styles.error}>{uploadError}</p> : null}
-
-                    {selectedFiles.length > 0 ? (
-                        <div style={styles.previewGrid}>
-                            {selectedFiles.map((file) => (
-                                <div key={`${file.name}-${file.lastModified}`} style={styles.previewCard}>
-                                    <strong style={styles.previewName}>{file.name}</strong>
-                                    <span style={styles.previewMeta}>{Math.ceil(file.size / 1024)} KB</span>
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label className="form-label">Category</label>
+                                    <select
+                                        name="category"
+                                        value={formData.category}
+                                        onChange={handleChange}
+                                        className="form-select"
+                                        required
+                                    >
+                                        <option value="">Select category</option>
+                                        {categoryOptions.map((option) => (
+                                            <option key={option} value={option}>
+                                                {formatLabel(option)}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
-                            ))}
+
+                                <div className="form-group">
+                                    <label className="form-label">Priority</label>
+                                    <select
+                                        name="priority"
+                                        value={formData.priority}
+                                        onChange={handleChange}
+                                        className="form-select priority-select"
+                                        required
+                                    >
+                                        <option value="">Select priority</option>
+                                        {priorityOptions.map((option) => (
+                                            <option key={option} value={option}>
+                                                {formatLabel(option)}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {formData.priority && (
+                                        <div className="priority-indicator">
+                                            <span 
+                                                className="priority-dot"
+                                                style={{ backgroundColor: getPriorityColor(formData.priority) }}
+                                            ></span>
+                                            <span 
+                                                className="priority-label"
+                                                style={{ color: getPriorityColor(formData.priority) }}
+                                            >
+                                                {formatLabel(formData.priority)}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Detailed Description</label>
+                                <textarea
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    placeholder="Describe the problem in detail. Include any error codes or specific symptoms."
+                                    className="form-textarea"
+                                    rows={6}
+                                    required
+                                />
+                            </div>
+
+                            {/* Contact Preference */}
+                            <div className="form-section-inner">
+                                <div className="section-header">
+                                    <div className="section-indicator"></div>
+                                    <h3 className="section-title-small">Contact Preference</h3>
+                                </div>
+
+                                <div className="contact-options">
+                                    <label className={`contact-option ${formData.preferredContact === "EMAIL" ? "active" : ""}`}>
+                                        <input
+                                            type="radio"
+                                            name="preferredContact"
+                                            value="EMAIL"
+                                            checked={formData.preferredContact === "EMAIL"}
+                                            onChange={handleChange}
+                                            className="contact-radio"
+                                        />
+                                        <div className="contact-icon">📧</div>
+                                        <span className="contact-label">Email</span>
+                                    </label>
+
+                                    <label className={`contact-option ${formData.preferredContact === "PHONE" ? "active" : ""}`}>
+                                        <input
+                                            type="radio"
+                                            name="preferredContact"
+                                            value="PHONE"
+                                            checked={formData.preferredContact === "PHONE"}
+                                            onChange={handleChange}
+                                            className="contact-radio"
+                                        />
+                                        <div className="contact-icon">📱</div>
+                                        <span className="contact-label">Phone</span>
+                                    </label>
+
+                                    <label className={`contact-option ${formData.preferredContact === "SMS" ? "active" : ""}`}>
+                                        <input
+                                            type="radio"
+                                            name="preferredContact"
+                                            value="SMS"
+                                            checked={formData.preferredContact === "SMS"}
+                                            onChange={handleChange}
+                                            className="contact-radio"
+                                        />
+                                        <div className="contact-icon">🔔</div>
+                                        <span className="contact-label">In-app</span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
-                    ) : null}
 
-                    {message ? (
-                        <p style={{ ...styles.message, ...(isError ? styles.error : styles.success) }}>
+                        {/* Right Column - Location & Attachments */}
+                        <div className="form-section">
+                            <div className="section-header">
+                                <div className="section-indicator"></div>
+                                <h2 className="section-title">Location</h2>
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Location Details</label>
+                                <input
+                                    type="text"
+                                    name="location"
+                                    value={formData.location}
+                                    onChange={handleChange}
+                                    placeholder="e.g., Science Block B, Room 202"
+                                    className="form-input"
+                                />
+                            </div>
+
+                            {/* Map Placeholder */}
+                            <div className="map-placeholder">
+                                <div className="map-pin">📍</div>
+                                <p className="map-text">Location map view</p>
+                            </div>
+
+                            {/* Media & Attachments */}
+                            <div className="form-section-inner">
+                                <div className="section-header">
+                                    <div className="section-indicator"></div>
+                                    <h3 className="section-title-small">Media & Attachments</h3>
+                                </div>
+
+                                <p className="upload-hint">
+                                    Attach up to 3 images to help our team understand the issue better.
+                                </p>
+
+                                <div className="upload-area">
+                                    <div className="upload-icon">☁️</div>
+                                    <p className="upload-text">Drag and drop images here</p>
+                                    <p className="upload-subtext">Supports JPG, PNG (Max 5MB each)</p>
+                                    
+                                    <label className="browse-button">
+                                        Browse Files
+                                        <input
+                                            type="file"
+                                            accept="image/jpeg,image/jpg,image/png"
+                                            multiple
+                                            onChange={handleFileChange}
+                                            className="file-input"
+                                        />
+                                    </label>
+                                </div>
+
+                                {uploadError && <p className="error-message">{uploadError}</p>}
+
+                                {/* File Preview */}
+                                {selectedFiles.length > 0 && (
+                                    <div className="file-preview-grid">
+                                        {selectedFiles.map((file, index) => (
+                                            <div key={`${file.name}-${index}`} className="file-preview-item">
+                                                <div className="file-icon">📄</div>
+                                                <div className="file-info">
+                                                    <p className="file-name">{file.name}</p>
+                                                    <p className="file-size">{Math.ceil(file.size / 1024)} KB</p>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    className="file-remove"
+                                                    onClick={() => handleRemoveFile(index)}
+                                                    title="Remove file"
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Status Message */}
+                    {message && (
+                        <div className={`status-message ${isError ? "error" : "success"}`}>
                             {message}
-                        </p>
-                    ) : null}
+                        </div>
+                    )}
 
-                    <div style={styles.actions}>
-                        <button type="button" style={styles.secondaryButton} onClick={() => navigate(-1)}>
-                            Back
+                    {/* Form Actions */}
+                    <div className="form-actions">
+                        <button
+                            type="button"
+                            className="btn-secondary"
+                            onClick={() => navigate("/my-tickets")}
+                        >
+                            Cancel & Discard
                         </button>
-                        <button type="submit" style={styles.primaryButton} disabled={submitting}>
-                            {submitting ? "Publishing..." : "Publish Ticket"}
+                        <button
+                            type="submit"
+                            className="btn-primary"
+                            disabled={submitting}
+                        >
+                            {submitting ? "Publishing..." : "Publish Ticket ➤"}
                         </button>
                     </div>
                 </form>
-            </section>
+            </div>
         </StudentPortalLayout>
-    );
-}
-
-function Field({ label, children }) {
-    return (
-        <label style={styles.field}>
-            <span style={styles.label}>{label}</span>
-            {children}
-        </label>
     );
 }
 
@@ -261,176 +380,5 @@ function formatLabel(value) {
         .map((segment) => segment[0].toUpperCase() + segment.slice(1))
         .join(" ");
 }
-
-const styles = {
-    card: {
-        backgroundColor: "#ffffff",
-        border: "1px solid #e2e8f0",
-        borderRadius: "18px",
-        padding: "24px",
-        boxShadow: "0 14px 32px rgba(15, 23, 42, 0.05)",
-    },
-    cardHeader: {
-        display: "flex",
-        alignItems: "flex-start",
-        justifyContent: "space-between",
-        gap: "20px",
-        flexWrap: "wrap",
-        marginBottom: "20px",
-    },
-    cardTitle: {
-        margin: "0 0 8px",
-        color: "#0f172a",
-        fontSize: "1.15rem",
-    },
-    cardText: {
-        margin: 0,
-        color: "#64748b",
-        lineHeight: 1.6,
-        maxWidth: "60ch",
-    },
-    form: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "6px",
-    },
-    grid: {
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-        gap: "18px",
-    },
-    field: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px",
-    },
-    label: {
-        color: "#334155",
-        fontSize: "0.92rem",
-        fontWeight: 700,
-    },
-    input: {
-        width: "100%",
-        boxSizing: "border-box",
-        padding: "13px 14px",
-        borderRadius: "12px",
-        border: "1px solid #dbe2ea",
-        backgroundColor: "#ffffff",
-        color: "#0f172a",
-        fontSize: "0.96rem",
-        outline: "none",
-    },
-    textarea: {
-        width: "100%",
-        boxSizing: "border-box",
-        padding: "13px 14px",
-        borderRadius: "12px",
-        border: "1px solid #dbe2ea",
-        backgroundColor: "#ffffff",
-        color: "#0f172a",
-        fontSize: "0.96rem",
-        resize: "vertical",
-        minHeight: "148px",
-        outline: "none",
-        fontFamily: "inherit",
-    },
-    uploadCard: {
-        marginTop: "6px",
-        padding: "18px 20px",
-        borderRadius: "16px",
-        border: "1px dashed #93c5fd",
-        backgroundColor: "#f8fbff",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: "16px",
-        flexWrap: "wrap",
-    },
-    uploadTitle: {
-        margin: "0 0 6px",
-        color: "#1e3a8a",
-        fontSize: "1rem",
-    },
-    uploadHint: {
-        margin: 0,
-        color: "#64748b",
-        lineHeight: 1.5,
-    },
-    uploadButton: {
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "12px 18px",
-        borderRadius: "12px",
-        backgroundColor: "#2563eb",
-        color: "#ffffff",
-        fontWeight: 700,
-        cursor: "pointer",
-        whiteSpace: "nowrap",
-    },
-    hiddenInput: {
-        display: "none",
-    },
-    previewGrid: {
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-        gap: "12px",
-        marginTop: "2px",
-    },
-    previewCard: {
-        padding: "14px",
-        borderRadius: "14px",
-        border: "1px solid #dbeafe",
-        backgroundColor: "#f8fafc",
-        display: "flex",
-        flexDirection: "column",
-        gap: "6px",
-    },
-    previewName: {
-        color: "#0f172a",
-        wordBreak: "break-word",
-    },
-    previewMeta: {
-        color: "#64748b",
-        fontSize: "0.84rem",
-    },
-    message: {
-        margin: "0",
-        fontWeight: 700,
-    },
-    success: {
-        color: "#166534",
-    },
-    error: {
-        color: "#b91c1c",
-    },
-    actions: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: "14px",
-        marginTop: "8px",
-        flexWrap: "wrap",
-    },
-    secondaryButton: {
-        border: "1px solid #dbe2ea",
-        borderRadius: "12px",
-        padding: "12px 18px",
-        backgroundColor: "#ffffff",
-        color: "#334155",
-        fontWeight: 700,
-        cursor: "pointer",
-    },
-    primaryButton: {
-        border: "none",
-        borderRadius: "12px",
-        padding: "12px 22px",
-        backgroundColor: "#2563eb",
-        color: "#ffffff",
-        fontWeight: 700,
-        cursor: "pointer",
-        boxShadow: "0 14px 24px rgba(37, 99, 235, 0.22)",
-    },
-};
 
 export default CreateTicketPage;

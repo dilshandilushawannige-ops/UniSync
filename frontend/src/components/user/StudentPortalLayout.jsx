@@ -2,6 +2,7 @@ import { Link, NavLink } from "react-router-dom";
 
 const sidebarItems = [
     { label: "Student Dashboard", path: "/dashboard", icon: "📊" },
+    { label: "Resources", path: "/resources", icon: "📚" },
     { label: "Resource Booking", path: "/resource-booking", icon: "📅" },
     { label: "My Ticket", path: "/my-tickets", icon: "🎫" },
     { label: "Tickets", path: "/create-ticket", icon: "📝" },
