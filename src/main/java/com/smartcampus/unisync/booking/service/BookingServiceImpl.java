@@ -11,6 +11,7 @@ import com.smartcampus.unisync.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -98,6 +99,21 @@ public class BookingServiceImpl implements BookingService {
             throw new BadRequestException("Rejection reason is required when rejecting a booking.");
         }
 
+        if (statusUpdateDto.getStatus() == BookingStatus.APPROVED) {
+            boolean conflict = bookingRepository.existsOverlappingBookingExcluding(
+                    booking.getResourceId(),
+                    booking.getBookingDate(),
+                    booking.getStartTime(),
+                    booking.getEndTime(),
+                    ACTIVE_CONFLICT_STATUSES,
+                    bookingId
+            );
+            if (conflict) {
+                throw new BadRequestException(
+                        "Cannot approve: another booking already occupies this resource for the selected time.");
+            }
+        }
+
         booking.setStatus(statusUpdateDto.getStatus());
         booking.setRejectionReason(statusUpdateDto.getStatus() == BookingStatus.REJECTED
                 ? statusUpdateDto.getRejectionReason()
@@ -121,6 +137,23 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setStatus(BookingStatus.CANCELLED);
         bookingRepository.save(booking);
+    }
+
+    @Override
+    public boolean isSlotAvailable(
+            Long resourceId,
+            LocalDate bookingDate,
+            LocalTime startTime,
+            LocalTime endTime,
+            Long excludeBookingId
+    ) {
+        validateTimeRange(startTime, endTime);
+        if (excludeBookingId == null) {
+            return !bookingRepository.existsOverlappingBooking(
+                    resourceId, bookingDate, startTime, endTime, ACTIVE_CONFLICT_STATUSES);
+        }
+        return !bookingRepository.existsOverlappingBookingExcluding(
+                resourceId, bookingDate, startTime, endTime, ACTIVE_CONFLICT_STATUSES, excludeBookingId);
     }
 
     private void validateTimeRange(LocalTime startTime, LocalTime endTime) {
