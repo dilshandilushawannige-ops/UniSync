@@ -1,10 +1,23 @@
 import { Link } from "react-router-dom";
 import StudentPortalLayout from "../../components/user/StudentPortalLayout";
+import AnnouncementList from "../../components/announcement/AnnouncementList";
+import { useAnnouncements } from "../../context/AnnouncementContext";
 
 function StudentDashboardPage() {
+    const { announcements } = useAnnouncements();
+
     return (
         <StudentPortalLayout title="Welcome to Student Dashboard">
+            {/* Announcements Section */}
             <section style={styles.card}>
+                <h2 style={styles.cardTitle}>📢 Announcements</h2>
+                <p style={styles.cardText}>
+                    Review unread alerts, track recent updates, and clear items after reading them.
+                </p>
+                <AnnouncementList announcements={announcements} userRole="STUDENT" />
+            </section>
+
+            <section style={{ ...styles.card, marginTop: '20px' }}>
                 <h2 style={styles.cardTitle}>Quick Actions</h2>
                 <p style={styles.cardText}>
                     Welcome to your portal. Use the sidebar to publish tickets or open resource booking.
