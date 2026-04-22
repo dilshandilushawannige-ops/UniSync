@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import './HomePage.css';
@@ -21,6 +21,18 @@ import helpTips from '../assets/help-tips.png';
 const HomePage = () => {
   const [typedText, setTypedText] = React.useState('');
   const [openFaqIndex, setOpenFaqIndex] = React.useState(0);
+  const [signupStep, setSignupStep] = React.useState('hidden'); // 'hidden', 'role', 'form'
+  const [selectedRole, setSelectedRole] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState('');
+  const navigate = useNavigate();
+  const signupRef = React.useRef(null);
+
+  const [formData, setFormData] = React.useState({
+    fullName: '',
+    email: '',
+    role: '',
+  });
 
   React.useEffect(() => {
     const word = 'UniSync';
@@ -54,6 +66,59 @@ const HomePage = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  const handleGetStartedClick = () => {
+    setSignupStep('role');
+    setTimeout(() => {
+      signupRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  };
+
+  const handleRoleSelect = (role) => {
+    setSelectedRole(role);
+    setFormData((prev) => ({ ...prev, role }));
+    setSignupStep('form');
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      await createUser(formData);
+      alert('Account created successfully! Please login.');
+      navigate('/login');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to create account. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBack = () => {
+    setSignupStep('role');
+    setSelectedRole('');
+  };
+
+  const handleCloseSignup = () => {
+    setSignupStep('hidden');
+    setSelectedRole('');
+    setFormData({
+      fullName: '',
+      email: '',
+      role: '',
+    });
+    setError('');
+  };
+
   return (
     <div className="landing-page">
       <Navbar />
@@ -71,7 +136,7 @@ const HomePage = () => {
               </span>
             </h1>
             <p className="hero-description">
-              A unified platform for reporting issues, tracking tickets, and managing campus maintenance. 
+              A unified platform for reporting issues, tracking tickets, and managing campus maintenance.
               Designed for seamless communication between students, staff, and technicians.
             </p>
             <div className="hero-cta">
@@ -100,7 +165,7 @@ const HomePage = () => {
             From reporting to resolution, manage all campus support tickets in one place
           </p>
           <div className="section-cta-wrapper">
-            <Link to="/create-ticket" className="section-cta-btn">Get Started</Link>
+            <button onClick={handleGetStartedClick} className="section-cta-btn">Get Started</button>
           </div>
 
           <div className="features-grid-landing">
@@ -112,8 +177,8 @@ const HomePage = () => {
                 <h3 className="feature-title">Report Issues</h3>
               </div>
               <p className="feature-description">
-                Quickly submit maintenance requests, IT support tickets, or facility issues. 
-                Attach photos, specify location, and set priority levels. Our intuitive form 
+                Quickly submit maintenance requests, IT support tickets, or facility issues.
+                Attach photos, specify location, and set priority levels. Our intuitive form
                 ensures all necessary information is captured for fast resolution.
               </p>
               <Link to="/create-ticket" className="feature-btn">Create Ticket</Link>
@@ -127,8 +192,8 @@ const HomePage = () => {
                 <h3 className="feature-title">Track Progress</h3>
               </div>
               <p className="feature-description">
-                Monitor your tickets in real-time from submission to resolution. Get instant 
-                updates on status changes, view assigned technicians, and receive notifications 
+                Monitor your tickets in real-time from submission to resolution. Get instant
+                updates on status changes, view assigned technicians, and receive notifications
                 when your issues are being addressed or completed.
               </p>
               <Link to="/my-tickets" className="feature-btn">View Tickets</Link>
@@ -142,8 +207,8 @@ const HomePage = () => {
                 <h3 className="feature-title">Collaborate</h3>
               </div>
               <p className="feature-description">
-                Communicate directly with technicians through ticket comments. Share additional 
-                details, provide updates, and get clarifications. Our comment system keeps all 
+                Communicate directly with technicians through ticket comments. Share additional
+                details, provide updates, and get clarifications. Our comment system keeps all
                 conversations organized and accessible in one place.
               </p>
               <button className="feature-btn">Learn More</button>
@@ -157,8 +222,8 @@ const HomePage = () => {
                 <h3 className="feature-title">Admin Dashboard</h3>
               </div>
               <p className="feature-description">
-                Comprehensive management tools for administrators and technicians. Assign tickets, 
-                update statuses, manage priorities, and generate reports. Keep your campus running 
+                Comprehensive management tools for administrators and technicians. Assign tickets,
+                update statuses, manage priorities, and generate reports. Keep your campus running
                 smoothly with powerful oversight capabilities.
               </p>
               <Link to="/admin/tickets" className="feature-btn">Admin Panel</Link>
@@ -167,6 +232,100 @@ const HomePage = () => {
         </section>
       </div>
 
+      {/* Signup Section */}
+      {signupStep !== 'hidden' && (
+        <section ref={signupRef} className="signup-section" id="signup">
+          <div className="signup-container">
+            {signupStep === 'role' ? (
+              <div className="signup-card">
+                <button onClick={handleCloseSignup} className="close-btn">✕</button>
+                <p className="signup-overline">Get Started</p>
+                <h2 className="signup-title">Choose Your Role</h2>
+                <p className="signup-subtitle">Select how you'll be using UniSync</p>
+
+                <div className="role-grid">
+                  <button
+                    type="button"
+                    className="role-card"
+                    onClick={() => handleRoleSelect('USER')}
+                  >
+                    <div className="role-icon">👨‍🎓</div>
+                    <h3 className="role-title">Student</h3>
+                    <p className="role-desc">
+                      Report issues, track tickets, and manage campus support requests
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="role-card"
+                    onClick={() => handleRoleSelect('TECHNICIAN')}
+                  >
+                    <div className="role-icon">🔧</div>
+                    <h3 className="role-title">Technician</h3>
+                    <p className="role-desc">
+                      Manage assigned tickets, update status, and resolve campus issues
+                    </p>
+                  </button>
+                </div>
+
+                <p className="signup-helper">
+                  Already have an account? <Link to="/login" className="signup-link">Sign in</Link>
+                </p>
+              </div>
+            ) : (
+              <div className="signup-card">
+                <button onClick={handleCloseSignup} className="close-btn">✕</button>
+                <button type="button" onClick={handleBack} className="back-btn">
+                  ← Back
+                </button>
+
+                <p className="signup-overline">
+                  {selectedRole === 'USER' ? 'Student' : 'Technician'} Registration
+                </p>
+                <h2 className="signup-title">Create Your Account</h2>
+
+                {error && <div className="error-box">{error}</div>}
+
+                <form onSubmit={handleSubmit} className="signup-form">
+                  <input
+                    type="text"
+                    name="fullName"
+                    placeholder="Full Name"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    className="signup-input"
+                    required
+                  />
+
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Email Address"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="signup-input"
+                    required
+                  />
+
+                  <button
+                    type="submit"
+                    className="signup-submit-btn"
+                    disabled={loading}
+                  >
+                    {loading ? 'Creating Account...' : 'Create Account'}
+                  </button>
+                </form>
+
+                <p className="signup-helper">
+                  Already have an account? <Link to="/login" className="signup-link">Sign in</Link>
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* Promo Banner Section */}
       <section className="promo-banner-section">
         <div className="promo-banner-container">
@@ -174,8 +333,8 @@ const HomePage = () => {
           <div className="promo-banner-content">
             <h2 className="promo-banner-heading">UniSync for Smart Campus</h2>
             <p className="promo-banner-subheading">
-              Our comprehensive platform empowers students, staff, and technicians to efficiently 
-              manage campus maintenance, IT support, and facility issues through streamlined ticket 
+              Our comprehensive platform empowers students, staff, and technicians to efficiently
+              manage campus maintenance, IT support, and facility issues through streamlined ticket
               management and real-time collaboration.
             </p>
             <button className="promo-banner-btn">Find out more</button>
@@ -255,7 +414,7 @@ const HomePage = () => {
               <span className="faq-heading-highlight">questions</span>
             </h2>
             <p className="faq-left-desc">
-              Find answers to common questions about UniSync's ticket management system, 
+              Find answers to common questions about UniSync's ticket management system,
               features, and how to get the most out of our platform.
             </p>
           </div>
