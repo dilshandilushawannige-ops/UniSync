@@ -1,9 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import ResourceCard from '../../components/resource/ResourceCard';
 import { getAllResources, searchResources } from '../../services/resourceService';
 
+const getCurrentUserId = () => {
+  const rawUserId = localStorage.getItem('userId');
+  if (!rawUserId) return null;
+
+  const parsedUserId = Number(rawUserId);
+  return Number.isNaN(parsedUserId) ? null : parsedUserId;
+};
+
+const normalizeResources = (resources) => {
+  const resourceMap = new Map();
+  resources.forEach((item) => {
+    if (item?.id != null) {
+      resourceMap.set(item.id, item);
+    }
+  });
+
+  return Array.from(resourceMap.values()).sort((a, b) => Number(b.id) - Number(a.id));
+};
+
 const BrowseResourcesPage = () => {
+  const navigate = useNavigate();
   const [filters, setFilters] = useState({
     type: '',
     minCapacity: '',
@@ -13,14 +34,15 @@ const BrowseResourcesPage = () => {
   const [results, setResults] = useState([]);
   const [searched, setSearched] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [selectedResource, setSelectedResource] = useState(null);
 
   const loadResources = async () => {
     setLoading(true);
     try {
-      const response = await getAllResources();
-      const data = response.data || [];
-      setResources(data);
-      setResults(data);
+      const response = await getAllResources(getCurrentUserId());
+      const data = normalizeResources(response.data || []);
+      setResources((prev) => normalizeResources([...(prev || []), ...data]));
+      setResults((prev) => normalizeResources([...(prev || []), ...data]));
     } catch (error) {
       console.error('Resource fetch failed', error);
       setResources([]);
@@ -32,6 +54,17 @@ const BrowseResourcesPage = () => {
 
   useEffect(() => {
     loadResources();
+
+    const intervalId = window.setInterval(loadResources, 7000);
+    const handleWindowFocus = () => {
+      loadResources();
+    };
+    window.addEventListener('focus', handleWindowFocus);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', handleWindowFocus);
+    };
   }, []);
 
   const handleChange = (event) => {
@@ -63,6 +96,20 @@ const BrowseResourcesPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleViewDetails = (resource) => {
+    setSelectedResource(resource);
+  };
+
+  const handleBookNow = (resource) => {
+    navigate('/dashboard', {
+      state: {
+        resourceId: resource.id,
+        resourceName: resource.name,
+        resourceType: resource.type,
+      },
+    });
   };
 
   return (
@@ -167,11 +214,50 @@ const BrowseResourcesPage = () => {
         {results.length > 0 && (
           <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {results.map((resource) => (
-              <ResourceCard key={resource.id} resource={resource} />
+              <ResourceCard
+                key={resource.id}
+                resource={resource}
+                onViewDetails={handleViewDetails}
+                onBookNow={handleBookNow}
+              />
             ))}
           </div>
         )}
       </section>
+
+      {selectedResource ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl">
+            <div className="mb-3 flex items-start justify-between">
+              <h3 className="text-xl font-bold text-[#0f3d74]">{selectedResource.name}</h3>
+              <button
+                type="button"
+                className="rounded-md px-2 py-1 text-sm text-slate-500 hover:bg-slate-100"
+                onClick={() => setSelectedResource(null)}
+              >
+                Close
+              </button>
+            </div>
+            <div className="space-y-1 text-sm text-slate-700">
+              <p><strong>Type:</strong> {selectedResource.type}</p>
+              <p><strong>Capacity:</strong> {selectedResource.capacity ?? '-'}</p>
+              <p><strong>Location:</strong> {selectedResource.location || 'N/A'}</p>
+              <p><strong>Status:</strong> {selectedResource.status}</p>
+              <p><strong>Availability:</strong> {selectedResource.availabilityWindows || 'N/A'}</p>
+              <p><strong>Description:</strong> {selectedResource.description || 'N/A'}</p>
+            </div>
+            <div className="mt-4 flex justify-end">
+              <button
+                type="button"
+                className="rounded-lg bg-[#123a66] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0f3154]"
+                onClick={() => handleBookNow(selectedResource)}
+              >
+                Booking Now
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };

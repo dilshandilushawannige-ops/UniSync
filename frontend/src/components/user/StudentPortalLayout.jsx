@@ -6,6 +6,7 @@ const sidebarItems = [
     { label: "Student Dashboard", path: "/dashboard", icon: "📊" },
     { label: "Resources", path: "/resources", icon: "📚" },
     { label: "Resource Booking", path: "/resource-booking", icon: "📅" },
+    { label: "Resources", path: "/resources", icon: "🏫" },
     { label: "My Ticket", path: "/my-tickets", icon: "🎫" },
     { label: "Tickets", path: "/create-ticket", icon: "📝" },
     { label: "Notification", path: "/my-notifications", icon: "🔔" },
