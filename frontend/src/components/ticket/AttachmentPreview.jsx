@@ -52,12 +52,12 @@ function AttachmentPreview({ ticketId, refreshTrigger }) {
           <div key={attachment.id} className="attachment-card">
             {/* Clickable image — opens full size in new tab */}
             <a
-              href={`http://localhost:8080/${attachment.fileUrl}`}
+              href={`http://localhost:8081/${attachment.fileUrl}`}
               target="_blank"
               rel="noopener noreferrer"
             >
               <img
-                src={`http://localhost:8080/${attachment.fileUrl}`}
+                src={`http://localhost:8081/${attachment.fileUrl}`}
                 alt={attachment.fileName}
                 className="attachment-img"
               />

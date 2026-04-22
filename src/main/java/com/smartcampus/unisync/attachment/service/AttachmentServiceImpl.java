@@ -141,7 +141,12 @@ public class AttachmentServiceImpl implements AttachmentService {
         dto.setTicketId(attachment.getTicket().getId());
         dto.setFileName(attachment.getFileName());
         dto.setFileType(attachment.getFileType());
-        dto.setFileUrl(attachment.getFilePath()); // Frontend uses this to display/download
+        
+        // Convert file path to proper URL (e.g., "uploads/file.jpg" → "/uploads/file.jpg")
+        String filePath = attachment.getFilePath();
+        String fileUrl = filePath.startsWith("/") ? filePath : "/" + filePath;
+        dto.setFileUrl(fileUrl); // Frontend uses this to display/download
+        
         dto.setUploadedAt(attachment.getUploadedAt());
 
         return dto;

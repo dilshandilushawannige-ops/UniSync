@@ -1,11 +1,14 @@
 package com.smartcampus.unisync.security;
 
+import com.smartcampus.unisync.user.entity.User;
+import com.smartcampus.unisync.user.repository.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -15,13 +18,10 @@ import java.nio.charset.StandardCharsets;
 import com.smartcampus.unisync.user.entity.User;
 
 @Component
+@RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final String frontendBaseUrl;
-
-    public OAuth2LoginSuccessHandler(@Value("${app.frontend-base-url:http://localhost:5173}") String frontendBaseUrl) {
-        this.frontendBaseUrl = frontendBaseUrl;
-    }
+    private final UserRepository userRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -37,6 +37,20 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         System.out.println("=== OAuth2 Success Handler ===");
         System.out.println("User authenticated with authority: " + authority);
         System.out.println("All authorities: " + authentication.getAuthorities());
+
+        // Get user email from OAuth2User
+        OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+        String email = oauth2User.getAttribute("email");
+        
+        // Find user ID from database
+        Long userId = null;
+        if (email != null) {
+            User user = userRepository.findByEmail(email).orElse(null);
+            if (user != null) {
+                userId = user.getId();
+                System.out.println("Found user ID: " + userId + " for email: " + email);
+            }
+        }
 
         String frontendRole;
         switch (authority) {
@@ -67,10 +81,11 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 ? URLEncoder.encode(String.valueOf(userId), StandardCharsets.UTF_8)
                 : "";
 
-        String normalizedFrontendBaseUrl = frontendBaseUrl.replaceAll("/+$", "");
-        String targetUrl = normalizedFrontendBaseUrl + "/oauth-success?token=" + encodedToken + "&role=" + encodedRole;
-        if (!encodedUserId.isEmpty()) {
-            targetUrl = targetUrl + "&userId=" + encodedUserId;
+        String targetUrl = "http://localhost:5173/oauth-success?token=" + encodedToken + "&role=" + encodedRole;
+        
+        // Add userId to the redirect URL if found
+        if (userId != null) {
+            targetUrl += "&userId=" + userId;
         }
 
         System.out.println("Mapped frontend role: " + frontendRole);

@@ -13,6 +13,7 @@ function OAuthSuccess() {
         console.log("=== OAuth Success Page ===");
         console.log("Token:", token);
         console.log("Role:", role);
+        console.log("User ID:", userId);
 
         if (!token || !role) {
             console.log("Missing token or role, redirecting to login");

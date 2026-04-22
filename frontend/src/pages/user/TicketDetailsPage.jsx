@@ -24,8 +24,8 @@ function TicketDetailsPage() {
   // refreshKey triggers AttachmentPreview to reload when a new file is uploaded
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Temporary: hardcoded until auth context is integrated
-  const currentUserId = 1;
+  // Get userId from localStorage (set during OAuth login)
+  const currentUserId = Number(localStorage.getItem("userId"));
 
   useEffect(() => {
     const fetchTicket = async () => {
