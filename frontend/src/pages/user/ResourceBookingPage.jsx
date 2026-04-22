@@ -250,7 +250,7 @@ function ResourceBookingPage() {
   );
 
   return (
-    <StudentPortalLayout title="Welcome to Student Dashboard">
+    <StudentPortalLayout title="Resource Booking">
       <section style={styles.card}>
         <div style={styles.cardHeader}>
           <div>

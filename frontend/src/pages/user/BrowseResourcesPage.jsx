@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import StudentPortalLayout from '../../components/user/StudentPortalLayout';
 import ResourceCard from '../../components/resource/ResourceCard';
 import { getAllResources, searchResources } from '../../services/resourceService';
 
@@ -103,7 +103,7 @@ const BrowseResourcesPage = () => {
   };
 
   const handleBookNow = (resource) => {
-    navigate('/dashboard', {
+    navigate('/resource-booking', {
       state: {
         resourceId: resource.id,
         resourceName: resource.name,
@@ -113,60 +113,28 @@ const BrowseResourcesPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f7fb] text-slate-900">
-      <nav className="bg-[#2464a7] text-white shadow-sm">
-        <div className="mx-auto flex h-14 max-w-[1880px] items-center justify-between px-8">
-          <div className="text-xl font-semibold tracking-tight sm:text-2xl">Smart Campus</div>
-          <div className="flex items-center gap-6 text-sm sm:text-base">
-            <NavLink
-              to="/"
-              className={({ isActive }) =>
-                `rounded-full px-3 py-1 transition ${
-                  isActive ? 'font-semibold text-white' : 'text-white/80 hover:text-white'
-                }`
-              }
-            >
-              Browse Resources
-            </NavLink>
-            <NavLink
-              to="/admin/resources"
-              className={({ isActive }) =>
-                `rounded-full px-3 py-1 transition ${
-                  isActive ? 'font-semibold text-white' : 'text-white/80 hover:text-white'
-                }`
-              }
-            >
-              Manage Resources
-            </NavLink>
-          </div>
-        </div>
-      </nav>
-
-      <header className="bg-[#c9d6e3] py-14 text-center text-[#0f4985]">
-        <div className="mx-auto max-w-[1200px] px-6">
-          <h1 className="text-3xl font-medium sm:text-5xl">
-            Find &amp; Book Campus Resources
-          </h1>
-          <p className="mt-2 text-base sm:text-2xl">
+    <StudentPortalLayout title="Browse Resources">
+      <div style={styles.container}>
+        <div style={styles.header}>
+          <h1 style={styles.headerTitle}>Find & Book Campus Resources</h1>
+          <p style={styles.headerSubtitle}>
             Search labs, lecture halls, meeting rooms and equipment
           </p>
         </div>
-      </header>
 
-      <section className="mx-auto max-w-[1880px] px-8 py-6">
-        <form onSubmit={handleSearch} className="rounded-2xl border border-[#9ec3ea] bg-[#f4f7fb] p-5">
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+        <form onSubmit={handleSearch} style={styles.searchForm}>
+          <div style={styles.searchGrid}>
             <select
               name="type"
               value={filters.type}
               onChange={handleChange}
-              className="rounded-xl border border-[#9ec3ea] bg-[#c9d6e3] px-4 py-2.5 text-base text-[#0f4985] outline-none sm:text-xl"
+              style={styles.input}
             >
               <option value="">All Types</option>
-              <option value="LECTURE_HALL">LECTURE_HALL</option>
-              <option value="LAB">LAB</option>
-              <option value="MEETING_ROOM">MEETING_ROOM</option>
-              <option value="EQUIPMENT">EQUIPMENT</option>
+              <option value="LECTURE_HALL">Lecture Hall</option>
+              <option value="LAB">Lab</option>
+              <option value="MEETING_ROOM">Meeting Room</option>
+              <option value="EQUIPMENT">Equipment</option>
             </select>
 
             <input
@@ -176,7 +144,7 @@ const BrowseResourcesPage = () => {
               value={filters.minCapacity}
               onChange={handleChange}
               placeholder="Min Capacity"
-              className="rounded-xl border border-[#9ec3ea] bg-[#c9d6e3] px-4 py-2.5 text-base text-[#0f4985] outline-none sm:text-xl"
+              style={styles.input}
             />
 
             <input
@@ -184,35 +152,30 @@ const BrowseResourcesPage = () => {
               value={filters.location}
               onChange={handleChange}
               placeholder="Location"
-              className="rounded-xl border border-[#9ec3ea] bg-[#c9d6e3] px-4 py-2.5 text-base text-[#0f4985] outline-none sm:text-xl"
+              style={styles.input}
             />
 
             <button
               type="submit"
               disabled={loading}
-              className="rounded-xl bg-[#2464a7] px-6 py-2.5 text-base font-medium text-white transition hover:bg-[#1d558f] disabled:cursor-not-allowed disabled:opacity-60 sm:text-xl"
+              style={styles.searchButton}
             >
               {loading ? 'Searching...' : 'Search'}
             </button>
           </div>
         </form>
 
-        <h2 className="mt-5 text-2xl font-semibold text-[#0f3d74] sm:text-3xl">Available Resources</h2>
+        <h2 style={styles.sectionTitle}>Available Resources</h2>
 
         {searched && results.length === 0 && (
-          <div className="mt-6 rounded-2xl border border-[#9ec3ea] bg-white p-12 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#E6F1FB] text-[#2464a7]">
-              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="7" />
-                <path d="m20 20-3.5-3.5" />
-              </svg>
-            </div>
-            <p className="text-xl font-medium text-[#0f3d74] sm:text-2xl">No resources found</p>
+          <div style={styles.emptyState}>
+            <div style={styles.emptyIcon}>🔍</div>
+            <p style={styles.emptyText}>No resources found</p>
           </div>
         )}
 
         {results.length > 0 && (
-          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div style={styles.resourceGrid}>
             {results.map((resource) => (
               <ResourceCard
                 key={resource.id}
@@ -223,43 +186,190 @@ const BrowseResourcesPage = () => {
             ))}
           </div>
         )}
-      </section>
+      </div>
 
-      {selectedResource ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl">
-            <div className="mb-3 flex items-start justify-between">
-              <h3 className="text-xl font-bold text-[#0f3d74]">{selectedResource.name}</h3>
+      {selectedResource && (
+        <div style={styles.modalOverlay}>
+          <div style={styles.modalContent}>
+            <div style={styles.modalHeader}>
+              <h3 style={styles.modalTitle}>{selectedResource.name}</h3>
               <button
                 type="button"
-                className="rounded-md px-2 py-1 text-sm text-slate-500 hover:bg-slate-100"
+                style={styles.closeButton}
                 onClick={() => setSelectedResource(null)}
               >
                 Close
               </button>
             </div>
-            <div className="space-y-1 text-sm text-slate-700">
+            <div style={styles.modalBody}>
               <p><strong>Type:</strong> {selectedResource.type}</p>
               <p><strong>Capacity:</strong> {selectedResource.capacity ?? '-'}</p>
               <p><strong>Location:</strong> {selectedResource.location || 'N/A'}</p>
               <p><strong>Status:</strong> {selectedResource.status}</p>
-              <p><strong>Availability:</strong> {selectedResource.availabilityWindows || 'N/A'}</p>
               <p><strong>Description:</strong> {selectedResource.description || 'N/A'}</p>
             </div>
-            <div className="mt-4 flex justify-end">
+            <div style={styles.modalFooter}>
               <button
                 type="button"
-                className="rounded-lg bg-[#123a66] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0f3154]"
+                style={styles.bookButton}
                 onClick={() => handleBookNow(selectedResource)}
               >
-                Booking Now
+                Book Now
               </button>
             </div>
           </div>
         </div>
-      ) : null}
-    </div>
+      )}
+    </StudentPortalLayout>
   );
+};
+
+const styles = {
+  container: {
+    maxWidth: '1400px',
+    margin: '0 auto',
+  },
+  header: {
+    background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+    borderRadius: '16px',
+    padding: '40px',
+    marginBottom: '32px',
+    color: 'white',
+    textAlign: 'center',
+  },
+  headerTitle: {
+    fontSize: '2rem',
+    fontWeight: '700',
+    margin: '0 0 12px',
+    color: 'white',
+  },
+  headerSubtitle: {
+    fontSize: '1rem',
+    margin: 0,
+    color: 'rgba(255, 255, 255, 0.9)',
+  },
+  searchForm: {
+    borderRadius: '16px',
+    border: '1px solid #e2e8f0',
+    background: '#ffffff',
+    padding: '20px',
+    marginBottom: '24px',
+  },
+  searchGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '12px',
+  },
+  input: {
+    width: '100%',
+    boxSizing: 'border-box',
+    borderRadius: '12px',
+    border: '1px solid #d1d5db',
+    background: '#f9fafb',
+    padding: '12px 16px',
+    fontSize: '14px',
+    color: '#1e293b',
+    outline: 'none',
+  },
+  searchButton: {
+    borderRadius: '12px',
+    background: '#2563eb',
+    padding: '12px 24px',
+    fontSize: '14px',
+    fontWeight: '600',
+    color: 'white',
+    border: 'none',
+    cursor: 'pointer',
+  },
+  sectionTitle: {
+    fontSize: '1.5rem',
+    fontWeight: '600',
+    color: '#0f172a',
+    marginBottom: '16px',
+    marginTop: 0,
+  },
+  emptyState: {
+    borderRadius: '16px',
+    border: '1px solid #e2e8f0',
+    background: 'white',
+    padding: '48px',
+    textAlign: 'center',
+  },
+  emptyIcon: {
+    fontSize: '48px',
+    marginBottom: '12px',
+  },
+  emptyText: {
+    fontSize: '1.25rem',
+    fontWeight: '500',
+    color: '#64748b',
+    margin: 0,
+  },
+  resourceGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+    gap: '16px',
+    marginTop: '16px',
+  },
+  modalOverlay: {
+    position: 'fixed',
+    inset: 0,
+    zIndex: 50,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'rgba(0, 0, 0, 0.4)',
+    padding: '16px',
+  },
+  modalContent: {
+    width: '100%',
+    maxWidth: '500px',
+    borderRadius: '16px',
+    background: 'white',
+    padding: '24px',
+    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+  },
+  modalHeader: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: '16px',
+  },
+  modalTitle: {
+    fontSize: '1.25rem',
+    fontWeight: '700',
+    color: '#0f172a',
+    margin: 0,
+  },
+  closeButton: {
+    borderRadius: '6px',
+    padding: '4px 12px',
+    fontSize: '14px',
+    color: '#64748b',
+    background: 'transparent',
+    border: '1px solid #e2e8f0',
+    cursor: 'pointer',
+  },
+  modalBody: {
+    fontSize: '14px',
+    color: '#475569',
+    lineHeight: '1.8',
+  },
+  modalFooter: {
+    marginTop: '20px',
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+  bookButton: {
+    borderRadius: '8px',
+    background: '#1e3a8a',
+    padding: '10px 20px',
+    fontSize: '14px',
+    fontWeight: '600',
+    color: 'white',
+    border: 'none',
+    cursor: 'pointer',
+  },
 };
 
 export default BrowseResourcesPage;
