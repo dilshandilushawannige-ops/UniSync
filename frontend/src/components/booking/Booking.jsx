@@ -4,7 +4,7 @@ import { useState } from "react";
 function Booking({ isOpen, onClose, onCreate, theme = "light", mode = "modal" }) {
   const [formData, setFormData] = useState({
     resource: "",
-    resourceType: "lab",
+    resourceType: "classroom",
     date: "",
     startTime: "",
     endTime: "",
@@ -27,7 +27,7 @@ function Booking({ isOpen, onClose, onCreate, theme = "light", mode = "modal" })
   const handleCancel = () => {
     setFormData({
       resource: "",
-      resourceType: "lab",
+      resourceType: "classroom",
       date: "",
       startTime: "",
       endTime: "",
@@ -51,9 +51,15 @@ function Booking({ isOpen, onClose, onCreate, theme = "light", mode = "modal" })
       return;
     }
 
+    const resourceName = (formData.resource || "").trim();
+    if (!resourceName) {
+      setError("Please type the resource name or location you want to book.");
+      return;
+    }
+
     const newBooking = {
       id: Date.now(),
-      resource: formData.resource,
+      resource: resourceName,
       resourceType: formData.resourceType,
       date: formData.date,
       startTime: formData.startTime,
@@ -100,20 +106,17 @@ function Booking({ isOpen, onClose, onCreate, theme = "light", mode = "modal" })
               <label className="booking-label" htmlFor="resource">
                 Resource *
               </label>
-              <select
+              <input
                 className="booking-input"
                 id="resource"
                 name="resource"
+                type="text"
                 value={formData.resource}
                 onChange={handleChange}
                 required
-              >
-                <option value="">Select resource</option>
-                <option value="Lab 1">Lab 1</option>
-                <option value="Lab 2">Lab 2</option>
-                <option value="Lecture Hall A">Lecture Hall A</option>
-                <option value="Meeting Room 2">Meeting Room 2</option>
-              </select>
+                placeholder="e.g. Lab 3, Lecture Hall A, Meeting Room 2"
+                autoComplete="off"
+              />
             </div>
 
             <div>
@@ -128,10 +131,11 @@ function Booking({ isOpen, onClose, onCreate, theme = "light", mode = "modal" })
                 onChange={handleChange}
                 required
               >
+                <option value="classroom">Classroom</option>
                 <option value="lab">Lab</option>
                 <option value="lecture_hall">Lecture Hall</option>
                 <option value="meeting_room">Meeting Room</option>
-                <option value="equipment">Equipment</option>
+                <option value="equipment">Equipment (projector, camera, …)</option>
               </select>
             </div>
 

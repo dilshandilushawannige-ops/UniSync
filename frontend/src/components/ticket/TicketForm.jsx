@@ -125,7 +125,7 @@ function TicketForm({ userId, onSuccess }) {
           <option value="">Select contact method</option>
           <option value="EMAIL">Email</option>
           <option value="PHONE">Phone</option>
-          <option value="SMS">SMS</option>
+          <option value="IN_APP">In-App Notification</option>
         </select>
       </div>
 

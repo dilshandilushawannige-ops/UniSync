@@ -29,6 +29,11 @@ function StudentDashboardPage() {
                         <span style={styles.actionCopy}>Report a new issue and follow its progress.</span>
                     </Link>
 
+                    <Link to="/resources" style={styles.actionCard}>
+                        <strong style={styles.actionLabel}>Browse Resources</strong>
+                        <span style={styles.actionCopy}>Find labs, halls and equipment available on campus.</span>
+                    </Link>
+
                     <Link to="/my-notifications" style={styles.actionCard}>
                         <strong style={styles.actionLabel}>Check Notifications</strong>
                         <span style={styles.actionCopy}>Review updates from the support team.</span>

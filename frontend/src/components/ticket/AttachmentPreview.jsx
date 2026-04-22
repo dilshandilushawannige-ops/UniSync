@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_ORIGIN } from "../../config/apiConfig";
 import { getAttachments, deleteAttachment } from "../../services/ticketService";
 import "./AttachmentPreview.css";
 
@@ -52,12 +53,12 @@ function AttachmentPreview({ ticketId, refreshTrigger }) {
           <div key={attachment.id} className="attachment-card">
             {/* Clickable image — opens full size in new tab */}
             <a
-              href={`http://localhost:8081/${attachment.fileUrl}`}
+              href={`${API_ORIGIN}/${attachment.fileUrl}`}
               target="_blank"
               rel="noopener noreferrer"
             >
               <img
-                src={`http://localhost:8081/${attachment.fileUrl}`}
+                src={`${API_ORIGIN}/${attachment.fileUrl}`}
                 alt={attachment.fileName}
                 className="attachment-img"
               />

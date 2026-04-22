@@ -22,6 +22,8 @@ const categoryOptions = [
 ];
 
 const priorityOptions = ["LOW", "MEDIUM", "HIGH", "URGENT"];
+const contactOptions = ["EMAIL", "PHONE", "IN_APP"];
+ 
 
 function CreateTicketPage() {
     const navigate = useNavigate();

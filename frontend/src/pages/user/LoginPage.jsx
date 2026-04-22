@@ -1,14 +1,24 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { API_ORIGIN } from "../../config/apiConfig";
 
 function LoginPage() {
 
+    const fallbackApiBaseUrl = `${window.location.protocol}//${window.location.hostname}:8081`;
+    const backendBaseUrl = (import.meta.env.VITE_API_BASE_URL || fallbackApiBaseUrl).replace(/\/$/, "");
+    const googleOAuthUrl = `${backendBaseUrl}/oauth2/authorization/google`;
+
     const [loadingProvider, setLoadingProvider] = useState("");
 
-    // ✅ Google OAuth redirect
+    // OAuth login must be a browser navigation, not fetch/axios/iframe.
     const handleGoogleLogin = () => {
         setLoadingProvider("google");
-        window.location.href = "http://localhost:8081/oauth2/authorization/google";
+        if (window.self !== window.top) {
+            window.open(googleOAuthUrl, "_blank", "noopener,noreferrer");
+            return;
+        }
+
+        window.location.assign(googleOAuthUrl);
     };
 
     return (
@@ -36,7 +46,6 @@ function LoginPage() {
 
                     <div style={styles.buttonGroup}>
 
-                        {/* ✅ GOOGLE LOGIN */}
                         <button
                             type="button"
                             style={styles.oauthButton}
@@ -56,9 +65,6 @@ function LoginPage() {
                                     : "Continue with Google"}
                             </span>
                         </button>
-
-                        {/* ❌ REMOVE GitHub for now (not needed) */}
-                        {/* You can add later if required */}
 
                     </div>
 

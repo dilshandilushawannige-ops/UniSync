@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import AdminPortalLayout from "../../components/admin/AdminPortalLayout";
 
 function AdminDashboardPage() {
@@ -9,6 +10,21 @@ function AdminDashboardPage() {
                     <p style={styles.heroText}>
                         Here is what&apos;s happening in your Campus Nexus system today.
                     </p>
+                </div>
+
+                <div style={styles.quickActions}>
+                    <p style={styles.quickActionsLabel}>Quick access</p>
+                    <div style={styles.quickActionsRow}>
+                        <Link to="/admin/bookings" style={styles.primaryAction}>
+                            <span style={styles.primaryActionIcon} aria-hidden>📅</span>
+                            <span>
+                                <span style={styles.primaryActionTitle}>Booking Manage</span>
+                                <span style={styles.primaryActionHint}>
+                                    Search, filter, and approve or reject booking requests
+                                </span>
+                            </span>
+                        </Link>
+                    </div>
                 </div>
 
                 <p style={styles.loadingText}>Loading system statistics...</p>
@@ -45,6 +61,51 @@ const styles = {
         color: "#64748b",
         lineHeight: 1.6,
         fontSize: "1rem",
+    },
+    quickActions: {
+        marginBottom: "24px",
+    },
+    quickActionsLabel: {
+        margin: "0 0 10px",
+        fontSize: "0.75rem",
+        fontWeight: 700,
+        letterSpacing: "0.08em",
+        textTransform: "uppercase",
+        color: "#94a3b8",
+    },
+    quickActionsRow: {
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "12px",
+    },
+    primaryAction: {
+        display: "flex",
+        alignItems: "center",
+        gap: "14px",
+        padding: "16px 20px",
+        borderRadius: "14px",
+        background: "linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)",
+        color: "#ffffff",
+        textDecoration: "none",
+        fontWeight: 700,
+        boxShadow: "0 12px 28px rgba(37, 99, 235, 0.28)",
+        maxWidth: "100%",
+        transition: "transform 0.15s ease, box-shadow 0.15s ease",
+    },
+    primaryActionIcon: {
+        fontSize: "1.5rem",
+        lineHeight: 1,
+    },
+    primaryActionTitle: {
+        display: "block",
+        fontSize: "1.05rem",
+        marginBottom: "4px",
+    },
+    primaryActionHint: {
+        display: "block",
+        fontSize: "0.82rem",
+        fontWeight: 500,
+        opacity: 0.92,
     },
     loadingText: {
         margin: "0 0 18px",

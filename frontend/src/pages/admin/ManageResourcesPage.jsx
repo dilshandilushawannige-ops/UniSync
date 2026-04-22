@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import AdminPortalLayout from '../../components/admin/AdminPortalLayout';
 import ResourceForm from '../../components/resource/ResourceForm';
 import ResourceTable from '../../components/resource/ResourceTable';
 import {
@@ -92,67 +93,158 @@ const ManageResourcesPage = () => {
   };
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-[#0C447C]">Manage Resources</h1>
-        <button
-          onClick={openCreateModal}
-          className="rounded-xl bg-gradient-to-r from-[#0C447C] to-[#378ADD] px-4 py-2.5 font-semibold text-white shadow-sm transition hover:opacity-95"
-        >
-          + Add Resource
-        </button>
-      </div>
-
-      {message.text && (
-        <div
-          className={`mb-4 rounded-xl border px-4 py-3 text-sm font-medium ${
-            message.type === 'success'
-              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-              : 'border-rose-200 bg-rose-50 text-rose-700'
-          }`}
-        >
-          {message.text}
+    <AdminPortalLayout title="Manage Resources">
+      <section style={styles.container}>
+        <div style={styles.header}>
+          <h1 style={styles.title}>Manage Resources</h1>
+          <button onClick={openCreateModal} style={styles.addButton}>
+            + Add Resource
+          </button>
         </div>
-      )}
 
-      {isLoading ? (
-        <div className="rounded-xl border border-[#D6E5F4] bg-white p-8 text-center text-slate-500">
-          Loading resources...
-        </div>
-      ) : (
-        <ResourceTable
-          resources={resources}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onStatusToggle={handleStatusToggle}
-        />
-      )}
-
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0C447C]/45 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-2xl rounded-2xl border border-[#D6E5F4] bg-white p-6 shadow-xl">
-            <div className="mb-5 flex items-center justify-between border-b border-[#E6F1FB] pb-3">
-              <h2 className="text-xl font-bold text-[#0C447C]">
-                {editingResource ? 'Edit Resource' : 'Create Resource'}
-              </h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="rounded-md px-2 py-1 text-slate-500 hover:bg-slate-100"
-              >
-                Close
-              </button>
-            </div>
-
-            <ResourceForm
-              initialData={editingResource}
-              onSubmit={handleSubmit}
-              onCancel={() => setIsModalOpen(false)}
-            />
+        {message.text && (
+          <div style={message.type === 'success' ? styles.successMessage : styles.errorMessage}>
+            {message.text}
           </div>
-        </div>
-      )}
-    </section>
+        )}
+
+        {isLoading ? (
+          <div style={styles.loadingBox}>
+            Loading resources...
+          </div>
+        ) : (
+          <ResourceTable
+            resources={resources}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onStatusToggle={handleStatusToggle}
+          />
+        )}
+
+        {isModalOpen && (
+          <div style={styles.modalOverlay}>
+            <div style={styles.modalContent}>
+              <div style={styles.modalHeader}>
+                <h2 style={styles.modalTitle}>
+                  {editingResource ? 'Edit Resource' : 'Create Resource'}
+                </h2>
+                <button onClick={() => setIsModalOpen(false)} style={styles.closeButton}>
+                  Close
+                </button>
+              </div>
+
+              <ResourceForm
+                initialData={editingResource}
+                onSubmit={handleSubmit}
+                onCancel={() => setIsModalOpen(false)}
+              />
+            </div>
+          </div>
+        )}
+      </section>
+    </AdminPortalLayout>
   );
+};
+
+const styles = {
+  container: {
+    maxWidth: '1400px',
+    margin: '0 auto',
+  },
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '16px',
+    marginBottom: '24px',
+    flexWrap: 'wrap',
+  },
+  title: {
+    fontSize: '1.5rem',
+    fontWeight: 'bold',
+    color: '#0C447C',
+    margin: 0,
+  },
+  addButton: {
+    borderRadius: '12px',
+    background: 'linear-gradient(to right, #0C447C, #378ADD)',
+    padding: '10px 16px',
+    fontWeight: '600',
+    color: 'white',
+    border: 'none',
+    cursor: 'pointer',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  },
+  successMessage: {
+    marginBottom: '16px',
+    borderRadius: '12px',
+    border: '1px solid #d1fae5',
+    padding: '12px 16px',
+    fontSize: '0.875rem',
+    fontWeight: '500',
+    background: '#d1fae5',
+    color: '#065f46',
+  },
+  errorMessage: {
+    marginBottom: '16px',
+    borderRadius: '12px',
+    border: '1px solid #fee2e2',
+    padding: '12px 16px',
+    fontSize: '0.875rem',
+    fontWeight: '500',
+    background: '#fee2e2',
+    color: '#991b1b',
+  },
+  loadingBox: {
+    borderRadius: '12px',
+    border: '1px solid #D6E5F4',
+    background: 'white',
+    padding: '32px',
+    textAlign: 'center',
+    color: '#64748b',
+  },
+  modalOverlay: {
+    position: 'fixed',
+    inset: 0,
+    zIndex: 50,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'rgba(12, 68, 124, 0.45)',
+    padding: '16px',
+    backdropFilter: 'blur(4px)',
+  },
+  modalContent: {
+    width: '100%',
+    maxWidth: '672px',
+    borderRadius: '16px',
+    border: '1px solid #D6E5F4',
+    background: 'white',
+    padding: '24px',
+    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+  },
+  modalHeader: {
+    marginBottom: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottom: '1px solid #E6F1FB',
+    paddingBottom: '12px',
+  },
+  modalTitle: {
+    fontSize: '1.25rem',
+    fontWeight: 'bold',
+    color: '#0C447C',
+    margin: 0,
+  },
+  closeButton: {
+    borderRadius: '6px',
+    padding: '4px 8px',
+    color: '#64748b',
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+  },
 };
 
 export default ManageResourcesPage;

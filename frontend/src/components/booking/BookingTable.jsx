@@ -56,6 +56,13 @@ function BookingTable({
                 <span className={`status-pill status-${booking.status.toLowerCase()}`}>
                   {booking.status}
                 </span>
+                {booking.status === "REJECTED" && booking.rejectionReason && (
+                  <div style={{ marginTop: 6 }}>
+                    <small title={booking.rejectionReason}>
+                      Reason: {booking.rejectionReason}
+                    </small>
+                  </div>
+                )}
               </td>
               <td>
                 <div className="table-actions">
