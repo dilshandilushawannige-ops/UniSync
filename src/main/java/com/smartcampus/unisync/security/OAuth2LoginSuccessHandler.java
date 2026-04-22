@@ -73,7 +73,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         }
 
         String token = "google-oauth-success";
-        Long userId = null;
         if (authentication.getPrincipal() instanceof CustomUserPrincipal principal) {
             User user = principal.getUser();
             userId = user != null ? user.getId() : null;

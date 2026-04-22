@@ -99,14 +99,6 @@ const ResourceForm = ({ initialData, onSubmit, onCancel }) => {
     bookingDate: normalizeDateValue(initialData?.bookingDate),
     startTime: toDisplayTime(initialData?.availableFrom) || DEFAULT_START_TIME_DISPLAY,
     endTime: toDisplayTime(initialData?.availableTo) || DEFAULT_END_TIME_DISPLAY,
-    numberOfPeople: '',
-  });
-
-  const [openPicker, setOpenPicker] = useState(null);
-  const [dateDraft, setDateDraft] = useState(normalizeDateValue(initialData?.bookingDate));
-  const [timeDraft, setTimeDraft] = useState({
-    startTime: parseDisplayTime(toDisplayTime(initialData?.availableFrom)),
-    endTime: parseDisplayTime(toDisplayTime(initialData?.availableTo)),
   });
 
   const handleChange = (event) => {
@@ -114,256 +106,33 @@ const ResourceForm = ({ initialData, onSubmit, onCancel }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const openTimePicker = (fieldName) => {
-    setOpenPicker(fieldName);
-    setTimeDraft((prev) => ({
-      ...prev,
-      [fieldName]: parseDisplayTime(formData[fieldName]),
-    }));
-  };
-
-  const openDatePicker = () => {
-    setOpenPicker('bookingDate');
-    setDateDraft(normalizeDateValue(formData.bookingDate));
-  };
-
-  const commitDateDraft = () => {
-    setFormData((prev) => ({
-      ...prev,
-      bookingDate: dateDraft,
-    }));
-    setOpenPicker(null);
-  };
-
-  const updateTimeDraft = (fieldName, key, value) => {
-    setTimeDraft((prev) => ({
-      ...prev,
-      [fieldName]: {
-        ...prev[fieldName],
-        [key]: value,
-      },
-    }));
-  };
-
-  const commitTimeDraft = (fieldName) => {
-    setFormData((prev) => ({
-      ...prev,
-      [fieldName]: formatDraftTime(timeDraft[fieldName]),
-    }));
-    setOpenPicker(null);
-  };
-
-  const handlePickerBlur = (event) => {
-    if (!event.currentTarget.contains(event.relatedTarget)) {
-      setOpenPicker(null);
-    }
-  };
-
-  const renderTimePicker = (fieldName, label) => {
-    const draft = timeDraft[fieldName];
-
-    return (
-      <div className="relative" onBlur={handlePickerBlur}>
-        <div className="mb-2">
-          <FormLabel>{label}</FormLabel>
-        </div>
-        <div className="relative">
-          <input
-            readOnly
-            name={fieldName}
-            value={formData[fieldName]}
-            placeholder="-- : -- --"
-            onClick={() => openTimePicker(fieldName)}
-            className="w-full rounded-xl border border-[#d5dde8] bg-[#f8fbff] px-4 py-3 pr-12 text-sm text-[#233f5b] outline-none transition focus:border-[#9abadd] focus:ring-2 focus:ring-[#d9e8f9] cursor-pointer"
-          />
-          <button
-            type="button"
-            onClick={() => openTimePicker(fieldName)}
-            className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-xl text-[#6b7c93] transition hover:text-[#0C447C]"
-            aria-label={`Open ${label.toLowerCase()} picker`}
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.9">
-              <path d="M12 8v5l3 2" />
-              <circle cx="12" cy="12" r="8" />
-            </svg>
-          </button>
-
-          {openPicker === fieldName ? (
-            <div className="absolute left-0 top-full z-20 mt-2 w-full rounded-2xl border border-[#d5dde8] bg-white p-4 shadow-lg">
-              <div className="grid grid-cols-2 gap-3">
-                <label className="block">
-                  <span className="mb-1 block text-[11px] font-bold uppercase tracking-widest text-[#6b7c93]">
-                    Hour
-                  </span>
-                  <select
-                    value={draft.hour}
-                    onChange={(event) => updateTimeDraft(fieldName, 'hour', event.target.value)}
-                    className="w-full rounded-xl border border-[#d5dde8] bg-[#f8fbff] px-3 py-2.5 text-sm text-[#233f5b] outline-none focus:border-[#9abadd] focus:ring-2 focus:ring-[#d9e8f9]"
-                  >
-                    {Array.from({ length: 12 }, (_, index) => {
-                      const hourValue = String(index + 1).padStart(2, '0');
-                      return (
-                        <option key={hourValue} value={hourValue}>
-                          {hourValue}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </label>
-
-                <label className="block">
-                  <span className="mb-1 block text-[11px] font-bold uppercase tracking-widest text-[#6b7c93]">
-                    Minute
-                  </span>
-                  <select
-                    value={draft.minute}
-                    onChange={(event) => updateTimeDraft(fieldName, 'minute', event.target.value)}
-                    className="w-full rounded-xl border border-[#d5dde8] bg-[#f8fbff] px-3 py-2.5 text-sm text-[#233f5b] outline-none focus:border-[#9abadd] focus:ring-2 focus:ring-[#d9e8f9]"
-                  >
-                    {Array.from({ length: 60 }, (_, index) => {
-                      const minuteValue = String(index).padStart(2, '0');
-                      return (
-                        <option key={minuteValue} value={minuteValue}>
-                          {minuteValue}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </label>
-              </div>
-
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                {['AM', 'PM'].map((period) => (
-                  <button
-                    key={period}
-                    type="button"
-                    onClick={() => updateTimeDraft(fieldName, 'period', period)}
-                    className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${
-                      draft.period === period
-                        ? 'border-[#0C447C] bg-[#0C447C] text-white'
-                        : 'border-[#d5dde8] bg-[#f8fbff] text-[#233f5b] hover:border-[#9abadd]'
-                    }`}
-                  >
-                    {period}
-                  </button>
-                ))}
-              </div>
-
-              <div className="mt-4 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => commitTimeDraft(fieldName)}
-                  className="rounded-xl bg-[#0C447C] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-95"
-                >
-                  Done
-                </button>
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </div>
-    );
-  };
-
-  const renderDatePicker = (label) => (
-    <div className="relative" onBlur={handlePickerBlur}>
-      <div className="mb-2">
-        <FormLabel>{label}</FormLabel>
-      </div>
-      <div className="relative">
-        <input
-          readOnly
-          name="bookingDate"
-          value={formData.bookingDate}
-          placeholder="-- / -- / ----"
-          onClick={openDatePicker}
-          className="w-full rounded-xl border border-[#d5dde8] bg-[#f8fbff] px-4 py-3 pr-12 text-sm text-[#233f5b] outline-none transition focus:border-[#9abadd] focus:ring-2 focus:ring-[#d9e8f9] cursor-pointer"
-        />
-        <button
-          type="button"
-          onClick={openDatePicker}
-          className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-xl text-[#6b7c93] transition hover:text-[#0C447C]"
-          aria-label="Open booking date picker"
-        >
-          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.9">
-            <path d="M7 3v4M17 3v4M4 9h16" />
-            <rect x="4" y="5" width="16" height="16" rx="2" />
-          </svg>
-        </button>
-
-        {openPicker === 'bookingDate' ? (
-          <div className="absolute left-0 top-full z-20 mt-2 w-full rounded-2xl border border-[#d5dde8] bg-white p-4 shadow-lg">
-            <label className="block">
-              <span className="mb-1 block text-[11px] font-bold uppercase tracking-widest text-[#6b7c93]">
-                Date
-              </span>
-              <input
-                type="date"
-                value={dateDraft}
-                onChange={(event) => setDateDraft(event.target.value)}
-                className="w-full rounded-xl border border-[#d5dde8] bg-[#f8fbff] px-3 py-2.5 text-sm text-[#233f5b] outline-none focus:border-[#9abadd] focus:ring-2 focus:ring-[#d9e8f9]"
-              />
-            </label>
-
-            <div className="mt-4 flex justify-end">
-              <button
-                type="button"
-                onClick={commitDateDraft}
-                className="rounded-xl bg-[#0C447C] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-95"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        ) : null}
-      </div>
-    </div>
-  );
-
   const handleSubmit = (event) => {
     event.preventDefault();
-
-    const generatedDescription = [
-      formData.description,
-      formData.numberOfPeople ? `Suggested people: ${formData.numberOfPeople}` : null,
-    ]
-      .filter(Boolean)
-      .join(' | ');
 
     onSubmit({
       name: formData.name,
       type: formData.type,
       capacity: Number(formData.capacity),
       location: formData.location,
-      description: generatedDescription || null,
+      description: formData.description || null,
       availableFrom: toApiLocalTime(formData.startTime),
       availableTo: toApiLocalTime(formData.endTime),
       status: formData.status,
     });
   };
 
-  const SectionHeader = ({ children }) => (
-    <h3 className="text-xs font-bold uppercase tracking-widest text-[#6b7c93] mb-4">{children}</h3>
-  );
-
-  const FormLabel = ({ children, required }) => (
-    <label className="text-xs font-bold uppercase tracking-widest text-[#6b7c93]">
-      {children}{required && <span className="text-red-500 ml-1">*</span>}
-    </label>
-  );
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl bg-white p-8 text-left text-sm">
-      <h2 className="text-[1.75rem] font-extrabold text-[#163453]">
+    <form onSubmit={handleSubmit} style={styles.form}>
+      <h2 style={styles.formTitle}>
         {isEditMode ? 'Update Resource' : 'Create New Resource'}
       </h2>
 
-      <section className="space-y-4 border-b border-[#e0e8f2] pb-6">
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <FormLabel required>Resource Name</FormLabel>
-            <span className="text-xs font-medium text-slate-500">{formData.name.length}/100</span>
-          </div>
+      <div style={styles.section}>
+        <div style={styles.fieldGroup}>
+          <label style={styles.label}>
+            Resource Name <span style={styles.required}>*</span>
+            <span style={styles.charCount}>{formData.name.length}/100</span>
+          </label>
           <input
             name="name"
             value={formData.name}
@@ -371,18 +140,18 @@ const ResourceForm = ({ initialData, onSubmit, onCancel }) => {
             required
             maxLength={100}
             placeholder="e.g., Room 101"
-            className="w-full rounded-xl border border-[#d5dde8] bg-[#f8fbff] px-4 py-3 text-sm text-[#233f5b] outline-none transition focus:border-[#9abadd] focus:ring-2 focus:ring-[#d9e8f9]"
+            style={styles.input}
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <FormLabel required>Type</FormLabel>
+        <div style={styles.gridTwo}>
+          <div style={styles.fieldGroup}>
+            <label style={styles.label}>Type <span style={styles.required}>*</span></label>
             <select
               name="type"
               value={formData.type}
               onChange={handleChange}
-              className="w-full rounded-xl border border-[#d5dde8] bg-[#f8fbff] px-4 py-3 text-sm text-[#233f5b] outline-none transition focus:border-[#9abadd] focus:ring-2 focus:ring-[#d9e8f9]"
+              style={styles.input}
             >
               {TYPE_OPTIONS.map((type) => (
                 <option key={type} value={type}>
@@ -392,13 +161,13 @@ const ResourceForm = ({ initialData, onSubmit, onCancel }) => {
             </select>
           </div>
 
-          <div>
-            <FormLabel>Status</FormLabel>
+          <div style={styles.fieldGroup}>
+            <label style={styles.label}>Status</label>
             <select
               name="status"
               value={formData.status}
               onChange={handleChange}
-              className="w-full rounded-xl border border-[#d5dde8] bg-[#f8fbff] px-4 py-3 text-sm text-[#233f5b] outline-none transition focus:border-[#9abadd] focus:ring-2 focus:ring-[#d9e8f9]"
+              style={styles.input}
             >
               {STATUS_OPTIONS.map((status) => (
                 <option key={status} value={status}>
@@ -409,11 +178,11 @@ const ResourceForm = ({ initialData, onSubmit, onCancel }) => {
           </div>
         </div>
 
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <FormLabel required>Location</FormLabel>
-            <span className="text-xs font-medium text-slate-500">{formData.location.length}/100</span>
-          </div>
+        <div style={styles.fieldGroup}>
+          <label style={styles.label}>
+            Location <span style={styles.required}>*</span>
+            <span style={styles.charCount}>{formData.location.length}/100</span>
+          </label>
           <input
             name="location"
             value={formData.location}
@@ -421,17 +190,14 @@ const ResourceForm = ({ initialData, onSubmit, onCancel }) => {
             required
             maxLength={100}
             placeholder="e.g., Building A, 2nd Floor"
-            className="w-full rounded-xl border border-[#d5dde8] bg-[#f8fbff] px-4 py-3 text-sm text-[#233f5b] outline-none transition focus:border-[#9abadd] focus:ring-2 focus:ring-[#d9e8f9]"
+            style={styles.input}
           />
         </div>
-      </section>
 
-      <section className="space-y-4 border-b border-[#e0e8f2] pb-6">
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <FormLabel required>Capacity (People)</FormLabel>
-            <span className="text-xs font-medium text-slate-500">{formData.capacity.length}/100</span>
-          </div>
+        <div style={styles.fieldGroup}>
+          <label style={styles.label}>
+            Capacity (People) <span style={styles.required}>*</span>
+          </label>
           <input
             name="capacity"
             type="number"
@@ -440,55 +206,69 @@ const ResourceForm = ({ initialData, onSubmit, onCancel }) => {
             onChange={handleChange}
             required
             placeholder="e.g., 50"
-            className="w-full rounded-xl border border-[#d5dde8] bg-[#f8fbff] px-4 py-3 text-sm text-[#233f5b] outline-none transition focus:border-[#9abadd] focus:ring-2 focus:ring-[#d9e8f9]"
+            style={styles.input}
+          />
+        </div>
+      </div>
+
+      <div style={styles.section}>
+        <h3 style={styles.sectionTitle}>Scheduling</h3>
+
+        <div style={styles.fieldGroup}>
+          <label style={styles.label}>Weekly Availability (Optional)</label>
+          <input
+            name="bookingDate"
+            type="date"
+            value={formData.bookingDate}
+            onChange={handleChange}
+            style={styles.input}
           />
         </div>
 
-      </section>
+        <div style={styles.gridTwo}>
+          <div style={styles.fieldGroup}>
+            <label style={styles.label}>Start Time (Optional)</label>
+            <input
+              name="startTime"
+              type="time"
+              value={normalizeTimeValue(formData.startTime)}
+              onChange={handleChange}
+              style={styles.input}
+            />
+          </div>
 
-      <section className="space-y-4 border-b border-[#e0e8f2] pb-6">
-        <SectionHeader>Scheduling</SectionHeader>
-
-        <div>
-          {renderDatePicker('Weekly Availability (Optional)')}
+          <div style={styles.fieldGroup}>
+            <label style={styles.label}>End Time (Optional)</label>
+            <input
+              name="endTime"
+              type="time"
+              value={normalizeTimeValue(formData.endTime)}
+              onChange={handleChange}
+              style={styles.input}
+            />
+          </div>
         </div>
+      </div>
 
-      </section>
-
-      <section className="space-y-4 border-b border-[#e0e8f2] pb-6">
-        <div className="grid grid-cols-2 gap-4">
-          {renderTimePicker('startTime', 'Start Time (Optional)')}
-          {renderTimePicker('endTime', 'End Time (Optional)')}
-        </div>
-      </section>
-
-      <section className="space-y-4">
-
-        <div>
-          <FormLabel>Description (Optional)</FormLabel>
+      <div style={styles.section}>
+        <div style={styles.fieldGroup}>
+          <label style={styles.label}>Description (Optional)</label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
             rows={3}
             placeholder="Add extra notes about this resource"
-            className="w-full rounded-xl border border-[#d5dde8] bg-[#f8fbff] px-4 py-3 text-sm text-[#233f5b] outline-none transition focus:border-[#9abadd] focus:ring-2 focus:ring-[#d9e8f9]"
+            style={{...styles.input, ...styles.textarea}}
           />
         </div>
-      </section>
+      </div>
 
-      <div className="flex justify-end gap-3 pt-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-xl border border-[#c8dcf0] px-5 py-2.5 font-semibold text-slate-700 hover:bg-[#F8FBFF]"
-        >
+      <div style={styles.actions}>
+        <button type="button" onClick={onCancel} style={styles.cancelButton}>
           Cancel
         </button>
-        <button
-          type="submit"
-          className="rounded-xl bg-gradient-to-r from-[#0C447C] to-[#378ADD] px-5 py-2.5 font-semibold text-white shadow-sm transition hover:opacity-95"
-        >
+        <button type="submit" style={styles.submitButton}>
           {isEditMode ? 'Update Resource' : 'Create Resource'}
         </button>
       </div>
@@ -496,7 +276,104 @@ const ResourceForm = ({ initialData, onSubmit, onCancel }) => {
   );
 };
 
+const styles = {
+  form: {
+    background: 'white',
+    padding: '24px',
+    borderRadius: '16px',
+    textAlign: 'left',
+    fontSize: '14px',
+  },
+  formTitle: {
+    fontSize: '1.5rem',
+    fontWeight: '700',
+    color: '#163453',
+    marginBottom: '24px',
+    marginTop: 0,
+  },
+  section: {
+    marginBottom: '24px',
+    paddingBottom: '24px',
+    borderBottom: '1px solid #e0e8f2',
+  },
+  sectionTitle: {
+    fontSize: '0.75rem',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    color: '#6b7c93',
+    marginBottom: '16px',
+    marginTop: 0,
+  },
+  fieldGroup: {
+    marginBottom: '16px',
+  },
+  label: {
+    display: 'block',
+    fontSize: '0.75rem',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    color: '#6b7c93',
+    marginBottom: '8px',
+  },
+  required: {
+    color: '#dc2626',
+    marginLeft: '4px',
+  },
+  charCount: {
+    float: 'right',
+    fontSize: '0.75rem',
+    fontWeight: '500',
+    color: '#94a3b8',
+    textTransform: 'none',
+  },
+  input: {
+    width: '100%',
+    boxSizing: 'border-box',
+    borderRadius: '12px',
+    border: '1px solid #d5dde8',
+    background: '#f8fbff',
+    padding: '12px 16px',
+    fontSize: '14px',
+    color: '#233f5b',
+    outline: 'none',
+  },
+  textarea: {
+    resize: 'vertical',
+    minHeight: '80px',
+    fontFamily: 'inherit',
+  },
+  gridTwo: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '16px',
+  },
+  actions: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: '12px',
+    paddingTop: '8px',
+  },
+  cancelButton: {
+    borderRadius: '12px',
+    border: '1px solid #c8dcf0',
+    padding: '10px 20px',
+    fontWeight: '600',
+    color: '#475569',
+    background: 'white',
+    cursor: 'pointer',
+  },
+  submitButton: {
+    borderRadius: '12px',
+    background: 'linear-gradient(to right, #0C447C, #378ADD)',
+    padding: '10px 20px',
+    fontWeight: '600',
+    color: 'white',
+    border: 'none',
+    cursor: 'pointer',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  },
+};
+
 export default ResourceForm;
-
-
-
