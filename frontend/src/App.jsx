@@ -1,4 +1,5 @@
 ﻿import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { AnnouncementProvider } from "./context/AnnouncementContext";
 import CreateTicketPage from "./pages/user/CreateTicketPage";
 import LandingPage from "./pages/HomePage";
 import LoginPage from "./pages/user/LoginPage";
@@ -10,12 +11,19 @@ import StudentDashboardPage from "./pages/user/StudentDashboardPage";
 import TicketDetailsPage from "./pages/user/TicketDetailsPage";
 import MyBookingsPage from "./pages/user/MyBookingsPage";
 import ResourceBookingPage from "./pages/user/ResourceBookingPage";
+import OAuthSuccess from "./pages/OAuthSuccess";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import AdminProfileModernPage from "./pages/admin/AdminProfileModernPage";
+import ManageBookingsPage from "./pages/admin/ManageBookingsPage";
 import ManageNotificationsPage from "./pages/admin/ManageNotificationsPage";
+import ManageResourcesModernPage from "./pages/admin/ManageResourcesModernPage";
+import ManageResourcesPage from "./pages/admin/ManageResourcesPage";
+import ManageAnnouncementsPage from "./pages/admin/ManageAnnouncementsPage";
 import ManageTicketsPage from "./pages/admin/ManageTicketsPage";
 import ManageUsersPage from "./pages/admin/ManageUsersPage";
 import TicketManagementDetailsPage from "./pages/admin/TicketManagementDetailsPage";
-import ManageBookingsPage from "./pages/admin/ManageBookingsPage";
+import AssignedTicketsModernPage from "./pages/technician/AssignedTicketsModernPage";
+import MaintenanceLogsModernPage from "./pages/technician/MaintenanceLogsModernPage";
 import TechnicianDashboardPage from "./pages/technician/TechnicianDashboardPage";
 import TechnicianProfilePage from "./pages/technician/TechnicianProfilePage";
 import AssignedTicketsPage from "./pages/technician/AssignedTicketsPage";
@@ -67,41 +75,5 @@ function App() {
     </BrowserRouter>
   );
 }
-
-function StatusPage({ title, message }) {
-  return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>{title}</h2>
-        <p style={styles.message}>{message}</p>
-      </div>
-    </div>
-  );
-}
-
-const styles = {
-  page: {
-    minHeight: "100vh",
-    display: "grid",
-    placeItems: "center",
-    padding: "24px",
-    backgroundColor: "#f8fafc",
-  },
-  card: {
-    width: "min(100%, 480px)",
-    padding: "32px",
-    borderRadius: "16px",
-    backgroundColor: "#ffffff",
-    boxShadow: "0 12px 40px rgba(15, 23, 42, 0.08)",
-    textAlign: "center",
-  },
-  title: {
-    margin: "0 0 12px",
-  },
-  message: {
-    margin: 0,
-    color: "#475569",
-  },
-};
 
 export default App;

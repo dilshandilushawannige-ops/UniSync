@@ -1,0 +1,253 @@
+.announcement-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.announcement-modal {
+    background: white;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 1000px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header-announcement {
+    padding: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header-content {
+    flex: 1;
+}
+
+.modal-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #fef3c7;
+    color: #f59e0b;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+.modal-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 8px;
+}
+
+.modal-subtitle {
+    font-size: 15px;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.btn-close-announcement {
+    padding: 10px 20px;
+    background: transparent;
+    color: #64748b;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-close-announcement:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+.announcement-form {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.form-group-announcement {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group-announcement label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.form-group-announcement input[type="text"],
+.form-group-announcement textarea,
+.priority-select {
+    padding: 14px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 15px;
+    color: #1e293b;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-group-announcement input[type="text"]:focus,
+.form-group-announcement textarea:focus,
+.priority-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-group-announcement textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.role-checkboxes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 24px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+}
+
+.checkbox-label-announcement {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.checkbox-label-announcement:hover {
+    background: white;
+}
+
+.checkbox-label-announcement input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #3b82f6;
+}
+
+.checkbox-label-announcement .checkbox-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.role-hint {
+    font-size: 13px;
+    color: #64748b;
+    margin: 8px 0 0;
+    font-style: italic;
+}
+
+.priority-select {
+    width: 100%;
+    cursor: pointer;
+}
+
+.form-actions-announcement {
+    display: flex;
+    gap: 12px;
+    padding-top: 12px;
+}
+
+.btn-create-announcement-submit {
+    flex: 1;
+    padding: 14px 28px;
+    background: #fbbf24;
+    color: #1e293b;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-create-announcement-submit:hover {
+    background: #f59e0b;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(251, 191, 36, 0.3);
+}
+
+.btn-cancel-announcement {
+    padding: 14px 28px;
+    background: transparent;
+    color: #64748b;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel-announcement:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .announcement-modal {
+        max-width: 100%;
+        margin: 0;
+        border-radius: 0;
+        max-height: 100vh;
+    }
+
+    .modal-header-announcement {
+        flex-direction: column;
+        padding: 24px;
+    }
+
+    .btn-close-announcement {
+        width: 100%;
+    }
+
+    .announcement-form {
+        padding: 24px;
+    }
+
+    .role-checkboxes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions-announcement {
+        flex-direction: column-reverse;
+    }
+
+    .btn-create-announcement-submit,
+    .btn-cancel-announcement {
+        width: 100%;
+    }
+}

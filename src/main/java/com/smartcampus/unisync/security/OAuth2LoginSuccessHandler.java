@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import com.smartcampus.unisync.user.entity.User;
 
 @Component
 @RequiredArgsConstructor
@@ -72,9 +73,17 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         }
 
         String token = "google-oauth-success";
+        Long userId = null;
+        if (authentication.getPrincipal() instanceof CustomUserPrincipal principal) {
+            User user = principal.getUser();
+            userId = user != null ? user.getId() : null;
+        }
 
         String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8);
         String encodedRole = URLEncoder.encode(frontendRole, StandardCharsets.UTF_8);
+        String encodedUserId = userId != null
+                ? URLEncoder.encode(String.valueOf(userId), StandardCharsets.UTF_8)
+                : "";
 
         String base = frontendBaseUrl.endsWith("/")
                 ? frontendBaseUrl.substring(0, frontendBaseUrl.length() - 1)

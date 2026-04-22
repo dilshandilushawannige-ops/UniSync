@@ -17,11 +17,14 @@ import java.util.Arrays;
 @Configuration
 public class SecurityConfig {
 
-        @Autowired(required = false)
-        private CustomOAuth2UserService customOAuth2UserService;
-        
-        @Autowired(required = false)
-        private OAuth2LoginSuccessHandler successHandler;
+        private final CustomOAuth2UserService customOAuth2UserService;
+        private final OAuth2LoginSuccessHandler successHandler;
+
+        public SecurityConfig(CustomOAuth2UserService customOAuth2UserService,
+                        OAuth2LoginSuccessHandler successHandler) {
+                this.customOAuth2UserService = customOAuth2UserService;
+                this.successHandler = successHandler;
+        }
 
         @Bean
         public SecurityFilterChain securityFilterChain(
@@ -31,15 +34,15 @@ public class SecurityConfig {
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                                 .csrf(csrf -> csrf.disable())
                                 .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/oauth2/**", "/login/oauth2/**", "/error").permitAll()
                                                 .anyRequest().permitAll()); // Allow all requests for development
-                
-                // Only configure OAuth2 if the beans are available
-                if (customOAuth2UserService != null && successHandler != null) {
-                        http.oauth2Login(oauth -> oauth
-                                        .userInfoEndpoint(userInfo -> userInfo
-                                                        .userService(customOAuth2UserService))
-                                        .successHandler(successHandler));
-                }
+
+                http.oauth2Login(oauth -> oauth
+                                .authorizationEndpoint(endpoint -> endpoint.baseUri("/oauth2/authorization"))
+                                .redirectionEndpoint(endpoint -> endpoint.baseUri("/login/oauth2/code/*"))
+                                .userInfoEndpoint(userInfo -> userInfo
+                                                .userService(customOAuth2UserService))
+                                .successHandler(successHandler));
 
                 return http.build();
         }

@@ -1,9 +1,12 @@
 import { Link, NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getNotificationsByEmail } from "../../services/notificationService";
 
 const sidebarItems = [
     { label: "Student Dashboard", path: "/dashboard", icon: "📊" },
     { label: "Resources", path: "/resources", icon: "📚" },
     { label: "Resource Booking", path: "/resource-booking", icon: "📅" },
+    { label: "Resources", path: "/resources", icon: "🏫" },
     { label: "My Ticket", path: "/my-tickets", icon: "🎫" },
     { label: "Tickets", path: "/create-ticket", icon: "📝" },
     { label: "Notification", path: "/my-notifications", icon: "🔔" },
@@ -11,6 +14,26 @@ const sidebarItems = [
 ];
 
 function StudentPortalLayout({ title, children }) {
+    const [unreadCount, setUnreadCount] = useState(0);
+    const userEmail = "student@gmail.com";
+
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                const notifications = await getNotificationsByEmail(userEmail);
+                const unread = notifications.filter((n) => !n.read).length;
+                setUnreadCount(unread);
+            } catch (error) {
+                console.error("Failed to fetch notifications:", error);
+            }
+        };
+
+        fetchNotifications();
+        // Refresh notification count every 30 seconds
+        const interval = setInterval(fetchNotifications, 30000);
+        return () => clearInterval(interval);
+    }, []);
+
     return (
         <div style={styles.page}>
             <div style={styles.contentShell}>
@@ -40,7 +63,15 @@ function StudentPortalLayout({ title, children }) {
                 </aside>
 
                 <main style={styles.main}>
-                    {title ? <h1 style={styles.title}>{title}</h1> : null}
+                    <div style={styles.header}>
+                        {title ? <h1 style={styles.title}>{title}</h1> : null}
+                        <Link to="/my-notifications" style={styles.notificationBell}>
+                            <span style={styles.bellIcon}>🔔</span>
+                            {unreadCount > 0 && (
+                                <span style={styles.badge}>{unreadCount}</span>
+                            )}
+                        </Link>
+                    </div>
                     {children}
                 </main>
             </div>
@@ -130,11 +161,52 @@ const styles = {
         padding: "28px",
         textAlign: "left",
     },
+    header: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: "20px",
+    },
     title: {
-        margin: "0 0 20px",
+        margin: "0",
         fontSize: "1.8rem",
         color: "#0f172a",
         letterSpacing: "-0.04em",
+    },
+    notificationBell: {
+        position: "relative",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        textDecoration: "none",
+        cursor: "pointer",
+        padding: "8px",
+        borderRadius: "50%",
+        transition: "background-color 0.2s ease",
+        backgroundColor: "transparent",
+    },
+    bellIcon: {
+        fontSize: "28px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    badge: {
+        position: "absolute",
+        top: "2px",
+        right: "2px",
+        backgroundColor: "#dc3545",
+        color: "white",
+        borderRadius: "50%",
+        minWidth: "20px",
+        height: "20px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "11px",
+        fontWeight: "600",
+        padding: "0 5px",
+        boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
     },
 };
 
