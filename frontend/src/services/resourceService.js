@@ -1,15 +1,12 @@
-import api from './api';
+import api from "./api";
 
-export const getAllResources = (userId) =>
-  api.get('/resources', {
-    params: userId ? { userId } : {},
-  });
+export const getAllResources = () => api.get("/resources");
 
 export const getResourceById = (id) => api.get(`/resources/${id}`);
 
-export const searchResources = (params) => api.get('/resources/search', { params });
+export const searchResources = (params) => api.get("/resources/search", { params });
 
-export const createResource = (data) => api.post('/resources', data);
+export const createResource = (data) => api.post("/resources", data);
 
 export const updateResource = (id, data) => api.put(`/resources/${id}`, data);
 

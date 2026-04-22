@@ -7,8 +7,10 @@ import BookingTopBar from "../../components/booking/BookingTopBar";
 import {
   cancelBooking,
   createBooking,
+  formatBookingApiError,
   getAllBookings,
   getMyBookings,
+  shouldUseBookingDemoFallback,
   updateBookingStatus,
 } from "../../services/bookingService";
 import "./BookingPage.css";
@@ -69,27 +71,27 @@ function BookingPage() {
       setBookings((prev) => [created, ...prev]);
       setError("");
     } catch (createError) {
-      // If backend is unavailable in local setup, keep UI usable with local fallback.
-      const fallbackBooking = {
-        id: Date.now(),
-        userId: payload.userId,
-        userName: payload.userName,
-        resourceId: payload.resourceId,
-        resourceName: payload.resourceName,
-        resourceType: payload.resourceType,
-        bookingDate: payload.bookingDate,
-        startTime: payload.startTime,
-        endTime: payload.endTime,
-        purpose: payload.purpose,
-        expectedAttendees: payload.expectedAttendees,
-        status: "PENDING",
-      };
-      setBookings((prev) => [fallbackBooking, ...prev]);
-      setError(
-        "Backend unavailable. Booking added in local demo mode only (not saved to database)."
-      );
-      if (createError?.response?.data?.message) {
-        throw createError;
+      if (shouldUseBookingDemoFallback(createError)) {
+        const fallbackBooking = {
+          id: Date.now(),
+          userId: payload.userId,
+          userName: payload.userName,
+          resourceId: payload.resourceId,
+          resourceName: payload.resourceName,
+          resourceType: payload.resourceType,
+          bookingDate: payload.bookingDate,
+          startTime: payload.startTime,
+          endTime: payload.endTime,
+          purpose: payload.purpose,
+          expectedAttendees: payload.expectedAttendees,
+          status: "PENDING",
+        };
+        setBookings((prev) => [fallbackBooking, ...prev]);
+        setError(
+          "Backend unavailable. Booking shown in demo mode only (not saved to the database)."
+        );
+      } else {
+        setError(formatBookingApiError(createError));
       }
     }
   };

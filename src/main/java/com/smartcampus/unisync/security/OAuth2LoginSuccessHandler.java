@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -22,6 +23,9 @@ import com.smartcampus.unisync.user.entity.User;
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
+
+    @Value("${app.frontend.url:http://localhost:5173}")
+    private String frontendBaseUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -81,7 +85,10 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 ? URLEncoder.encode(String.valueOf(userId), StandardCharsets.UTF_8)
                 : "";
 
-        String targetUrl = "http://localhost:5173/oauth-success?token=" + encodedToken + "&role=" + encodedRole;
+        String base = frontendBaseUrl.endsWith("/")
+                ? frontendBaseUrl.substring(0, frontendBaseUrl.length() - 1)
+                : frontendBaseUrl;
+        String targetUrl = base + "/oauth-success?token=" + encodedToken + "&role=" + encodedRole;
         
         // Add userId to the redirect URL if found
         if (userId != null) {

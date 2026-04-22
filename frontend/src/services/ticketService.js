@@ -11,6 +11,43 @@ import api from "./api";
 // ─────────────────────────────────────────────────────────
 
 /**
+ * Build JSON the backend can deserialize: omit blank optional enums/strings
+ * so Spring does not receive "" for ContactMethod.
+ */
+function buildCreateTicketPayload(ticketData) {
+  const {
+    title,
+    category,
+    description,
+    priority,
+    location,
+    preferredContact,
+    resourceId,
+  } = ticketData;
+
+  const payload = {
+    title,
+    category,
+    description,
+    priority,
+  };
+
+  if (location != null && String(location).trim() !== "") {
+    payload.location = String(location).trim();
+  }
+
+  if (preferredContact != null && String(preferredContact).trim() !== "") {
+    payload.preferredContact = String(preferredContact).trim();
+  }
+
+  if (resourceId != null && resourceId !== "" && !Number.isNaN(Number(resourceId))) {
+    payload.resourceId = Number(resourceId);
+  }
+
+  return payload;
+}
+
+/**
  * Create a new ticket.
  * Called when a student submits the ticket form.
  *
@@ -18,7 +55,8 @@ import api from "./api";
  * @param {number} userId - ID of the logged-in user submitting the ticket
  */
 export const createTicket = async (ticketData, userId) => {
-  const response = await api.post(`/tickets?userId=${userId}`, ticketData);
+  const payload = buildCreateTicketPayload(ticketData);
+  const response = await api.post(`/tickets?userId=${userId}`, payload);
   return response.data;
 };
 
