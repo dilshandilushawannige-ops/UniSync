@@ -1,7 +1,6 @@
 ﻿import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { AnnouncementProvider } from "./context/AnnouncementContext";
-import CreateTicketPage from "./pages/user/CreateTicketPage";
-import LandingPage from "./pages/HomePage";
+import StatusPage from "./components/StatusPage";
+import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/user/LoginPage";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
@@ -10,61 +9,105 @@ import ManageBookingsPage from "./pages/admin/ManageBookingsPage";
 import ManageNotificationsPage from "./pages/admin/ManageNotificationsPage";
 import ManageResourcesModernPage from "./pages/admin/ManageResourcesModernPage";
 import ManageResourcesPage from "./pages/admin/ManageResourcesPage";
-import ManageAnnouncementsPage from "./pages/admin/ManageAnnouncementsPage";
 import ManageTicketsPage from "./pages/admin/ManageTicketsPage";
 import ManageUsersPage from "./pages/admin/ManageUsersPage";
 import TicketManagementDetailsPage from "./pages/admin/TicketManagementDetailsPage";
 import AssignedTicketsModernPage from "./pages/technician/AssignedTicketsModernPage";
 import MaintenanceLogsModernPage from "./pages/technician/MaintenanceLogsModernPage";
 import TechnicianDashboardPage from "./pages/technician/TechnicianDashboardPage";
-import TechnicianProfilePage from "./pages/technician/TechnicianProfilePage";
-import AssignedTicketsPage from "./pages/technician/AssignedTicketsPage";
-import TechnicianNotificationsPage from "./pages/technician/TechnicianNotificationsPage";
-import MaintenanceLogsPage from "./pages/technician/MaintenanceLogsPage";
-import InProgressTicketsPage from "./pages/technician/InProgressTicketsPage";
-import OAuthSuccess from "./pages/OAuthSuccess";
-import BrowseResourcesPage from "./pages/user/BrowseResourcesPage";
-import ManageResourcesPage from "./pages/admin/ManageResourcesPage";
-import AboutUsPage from "./pages/AboutUsPage";
-import ContactUsPage from "./pages/ContactUsPage";
+import TechnicianNotificationsModernPage from "./pages/technician/TechnicianNotificationsModernPage";
+import TechnicianProfileModernPage from "./pages/technician/TechnicianProfileModernPage";
+import BrowseResourcesModernPage from "./pages/user/BrowseResourcesModernPage";
+import CreateTicketModernPage from "./pages/user/CreateTicketModernPage";
+import MyBookingsModernPage from "./pages/user/MyBookingsModernPage";
+import MyNotificationsModernPage from "./pages/user/MyNotificationsModernPage";
+import MyTicketsModernPage from "./pages/user/MyTicketsModernPage";
+import ProfileModernPage from "./pages/user/ProfileModernPage";
+import StudentDashboardPage from "./pages/user/StudentDashboardPage";
+import TicketDetailsModernPage from "./pages/user/TicketDetailsModernPage";
+
+import { AnnouncementProvider } from "./context/AnnouncementContext";
 
 function App() {
   return (
     <AnnouncementProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/about" element={<AboutUsPage />} />
-          <Route path="/contact" element={<ContactUsPage />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/oauth-success" element={<OAuthSuccess />} />
+
           <Route path="/dashboard" element={<StudentDashboardPage />} />
-          <Route path="/create-ticket" element={<CreateTicketPage />} />
-          <Route path="/booking" element={<MyBookingsPage />} />
-          <Route path="/resource-booking" element={<MyBookingsPage />} />
-          <Route path="/my-bookings" element={<MyBookingsPage />} />
-          <Route path="/admin/bookings" element={<ManageBookingsPage />} />
-          <Route path="/my-tickets" element={<MyTicketsPage />} />
-          <Route path="/my-notifications" element={<MyNotificationsPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/resources" element={<BrowseResourcesPage />} />
-          <Route path="/tickets/:id" element={<TicketDetailsPage />} />
+          <Route path="/create-ticket" element={<CreateTicketModernPage />} />
+          <Route path="/my-tickets" element={<MyTicketsModernPage />} />
+          <Route path="/tickets/:id" element={<TicketDetailsModernPage />} />
+          <Route
+            path="/my-notifications"
+            element={<MyNotificationsModernPage />}
+          />
+          <Route path="/profile" element={<ProfileModernPage />} />
+          <Route path="/resources" element={<BrowseResourcesModernPage />} />
+          <Route path="/booking" element={<MyBookingsModernPage />} />
+          <Route path="/resource-booking" element={<MyBookingsModernPage />} />
+          <Route path="/my-bookings" element={<MyBookingsModernPage />} />
+
           <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-          <Route path="/admin/profile" element={<StatusPage title="Admin Profile" message="Admin profile details will appear here." />} />
           <Route path="/admin/users" element={<ManageUsersPage />} />
-          <Route path="/admin/notifications" element={<ManageAnnouncementsPage />} />
+          <Route
+            path="/admin/notifications"
+            element={<ManageNotificationsPage />}
+          />
           <Route path="/admin/tickets" element={<ManageTicketsPage />} />
-          <Route path="/admin/tickets/:id" element={<TicketManagementDetailsPage />} />
-          <Route path="/admin/bookings" element={<StatusPage title="Booking Management" message="Booking management tools will appear here." />} />
-          <Route path="/admin/resources" element={<ManageResourcesPage />} />
-          <Route path="/technician/dashboard" element={<TechnicianDashboardPage />} />
-          <Route path="/technician/profile" element={<TechnicianProfilePage />} />
-          <Route path="/technician/tickets" element={<AssignedTicketsPage />} />
-          <Route path="/technician/in-progress" element={<InProgressTicketsPage />} />
-          <Route path="/technician/notifications" element={<TechnicianNotificationsPage />} />
-          <Route path="/technician/logs" element={<MaintenanceLogsPage />} />
-          <Route path="/unauthorized" element={<StatusPage title="Unauthorized" message="You do not have permission to view this page." />} />
-          <Route path="*" element={<StatusPage title="Page Not Found" message="The page you requested does not exist." />} />
+          <Route
+            path="/admin/tickets/:id"
+            element={<TicketManagementDetailsPage />}
+          />
+          <Route path="/admin/bookings" element={<ManageBookingsPage />} />
+          <Route
+            path="/admin/resources"
+            element={<ManageResourcesModernPage />}
+          />
+          <Route path="/admin/profile" element={<AdminProfileModernPage />} />
+
+          <Route
+            path="/technician/dashboard"
+            element={<TechnicianDashboardPage />}
+          />
+          <Route
+            path="/technician/profile"
+            element={<TechnicianProfileModernPage />}
+          />
+          <Route
+            path="/technician/tickets"
+            element={<AssignedTicketsModernPage />}
+          />
+          <Route
+            path="/technician/notifications"
+            element={<TechnicianNotificationsModernPage />}
+          />
+          <Route
+            path="/technician/logs"
+            element={<MaintenanceLogsModernPage />}
+          />
+
+          <Route
+            path="/unauthorized"
+            element={
+              <StatusPage
+                title="Unauthorized"
+                message="You do not have permission to view this page."
+              />
+            }
+          />
+          <Route
+            path="*"
+            element={
+              <StatusPage
+                title="Page Not Found"
+                message="The page you requested does not exist."
+              />
+            }
+          />
         </Routes>
       </BrowserRouter>
     </AnnouncementProvider>

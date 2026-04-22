@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import com.smartcampus.unisync.user.entity.User;
 
 @Component
 @RequiredArgsConstructor
@@ -26,8 +25,10 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication)
+            throws IOException, ServletException {
 
+        // Get role
         String authority = authentication.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
@@ -35,65 +36,50 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 .orElse("ROLE_USER");
 
         System.out.println("=== OAuth2 Success Handler ===");
-        System.out.println("User authenticated with authority: " + authority);
-        System.out.println("All authorities: " + authentication.getAuthorities());
+        System.out.println("Authority: " + authority);
 
-        // Get user email from OAuth2User
+        // Get email from OAuth2
         OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
         String email = oauth2User.getAttribute("email");
-        
-        // Find user ID from database
+
+        // Find userId from DB
         Long userId = null;
         if (email != null) {
             User user = userRepository.findByEmail(email).orElse(null);
             if (user != null) {
                 userId = user.getId();
-                System.out.println("Found user ID: " + userId + " for email: " + email);
+                System.out.println("Found user ID: " + userId);
             }
         }
 
+        // Map role to frontend role
         String frontendRole;
         switch (authority) {
-            case "ROLE_ADMIN":
-                frontendRole = "admin";
-                break;
-            case "ROLE_TECHNICIAN":
-                frontendRole = "technician";
-                break;
-            case "ROLE_USER":
-                frontendRole = "student";
-                break;
-            default:
-                frontendRole = "student";
-                break;
+            case "ROLE_ADMIN" -> frontendRole = "admin";
+            case "ROLE_TECHNICIAN" -> frontendRole = "technician";
+            default -> frontendRole = "student";
         }
 
+        // Token (temporary placeholder)
         String token = "google-oauth-success";
-        Long userId = null;
-        if (authentication.getPrincipal() instanceof CustomUserPrincipal principal) {
-            User user = principal.getUser();
-            userId = user != null ? user.getId() : null;
-        }
 
+        // Encode values
         String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8);
         String encodedRole = URLEncoder.encode(frontendRole, StandardCharsets.UTF_8);
-        String encodedUserId = userId != null
-                ? URLEncoder.encode(String.valueOf(userId), StandardCharsets.UTF_8)
-                : "";
 
-        String targetUrl = "http://localhost:5173/oauth-success?token=" + encodedToken + "&role=" + encodedRole;
-        
-        // Add userId to the redirect URL if found
+        // Build redirect URL
+        String targetUrl = "http://localhost:5173/oauth-success"
+                + "?token=" + encodedToken
+                + "&role=" + encodedRole;
+
         if (userId != null) {
             targetUrl += "&userId=" + userId;
         }
 
-        System.out.println("Mapped frontend role: " + frontendRole);
         System.out.println("Redirecting to: " + targetUrl);
         System.out.println("==============================");
 
         if (response.isCommitted()) {
-            logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
             return;
         }
 

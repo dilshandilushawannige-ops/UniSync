@@ -79,4 +79,4 @@ const styles = {
     },
 };
 
-export default OAuthSuccess;
+export default OAuthSuccess; 
