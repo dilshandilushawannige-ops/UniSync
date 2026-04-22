@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import StudentPortalLayout from '../../components/user/StudentPortalLayout';
 import { getAllResources } from '../../services/resourceService';
 import '../../styles/browse-resources-modern.css';
 
@@ -45,6 +46,53 @@ const getStatusStyles = (status) => {
     dot: 'bg-rose-500',
     label: 'Out of Service',
   };
+};
+
+const formatTimeDisplay = (value) => {
+  if (!value) return '';
+
+  const trimmed = String(value).trim();
+  const twelveHourMatch = trimmed.match(/^(\d{1,2})\s*:\s*(\d{2})\s*(AM|PM)$/i);
+  if (twelveHourMatch) {
+    const hour = Number(twelveHourMatch[1]);
+    const minute = twelveHourMatch[2];
+    const period = twelveHourMatch[3].toUpperCase();
+    if (!Number.isNaN(hour)) {
+      return `${String(hour).padStart(2, '0')}:${minute} ${period}`;
+    }
+  }
+
+  const twentyFourHourMatch = trimmed.match(/^(\d{2}):(\d{2})(?::\d{2})?$/);
+  if (twentyFourHourMatch) {
+    const hour = Number(twentyFourHourMatch[1]);
+    const minute = twentyFourHourMatch[2];
+    if (!Number.isNaN(hour)) {
+      const period = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = String(hour % 12 || 12).padStart(2, '0');
+      return `${displayHour}:${minute} ${period}`;
+    }
+  }
+
+  return trimmed;
+};
+
+const formatAvailability = (resource) => {
+  const startTime = formatTimeDisplay(resource?.availableFrom);
+  const endTime = formatTimeDisplay(resource?.availableTo);
+
+  if (startTime && endTime) {
+    return `${startTime} - ${endTime}`;
+  }
+
+  if (startTime) {
+    return `${startTime} - N/A`;
+  }
+
+  if (endTime) {
+    return `N/A - ${endTime}`;
+  }
+
+  return resource?.availabilityWindows || 'N/A';
 };
 
 function BrowseResourcesModernPage() {
@@ -128,6 +176,10 @@ function BrowseResourcesModernPage() {
   };
 
   const handleBookNow = (resource) => {
+    if (resource?.status !== 'ACTIVE') {
+      return;
+    }
+
     navigate('/dashboard', {
       state: {
         resourceId: resource.id,
@@ -138,201 +190,215 @@ function BrowseResourcesModernPage() {
   };
 
   return (
-    <div className="browse-page">
-      <section
-        className="browse-hero"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(15, 23, 42, 0.56), rgba(15, 23, 42, 0.68)), url('/assets/bg-campus.png')",
-        }}
-      >
-        <div className="browse-hero-content">
-          <h1>Campus Facilities &amp; Assets</h1>
-          <p>Browse, filter, and book campus resources in real time</p>
+    <StudentPortalLayout title="Browse Resources">
+      <div className="browse-page">
+        <section
+          className="browse-hero"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(15, 23, 42, 0.56), rgba(15, 23, 42, 0.68)), url('/assets/bg-campus.png')",
+          }}
+        >
+          <div className="browse-hero-content">
+            <h1>Campus Facilities &amp; Assets</h1>
+            <p>Browse, filter, and book campus resources in real time</p>
 
-          <div className="browse-stats-grid">
-            <article className="browse-stat-glass">
-              <div className="browse-stat-icon">🗂️</div>
-              <p className="browse-stat-value">{summary.total}</p>
-              <p className="browse-stat-label">TOTAL ROOMS</p>
-            </article>
+            <div className="browse-stats-grid">
+              <article className="browse-stat-glass">
+                <div className="browse-stat-icon">🗂️</div>
+                <p className="browse-stat-value">{summary.total}</p>
+                <p className="browse-stat-label">TOTAL ROOMS</p>
+              </article>
 
-            <article className="browse-stat-glass">
-              <div className="browse-stat-icon">✓</div>
-              <p className="browse-stat-value">{summary.available}</p>
-              <p className="browse-stat-label">AVAILABLE</p>
-            </article>
+              <article className="browse-stat-glass">
+                <div className="browse-stat-icon">✓</div>
+                <p className="browse-stat-value">{summary.available}</p>
+                <p className="browse-stat-label">AVAILABLE</p>
+              </article>
 
-            <article className="browse-stat-glass browse-admin-card">
-              <div className="browse-stat-icon">👤</div>
-              <p className="browse-stat-value">Admin</p>
-              <p className="browse-stat-label">MODE</p>
-            </article>
+              <article className="browse-stat-glass browse-admin-card">
+                <div className="browse-stat-icon">👤</div>
+                <p className="browse-stat-value">Student</p>
+                <p className="browse-stat-label">MODE</p>
+              </article>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="browse-main">
-        <p className="browse-crumb">Facilities / Resources</p>
+        <section className="browse-main">
+          <p className="browse-crumb">Facilities / Resources</p>
 
-        <div className="browse-filters-box">
-          <h2 className="browse-filters-title">FILTERS</h2>
-          <div className="browse-filters-grid">
-            <select className="browse-filter-input" name="type" value={filters.type} onChange={handleFilterChange}>
-              <option value="">All Types</option>
-              <option value="LECTURE_HALL">Lecture Hall</option>
-              <option value="LAB">Lab</option>
-              <option value="MEETING_ROOM">Meeting Room</option>
-              <option value="EQUIPMENT">Equipment</option>
-            </select>
+          <div className="browse-filters-box">
+            <h2 className="browse-filters-title">FILTERS</h2>
+            <div className="browse-filters-grid">
+              <select className="browse-filter-input" name="type" value={filters.type} onChange={handleFilterChange}>
+                <option value="">All Types</option>
+                <option value="LECTURE_HALL">Lecture Hall</option>
+                <option value="LAB">Lab</option>
+                <option value="MEETING_ROOM">Meeting Room</option>
+                <option value="EQUIPMENT">Equipment</option>
+              </select>
 
-            <select className="browse-filter-input" name="status" value={filters.status} onChange={handleFilterChange}>
-              <option value="">All Statuses</option>
-              <option value="ACTIVE">Active</option>
-              <option value="OUT_OF_SERVICE">Out of Service</option>
-            </select>
+              <select className="browse-filter-input" name="status" value={filters.status} onChange={handleFilterChange}>
+                <option value="">All Statuses</option>
+                <option value="ACTIVE">Active</option>
+                <option value="OUT_OF_SERVICE">Out of Service</option>
+              </select>
 
-            <input
-              className="browse-filter-input"
-              name="location"
-              value={filters.location}
-              onChange={handleFilterChange}
-              placeholder="Search location"
-            />
+              <input
+                className="browse-filter-input"
+                name="location"
+                value={filters.location}
+                onChange={handleFilterChange}
+                placeholder="Search location"
+              />
 
-            <input
-              className="browse-filter-input"
-              type="number"
-              min="1"
-              name="minCapacity"
-              value={filters.minCapacity}
-              onChange={handleFilterChange}
-              placeholder="Min Capacity"
-            />
+              <input
+                className="browse-filter-input"
+                type="number"
+                min="1"
+                name="minCapacity"
+                value={filters.minCapacity}
+                onChange={handleFilterChange}
+                placeholder="Min Capacity"
+              />
+            </div>
+
+            <div className="browse-filter-actions">
+              <button type="button" className="browse-apply-btn" onClick={applyFilters}>APPLY</button>
+              <button type="button" className="browse-clear-btn" onClick={clearFilters}>CLEAR</button>
+            </div>
           </div>
 
-          <div className="browse-filter-actions">
-            <button type="button" className="browse-apply-btn" onClick={applyFilters}>APPLY</button>
-            <button type="button" className="browse-clear-btn" onClick={clearFilters}>CLEAR</button>
-          </div>
-        </div>
+          <section className="browse-list-card">
+            {loading ? <p className="browse-empty-copy">Loading resources...</p> : null}
 
-        <section className="browse-list-card">
-          {loading ? <p className="browse-empty-copy">Loading resources...</p> : null}
+            {!loading && visibleResources.length === 0 ? (
+              <>
+                <h3 className="browse-empty-title">No resources found</h3>
+                <p className="browse-empty-copy">Try adjusting filters or add resources from admin panel.</p>
+              </>
+            ) : null}
 
-          {!loading && visibleResources.length === 0 ? (
-            <>
-              <h3 className="browse-empty-title">No resources found</h3>
-              <p className="browse-empty-copy">Try adjusting filters or add resources from admin panel.</p>
-            </>
-          ) : null}
+            {!loading && visibleResources.length > 0 ? (
+              <div className="browse-results-grid">
+                {visibleResources.map((resource) => {
+                  const statusStyles = getStatusStyles(resource.status);
+                  const statusBorderClass = resource.status === 'ACTIVE' ? 'border-t-emerald-400' : 'border-t-rose-400';
+                  const isBookable = resource.status === 'ACTIVE';
+                  return (
+                    <article key={resource.id} className={`browse-resource-card border-t-[3px] ${statusBorderClass}`}>
+                      <div className="mb-2 flex items-center justify-between gap-2">
+                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                          {toDisplayType(resource.type)}
+                        </span>
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles.pill}`}>
+                          <span className={`h-2 w-2 rounded-full ${statusStyles.dot}`} />
+                          {statusStyles.label}
+                        </span>
+                      </div>
 
-          {!loading && visibleResources.length > 0 ? (
-            <div className="browse-results-grid">
-              {visibleResources.map((resource) => {
-                const statusStyles = getStatusStyles(resource.status);
-                const statusBorderClass = resource.status === 'ACTIVE' ? 'border-t-emerald-400' : 'border-t-rose-400';
-                return (
-                <article key={resource.id} className={`browse-resource-card border-t-[3px] ${statusBorderClass}`}>
-                  <div className="mb-2 flex items-center justify-between gap-2">
-                    <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                      {toDisplayType(resource.type)}
-                    </span>
+                      <h3 className="mb-1">{resource.name}</h3>
+                      <p>Capacity: {resource.capacity ?? '-'}</p>
+                      <p>Location: {resource.location || 'N/A'}</p>
+                      <p>Availability: {formatAvailability(resource)}</p>
+
+                      <div className="mt-3 grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                          onClick={() => handleViewDetails(resource)}
+                        >
+                          View Details
+                        </button>
+                        <button
+                          type="button"
+                          disabled={!isBookable}
+                          className={`rounded-lg px-3 py-2 text-sm font-semibold text-white transition ${
+                            isBookable
+                              ? 'bg-[#123a66] hover:bg-[#0f3154]'
+                              : 'bg-slate-300 text-slate-100 cursor-not-allowed'
+                          }`}
+                          onClick={() => handleBookNow(resource)}
+                        >
+                          Booking Now
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : null}
+          </section>
+        </section>
+
+        {selectedResource ? (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+            <div className="w-full max-w-lg rounded-2xl bg-white p-5 shadow-xl">
+              <div className="mb-4 flex items-start justify-between gap-3 border-b border-slate-100 pb-3">
+                <div>
+                  <h3 className="text-xl font-bold text-[#0f3d74]">{selectedResource.name}</h3>
+                  <p className="mt-1 text-sm text-slate-500">Resource Details</p>
+                </div>
+                <button
+                  type="button"
+                  className="rounded-md px-2 py-1 text-sm text-slate-500 hover:bg-slate-100"
+                  onClick={() => setSelectedResource(null)}
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="mb-4 flex items-center gap-2">
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                  {toDisplayType(selectedResource.type)}
+                </span>
+                {(() => {
+                  const statusStyles = getStatusStyles(selectedResource.status);
+                  return (
                     <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles.pill}`}>
                       <span className={`h-2 w-2 rounded-full ${statusStyles.dot}`} />
                       {statusStyles.label}
                     </span>
-                  </div>
-
-                  <h3 className="mb-1">{resource.name}</h3>
-                  <p>Capacity: {resource.capacity ?? '-'}</p>
-                  <p>Location: {resource.location || 'N/A'}</p>
-                  <p>Availability: {resource.availabilityWindows || 'N/A'}</p>
-
-                  <div className="mt-3 grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                      onClick={() => handleViewDetails(resource)}
-                    >
-                      View Details
-                    </button>
-                    <button
-                      type="button"
-                      className="rounded-lg bg-[#123a66] px-3 py-2 text-sm font-semibold text-white hover:bg-[#0f3154]"
-                      onClick={() => handleBookNow(resource)}
-                    >
-                      Booking Now
-                    </button>
-                  </div>
-                </article>
-              )})}
-            </div>
-          ) : null}
-        </section>
-      </section>
-
-      {selectedResource ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-5 shadow-xl">
-            <div className="mb-4 flex items-start justify-between gap-3 border-b border-slate-100 pb-3">
-              <div>
-                <h3 className="text-xl font-bold text-[#0f3d74]">{selectedResource.name}</h3>
-                <p className="mt-1 text-sm text-slate-500">Resource Details</p>
+                  );
+                })()}
               </div>
-              <button
-                type="button"
-                className="rounded-md px-2 py-1 text-sm text-slate-500 hover:bg-slate-100"
-                onClick={() => setSelectedResource(null)}
-              >
-                Close
-              </button>
-            </div>
 
-            <div className="mb-4 flex items-center gap-2">
-              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
-                {toDisplayType(selectedResource.type)}
-              </span>
-              {(() => {
-                const statusStyles = getStatusStyles(selectedResource.status);
-                return (
-                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles.pill}`}>
-                    <span className={`h-2 w-2 rounded-full ${statusStyles.dot}`} />
-                    {statusStyles.label}
-                  </span>
-                );
-              })()}
-            </div>
+              <div className="grid grid-cols-1 gap-2 text-sm text-slate-700 sm:grid-cols-2">
+                <p><strong>ID:</strong> {selectedResource.id ?? 'N/A'}</p>
+                <p><strong>Capacity:</strong> {selectedResource.capacity ?? 'N/A'}</p>
+                <p><strong>Location:</strong> {selectedResource.location || 'N/A'}</p>
+                <p><strong>Availability:</strong> {formatAvailability(selectedResource)}</p>
+                <p><strong>Visible To:</strong> {selectedResource.visibleTo || 'N/A'}</p>
+                <p><strong>Assigned Users:</strong> {selectedResource.assignedUsers || 'N/A'}</p>
+                <p><strong>Created:</strong> {selectedResource.createdAt ? new Date(selectedResource.createdAt).toLocaleString() : 'N/A'}</p>
+                <p><strong>Updated:</strong> {selectedResource.updatedAt ? new Date(selectedResource.updatedAt).toLocaleString() : 'N/A'}</p>
+              </div>
 
-            <div className="grid grid-cols-1 gap-2 text-sm text-slate-700 sm:grid-cols-2">
-              <p><strong>ID:</strong> {selectedResource.id ?? 'N/A'}</p>
-              <p><strong>Capacity:</strong> {selectedResource.capacity ?? 'N/A'}</p>
-              <p><strong>Location:</strong> {selectedResource.location || 'N/A'}</p>
-              <p><strong>Availability:</strong> {selectedResource.availabilityWindows || 'N/A'}</p>
-              <p><strong>Visible To:</strong> {selectedResource.visibleTo || 'N/A'}</p>
-              <p><strong>Assigned Users:</strong> {selectedResource.assignedUsers || 'N/A'}</p>
-              <p><strong>Created:</strong> {selectedResource.createdAt ? new Date(selectedResource.createdAt).toLocaleString() : 'N/A'}</p>
-              <p><strong>Updated:</strong> {selectedResource.updatedAt ? new Date(selectedResource.updatedAt).toLocaleString() : 'N/A'}</p>
-            </div>
+              <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+                <p className="font-semibold text-slate-800">Description</p>
+                <p className="mt-1">{selectedResource.description || 'N/A'}</p>
+              </div>
 
-            <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
-              <p className="font-semibold text-slate-800">Description</p>
-              <p className="mt-1">{selectedResource.description || 'N/A'}</p>
-            </div>
-
-            <div className="mt-4 flex justify-end">
-              <button
-                type="button"
-                className="rounded-lg bg-[#123a66] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0f3154]"
-                onClick={() => handleBookNow(selectedResource)}
-              >
-                Booking Now
-              </button>
+              <div className="mt-4 flex justify-end">
+                <button
+                  type="button"
+                  disabled={selectedResource.status !== 'ACTIVE'}
+                  className={`rounded-lg px-4 py-2 text-sm font-semibold text-white transition ${
+                    selectedResource.status === 'ACTIVE'
+                      ? 'bg-[#123a66] hover:bg-[#0f3154]'
+                      : 'bg-slate-300 text-slate-100 cursor-not-allowed'
+                  }`}
+                  onClick={() => handleBookNow(selectedResource)}
+                >
+                  Booking Now
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      ) : null}
-    </div>
+        ) : null}
+      </div>
+    </StudentPortalLayout>
   );
 }
 

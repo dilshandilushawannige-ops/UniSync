@@ -33,11 +33,17 @@ const menus = {
 function AppLayout({ role = 'student', title, children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const items = useMemo(() => menus[role] || menus.student, [role]);
+  const sidebarVariant = role === 'student' ? 'light' : 'dark';
 
   return (
     <div className="dashboard-shell page-shell app-shell">
       <div className="app-sidebar-desktop">
-        <Sidebar title={`${role[0].toUpperCase()}${role.slice(1)} Portal`} items={items} isOpen={true} />
+        <Sidebar
+          title={`${role[0].toUpperCase()}${role.slice(1)} Portal`}
+          items={items}
+          isOpen={true}
+          variant={sidebarVariant}
+        />
       </div>
 
       <Sidebar
@@ -46,6 +52,7 @@ function AppLayout({ role = 'student', title, children }) {
         isOpen={menuOpen}
         onClose={() => setMenuOpen(false)}
         mobile={true}
+        variant={sidebarVariant}
       />
 
       <section className="app-main-area">

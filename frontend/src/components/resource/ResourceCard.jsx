@@ -11,6 +11,53 @@ const ResourceCard = ({ resource, onViewDetails, onBookNow }) => {
   const iconClass = iconClassByType[resource.type] || 'text-[#2567AE]';
   const isActive = resource.status === 'ACTIVE';
 
+  const formatTimeDisplay = (value) => {
+    if (!value) return '';
+
+    const trimmed = String(value).trim();
+    const twelveHourMatch = trimmed.match(/^(\d{1,2})\s*:\s*(\d{2})\s*(AM|PM)$/i);
+    if (twelveHourMatch) {
+      const hour = Number(twelveHourMatch[1]);
+      const minute = twelveHourMatch[2];
+      const period = twelveHourMatch[3].toUpperCase();
+      if (!Number.isNaN(hour)) {
+        return `${String(hour).padStart(2, '0')}:${minute} ${period}`;
+      }
+    }
+
+    const twentyFourHourMatch = trimmed.match(/^(\d{2}):(\d{2})(?::\d{2})?$/);
+    if (twentyFourHourMatch) {
+      const hour = Number(twentyFourHourMatch[1]);
+      const minute = twentyFourHourMatch[2];
+      if (!Number.isNaN(hour)) {
+        const period = hour >= 12 ? 'PM' : 'AM';
+        const displayHour = String(hour % 12 || 12).padStart(2, '0');
+        return `${displayHour}:${minute} ${period}`;
+      }
+    }
+
+    return trimmed;
+  };
+
+  const formatAvailability = (item) => {
+    const startTime = formatTimeDisplay(item?.availableFrom);
+    const endTime = formatTimeDisplay(item?.availableTo);
+
+    if (startTime && endTime) {
+      return `${startTime} - ${endTime}`;
+    }
+
+    if (startTime) {
+      return `${startTime} - N/A`;
+    }
+
+    if (endTime) {
+      return `N/A - ${endTime}`;
+    }
+
+    return item?.availabilityWindows || 'N/A';
+  };
+
   const renderTypeIcon = (type) => {
     if (type === 'LAB') {
       return (
@@ -62,7 +109,7 @@ const ResourceCard = ({ resource, onViewDetails, onBookNow }) => {
         <p>Type: {resource.type}</p>
         <p>Capacity: {resource.capacity}</p>
         <p>Location: {resource.location}</p>
-        {resource.availabilityWindows && <p>Availability: {resource.availabilityWindows}</p>}
+        <p>Availability: {formatAvailability(resource)}</p>
       </div>
 
       <div className="mt-6">
@@ -85,8 +132,13 @@ const ResourceCard = ({ resource, onViewDetails, onBookNow }) => {
         </button>
         <button
           type="button"
+          disabled={!isActive}
           onClick={() => onBookNow?.(resource)}
-          className="rounded-xl bg-[#123a66] px-3 py-2 text-[16px] font-semibold text-white transition hover:bg-[#0f3154]"
+          className={`rounded-xl px-3 py-2 text-[16px] font-semibold text-white transition ${
+            isActive
+              ? 'bg-[#123a66] hover:bg-[#0f3154]'
+              : 'bg-slate-300 text-slate-100 cursor-not-allowed'
+          }`}
         >
           Booking Now
         </button>

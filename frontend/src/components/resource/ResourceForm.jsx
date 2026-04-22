@@ -2,6 +2,8 @@
 
 const TYPE_OPTIONS = ['LECTURE_HALL', 'LAB', 'MEETING_ROOM', 'EQUIPMENT'];
 const STATUS_OPTIONS = ['ACTIVE', 'OUT_OF_SERVICE'];
+const DEFAULT_START_TIME_DISPLAY = '08 : 00 AM';
+const DEFAULT_END_TIME_DISPLAY = '05 : 00 PM';
 
 const toLabel = (value) =>
   value
@@ -56,6 +58,34 @@ const parseDisplayTime = (value) => {
 
 const formatDraftTime = (draft) => `${draft.hour} : ${draft.minute} ${draft.period}`;
 
+const toApiLocalTime = (value) => {
+  if (!value) return null;
+
+  const trimmed = String(value).trim();
+  const displayMatch = trimmed.match(/^(\d{2})\s:\s(\d{2})\s(AM|PM)$/i);
+  if (displayMatch) {
+    const hour12 = Number(displayMatch[1]);
+    const minute = displayMatch[2];
+    const period = displayMatch[3].toUpperCase();
+
+    if (!Number.isNaN(hour12) && hour12 >= 1 && hour12 <= 12) {
+      const hour24 = period === 'AM' ? (hour12 % 12) : (hour12 % 12) + 12;
+      return `${String(hour24).padStart(2, '0')}:${minute}:00`;
+    }
+  }
+
+  const normalized = normalizeTimeValue(trimmed);
+  if (/^\d{2}:\d{2}$/.test(normalized)) {
+    return `${normalized}:00`;
+  }
+
+  if (/^\d{2}:\d{2}:\d{2}$/.test(trimmed)) {
+    return trimmed;
+  }
+
+  return null;
+};
+
 const ResourceForm = ({ initialData, onSubmit, onCancel }) => {
   const isEditMode = Boolean(initialData && initialData.id);
 
@@ -67,8 +97,8 @@ const ResourceForm = ({ initialData, onSubmit, onCancel }) => {
     description: initialData?.description || '',
     status: initialData?.status || 'ACTIVE',
     bookingDate: normalizeDateValue(initialData?.bookingDate),
-    startTime: toDisplayTime(initialData?.availableFrom),
-    endTime: toDisplayTime(initialData?.availableTo),
+    startTime: toDisplayTime(initialData?.availableFrom) || DEFAULT_START_TIME_DISPLAY,
+    endTime: toDisplayTime(initialData?.availableTo) || DEFAULT_END_TIME_DISPLAY,
     numberOfPeople: '',
   });
 
@@ -306,8 +336,8 @@ const ResourceForm = ({ initialData, onSubmit, onCancel }) => {
       capacity: Number(formData.capacity),
       location: formData.location,
       description: generatedDescription || null,
-      availableFrom: formData.startTime || null,
-      availableTo: formData.endTime || null,
+      availableFrom: toApiLocalTime(formData.startTime),
+      availableTo: toApiLocalTime(formData.endTime),
       status: formData.status,
     });
   };
