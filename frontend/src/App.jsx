@@ -31,7 +31,7 @@ import AssignedTicketsPage from "./pages/technician/AssignedTicketsPage";
 import TechnicianNotificationsPage from "./pages/technician/TechnicianNotificationsPage";
 import MaintenanceLogsPage from "./pages/technician/MaintenanceLogsPage";
 import InProgressTicketsPage from "./pages/technician/InProgressTicketsPage";
-import BrowseResourcesPage from "./pages/user/BrowseResourcesPage";
+import BrowseResourcesModernPage from "./pages/user/BrowseResourcesModernPage";
 import AboutUsPage from "./pages/AboutUsPage";
 import ContactUsPage from "./pages/ContactUsPage";
 
@@ -54,7 +54,7 @@ function App() {
           <Route path="/my-tickets" element={<MyTicketsPage />} />
           <Route path="/my-notifications" element={<MyNotificationsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/resources" element={<BrowseResourcesPage />} />
+          <Route path="/resources" element={<BrowseResourcesModernPage />} />
           <Route path="/tickets/:id" element={<TicketDetailsPage />} />
           <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
           <Route path="/admin/profile" element={<StatusPage title="Admin Profile" message="Admin profile details will appear here." />} />
@@ -62,7 +62,7 @@ function App() {
           <Route path="/admin/notifications" element={<ManageNotificationsPage />} />
           <Route path="/admin/tickets" element={<ManageTicketsPage />} />
           <Route path="/admin/tickets/:id" element={<TicketManagementDetailsPage />} />
-          <Route path="/admin/resources" element={<ManageResourcesPage />} />
+          <Route path="/admin/resources" element={<ManageResourcesModernPage />} />
           <Route path="/technician/dashboard" element={<TechnicianDashboardPage />} />
           <Route path="/technician/profile" element={<TechnicianProfilePage />} />
           <Route path="/technician/tickets" element={<AssignedTicketsPage />} />

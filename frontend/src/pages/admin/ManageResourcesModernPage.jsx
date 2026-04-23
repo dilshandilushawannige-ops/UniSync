@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import Swal from 'sweetalert2';
 import ResourceForm from '../../components/resource/ResourceForm';
 import { createResource, deleteResource, getAllResources, updateResource } from '../../services/resourceService';
 import '../../styles/manage-resources-modern.css';
@@ -17,6 +18,8 @@ function ManageResourcesModernPage() {
   const [editingResource, setEditingResource] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+
+  const getResourceId = (resource) => resource?.id ?? resource?.resourceId ?? null;
 
   const loadResources = async () => {
     setIsLoading(true);
@@ -41,6 +44,30 @@ function ManageResourcesModernPage() {
     const outOfService = resources.filter((item) => item.status === 'OUT_OF_SERVICE').length;
     return { total, available, outOfService };
   }, [resources]);
+
+  const getStatusBadgeStyle = (status) => {
+    if (status === 'ACTIVE') {
+      return {
+        background: '#dcfce7',
+        color: '#166534',
+        border: '1px solid #86efac',
+      };
+    }
+
+    if (status === 'OUT_OF_SERVICE') {
+      return {
+        background: '#fee2e2',
+        color: '#b91c1c',
+        border: '1px solid #fca5a5',
+      };
+    }
+
+    return {
+      background: '#e2e8f0',
+      color: '#334155',
+      border: '1px solid #cbd5e1',
+    };
+  };
 
   const filteredResources = useMemo(() => {
     return resources.filter((resource) => {
@@ -68,7 +95,7 @@ function ManageResourcesModernPage() {
   };
 
   const openEditModal = (resource) => {
-    setEditingResource(resource);
+    setEditingResource({ ...resource, id: getResourceId(resource) });
     setSaveError('');
     setIsResourceModalOpen(true);
   };
@@ -84,8 +111,10 @@ function ManageResourcesModernPage() {
     setIsSaving(true);
     setSaveError('');
     try {
-      if (editingResource?.id) {
-        await updateResource(editingResource.id, formData);
+      const editingId = getResourceId(editingResource);
+
+      if (editingId) {
+        await updateResource(editingId, formData);
       } else {
         await createResource(formData);
       }
@@ -100,14 +129,41 @@ function ManageResourcesModernPage() {
   };
 
   const handleDeleteResource = async (resourceId) => {
-    const confirmed = window.confirm('Are you sure you want to delete this resource?');
-    if (!confirmed) return;
+    if (!resourceId) {
+      setLoadError('Missing resource ID. Please refresh and try again.');
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: 'Delete resource?',
+      text: 'This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+      confirmButtonColor: '#b91c1c',
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       await deleteResource(resourceId);
+      await Swal.fire({
+        title: 'Deleted',
+        text: 'Resource was deleted successfully.',
+        icon: 'success',
+        timer: 1600,
+        showConfirmButton: false,
+      });
       await loadResources();
     } catch (error) {
       setLoadError(error?.response?.data?.message || 'Failed to delete resource.');
+      await Swal.fire({
+        title: 'Delete failed',
+        text: error?.response?.data?.message || 'Failed to delete resource.',
+        icon: 'error',
+      });
     }
   };
 
@@ -135,6 +191,12 @@ function ManageResourcesModernPage() {
               <div className="stat-icon">✓</div>
               <p className="stat-value">{summary.available}</p>
               <p className="stat-label">AVAILABLE</p>
+            </article>
+
+            <article className="stat-glass out">
+              <div className="stat-icon">!</div>
+              <p className="stat-value">{summary.outOfService}</p>
+              <p className="stat-label">OUT OF SERVICE</p>
             </article>
 
             <article className="stat-glass admin">
@@ -229,18 +291,38 @@ function ManageResourcesModernPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredResources.map((resource) => (
-                    <tr key={resource.id} style={{ borderTop: '1px solid #e2e8f0' }}>
+                  {filteredResources.map((resource) => {
+                    const resourceId = getResourceId(resource);
+
+                    return (
+                    <tr key={resourceId ?? `${resource.name}-${resource.location}`} style={{ borderTop: '1px solid #e2e8f0' }}>
                       <td style={{ padding: '12px' }}>{resource.name}</td>
                       <td style={{ padding: '12px' }}>{resource.type}</td>
                       <td style={{ padding: '12px' }}>{resource.capacity}</td>
                       <td style={{ padding: '12px' }}>{resource.location}</td>
-                      <td style={{ padding: '12px' }}>{resource.status}</td>
+                      <td style={{ padding: '12px' }}>
+                        <span
+                          style={{
+                            ...getStatusBadgeStyle(resource.status),
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            borderRadius: '999px',
+                            padding: '4px 10px',
+                            fontSize: '12px',
+                            fontWeight: 700,
+                            lineHeight: 1,
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          {resource.status === 'OUT_OF_SERVICE' ? 'Out of Service' : resource.status}
+                        </span>
+                      </td>
                       <td style={{ padding: '12px' }}>
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                           <button
                             type="button"
                             onClick={() => openEditModal(resource)}
+                            disabled={!resourceId}
                             style={{
                               border: '1px solid #1d4e89',
                               borderRadius: '8px',
@@ -249,14 +331,16 @@ function ManageResourcesModernPage() {
                               fontWeight: 700,
                               background: '#ffffff',
                               color: '#1d4e89',
-                              cursor: 'pointer',
+                              cursor: resourceId ? 'pointer' : 'not-allowed',
+                              opacity: resourceId ? 1 : 0.5,
                             }}
                           >
                             Edit
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleDeleteResource(resource.id)}
+                            onClick={() => handleDeleteResource(resourceId)}
+                            disabled={!resourceId}
                             style={{
                               border: '1px solid #b91c1c',
                               borderRadius: '8px',
@@ -265,7 +349,8 @@ function ManageResourcesModernPage() {
                               fontWeight: 700,
                               background: '#ffffff',
                               color: '#b91c1c',
-                              cursor: 'pointer',
+                              cursor: resourceId ? 'pointer' : 'not-allowed',
+                              opacity: resourceId ? 1 : 0.5,
                             }}
                           >
                             Delete
@@ -273,7 +358,8 @@ function ManageResourcesModernPage() {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  );
+                })}
                 </tbody>
               </table>
             </div>
@@ -282,29 +368,29 @@ function ManageResourcesModernPage() {
       </section>
 
       {isResourceModalOpen ? (
-        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#0C447C]/45 p-4 backdrop-blur-sm sm:items-center">
-          <div className="my-4 w-full max-w-2xl rounded-2xl border border-[#D6E5F4] bg-white p-6 shadow-xl sm:my-0 sm:max-h-[90vh] sm:overflow-y-auto">
-            <div className="mb-5 flex items-center justify-between border-b border-[#E6F1FB] pb-3">
-              <h2 className="text-xl font-bold text-[#0C447C]">
+        <div className="resource-modal-overlay">
+          <div className="resource-modal-content">
+            <div className="resource-modal-header">
+              <h2 className="resource-modal-title">
                 {editingResource ? 'Update Resource' : 'Create Resource'}
               </h2>
               <button
                 type="button"
                 onClick={closeResourceModal}
-                className="rounded-md px-2 py-1 text-slate-500 hover:bg-slate-100"
+                className="resource-modal-close"
               >
                 Close
               </button>
             </div>
 
             {saveError ? (
-              <div className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+              <div className="resource-save-error">
                 {saveError}
               </div>
             ) : null}
 
             {isSaving ? (
-              <div className="rounded-lg border border-[#D6E5F4] bg-[#F8FBFF] p-4 text-sm text-slate-600">
+              <div className="resource-saving-box">
                 Saving resource...
               </div>
             ) : (
