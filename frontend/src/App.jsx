@@ -4,6 +4,7 @@ import StatusPage from "./components/StatusPage";
 import CreateTicketPage from "./pages/user/CreateTicketPage";
 import LandingPage from "./pages/HomePage";
 import LoginPage from "./pages/user/LoginPage";
+import SignupPage from "./pages/user/SignupPage";
 import "./pages/HomePage.css";
 import MyTicketsPage from "./pages/user/MyTicketsPage";
 import MyNotificationsPage from "./pages/user/MyNotificationsPage";
@@ -44,6 +45,7 @@ function App() {
           <Route path="/about" element={<AboutUsPage />} />
           <Route path="/contact" element={<ContactUsPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
           <Route path="/oauth-success" element={<OAuthSuccess />} />
           <Route path="/dashboard" element={<StudentDashboardPage />} />
           <Route path="/create-ticket" element={<CreateTicketPage />} />
