@@ -1,8 +1,18 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Navbar.css';
 
-const Navbar = () => {
+const Navbar = ({ onGetStartedClick }) => {
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (onGetStartedClick) {
+      onGetStartedClick();
+    } else {
+      navigate('/login');
+    }
+  };
+
   return (
     <nav className="navbar-landing">
       <div className="navbar-container">
@@ -18,7 +28,7 @@ const Navbar = () => {
 
         <div className="nav-actions">
           <Link to="/login" className="btn-login">Login</Link>
-          <Link to="/create-ticket" className="btn-get-started">Get Started</Link>
+          <button onClick={handleGetStarted} className="btn-get-started">Get Started</button>
         </div>
       </div>
     </nav>

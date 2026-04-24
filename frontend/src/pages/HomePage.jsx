@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import './HomePage.css';
@@ -17,10 +17,81 @@ import helpProfile from '../assets/help-profile.png';
 import helpTools from '../assets/help-tools.png';
 import helpAdmin from '../assets/help-admin.png';
 import helpTips from '../assets/help-tips.png';
+import studentImg from '../assets/student.png';
+import adminImg from '../assets/admin.png';
+import techImg from '../assets/tech.png';
 
 const HomePage = () => {
   const [typedText, setTypedText] = React.useState('');
   const [openFaqIndex, setOpenFaqIndex] = React.useState(0);
+  const [showRoleModal, setShowRoleModal] = React.useState(false);
+  const [showSignupForm, setShowSignupForm] = React.useState(false);
+  const [selectedRole, setSelectedRole] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState('');
+  const [signupData, setSignupData] = React.useState({
+    username: '',
+    email: '',
+    password: '',
+    contact: ''
+  });
+  const navigate = useNavigate();
+
+  const handleRoleSelect = (role) => {
+    setSelectedRole(role);
+    setShowRoleModal(false);
+    setShowSignupForm(true);
+  };
+
+  const handleSignupChange = (e) => {
+    const { name, value } = e.target;
+    setSignupData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSignupSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081'}/api/auth/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: signupData.username,
+          email: signupData.email,
+          password: signupData.password,
+          contact: signupData.contact,
+          role: selectedRole
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('Account created successfully! Please login.');
+        setShowSignupForm(false);
+        navigate('/login');
+      } else {
+        setError(data.message || 'Signup failed. Please try again.');
+      }
+    } catch (err) {
+      setError('Failed to create account. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBackToRoles = () => {
+    setShowSignupForm(false);
+    setShowRoleModal(true);
+    setSelectedRole('');
+  };
 
   React.useEffect(() => {
     const word = 'UniSync';
@@ -56,7 +127,7 @@ const HomePage = () => {
 
   return (
     <div className="landing-page">
-      <Navbar />
+      <Navbar onGetStartedClick={() => setShowRoleModal(true)} />
 
       {/* Hero Section */}
       <section className="hero-landing">
@@ -71,7 +142,7 @@ const HomePage = () => {
               </span>
             </h1>
             <p className="hero-description">
-              A unified platform for reporting issues, tracking tickets, and managing campus maintenance. 
+              A unified platform for reporting issues, tracking tickets, and managing campus maintenance.
               Designed for seamless communication between students, staff, and technicians.
             </p>
             <div className="hero-cta">
@@ -100,7 +171,7 @@ const HomePage = () => {
             From reporting to resolution, manage all campus support tickets in one place
           </p>
           <div className="section-cta-wrapper">
-            <Link to="/create-ticket" className="section-cta-btn">Get Started</Link>
+            <button onClick={() => setShowRoleModal(true)} className="section-cta-btn">Get Started</button>
           </div>
 
           <div className="features-grid-landing">
@@ -112,8 +183,8 @@ const HomePage = () => {
                 <h3 className="feature-title">Report Issues</h3>
               </div>
               <p className="feature-description">
-                Quickly submit maintenance requests, IT support tickets, or facility issues. 
-                Attach photos, specify location, and set priority levels. Our intuitive form 
+                Quickly submit maintenance requests, IT support tickets, or facility issues.
+                Attach photos, specify location, and set priority levels. Our intuitive form
                 ensures all necessary information is captured for fast resolution.
               </p>
               <Link to="/create-ticket" className="feature-btn">Create Ticket</Link>
@@ -127,8 +198,8 @@ const HomePage = () => {
                 <h3 className="feature-title">Track Progress</h3>
               </div>
               <p className="feature-description">
-                Monitor your tickets in real-time from submission to resolution. Get instant 
-                updates on status changes, view assigned technicians, and receive notifications 
+                Monitor your tickets in real-time from submission to resolution. Get instant
+                updates on status changes, view assigned technicians, and receive notifications
                 when your issues are being addressed or completed.
               </p>
               <Link to="/my-tickets" className="feature-btn">View Tickets</Link>
@@ -142,8 +213,8 @@ const HomePage = () => {
                 <h3 className="feature-title">Collaborate</h3>
               </div>
               <p className="feature-description">
-                Communicate directly with technicians through ticket comments. Share additional 
-                details, provide updates, and get clarifications. Our comment system keeps all 
+                Communicate directly with technicians through ticket comments. Share additional
+                details, provide updates, and get clarifications. Our comment system keeps all
                 conversations organized and accessible in one place.
               </p>
               <button className="feature-btn">Learn More</button>
@@ -157,8 +228,8 @@ const HomePage = () => {
                 <h3 className="feature-title">Admin Dashboard</h3>
               </div>
               <p className="feature-description">
-                Comprehensive management tools for administrators and technicians. Assign tickets, 
-                update statuses, manage priorities, and generate reports. Keep your campus running 
+                Comprehensive management tools for administrators and technicians. Assign tickets,
+                update statuses, manage priorities, and generate reports. Keep your campus running
                 smoothly with powerful oversight capabilities.
               </p>
               <Link to="/admin/tickets" className="feature-btn">Admin Panel</Link>
@@ -174,8 +245,8 @@ const HomePage = () => {
           <div className="promo-banner-content">
             <h2 className="promo-banner-heading">UniSync for Smart Campus</h2>
             <p className="promo-banner-subheading">
-              Our comprehensive platform empowers students, staff, and technicians to efficiently 
-              manage campus maintenance, IT support, and facility issues through streamlined ticket 
+              Our comprehensive platform empowers students, staff, and technicians to efficiently
+              manage campus maintenance, IT support, and facility issues through streamlined ticket
               management and real-time collaboration.
             </p>
             <button className="promo-banner-btn">Find out more</button>
@@ -255,7 +326,7 @@ const HomePage = () => {
               <span className="faq-heading-highlight">questions</span>
             </h2>
             <p className="faq-left-desc">
-              Find answers to common questions about UniSync's ticket management system, 
+              Find answers to common questions about UniSync's ticket management system,
               features, and how to get the most out of our platform.
             </p>
           </div>
@@ -310,6 +381,149 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      {/* Role Selection Modal */}
+      {showRoleModal && (
+        <div className="role-modal-overlay" onClick={() => setShowRoleModal(false)}>
+          <div className="role-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="role-modal-close" onClick={() => setShowRoleModal(false)}>×</button>
+
+            <p className="role-modal-overline">GET STARTED</p>
+            <h2 className="role-modal-title">Choose Your Role</h2>
+            <p className="role-modal-subtitle">Select how you'll be using UniSync</p>
+
+            <div className="role-modal-grid">
+              <div
+                className="role-modal-card"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRoleSelect('USER');
+                }}
+              >
+                <img src={studentImg} alt="Student" className="role-modal-image" />
+                <h3 className="role-modal-card-title">Student</h3>
+                <p className="role-modal-card-desc">
+                  Report issues, track tickets, and manage campus support requests
+                </p>
+              </div>
+
+              <div
+                className="role-modal-card"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRoleSelect('TECHNICIAN');
+                }}
+              >
+                <img src={techImg} alt="Technician" className="role-modal-image" />
+                <h3 className="role-modal-card-title">Technician</h3>
+                <p className="role-modal-card-desc">
+                  Manage assigned tickets, update status, and resolve campus issues
+                </p>
+              </div>
+
+              <div
+                className="role-modal-card"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRoleSelect('ADMIN');
+                }}
+              >
+                <img src={adminImg} alt="Admin" className="role-modal-image" />
+                <h3 className="role-modal-card-title">Admin</h3>
+                <p className="role-modal-card-desc">
+                  Oversee all operations, manage users, and configure system settings
+                </p>
+              </div>
+            </div>
+
+            <p className="role-modal-helper">
+              Already have an account? <Link to="/login" className="role-modal-link">Sign in</Link>
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Signup Form Modal */}
+      {showSignupForm && (
+        <div className="role-modal-overlay" onClick={() => setShowSignupForm(false)}>
+          <div className="role-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="role-modal-close" onClick={() => setShowSignupForm(false)}>×</button>
+
+            <button className="signup-back-btn" onClick={handleBackToRoles}>← Back</button>
+
+            <p className="role-modal-overline">
+              {selectedRole === 'USER' ? 'STUDENT' : selectedRole} REGISTRATION
+            </p>
+            <h2 className="role-modal-title">Create Your Account</h2>
+            <p className="role-modal-subtitle">Fill in your details to get started</p>
+
+            <form onSubmit={handleSignupSubmit} className="signup-form">
+              {error && (
+                <div style={{
+                  padding: '12px 16px',
+                  borderRadius: '10px',
+                  backgroundColor: '#fee2e2',
+                  color: '#dc2626',
+                  fontSize: '0.9rem',
+                  textAlign: 'left',
+                  border: '1px solid #fecaca'
+                }}>
+                  {error}
+                </div>
+              )}
+
+              <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                value={signupData.username}
+                onChange={handleSignupChange}
+                className="signup-input"
+                required
+              />
+
+              <input
+                type="email"
+                name="email"
+                placeholder="Email Address"
+                value={signupData.email}
+                onChange={handleSignupChange}
+                className="signup-input"
+                required
+              />
+
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={signupData.password}
+                onChange={handleSignupChange}
+                className="signup-input"
+                required
+                minLength="6"
+              />
+
+              <input
+                type="tel"
+                name="contact"
+                placeholder="Contact Number"
+                value={signupData.contact}
+                onChange={handleSignupChange}
+                className="signup-input"
+                required
+              />
+
+              <button type="submit" className="signup-submit-btn">
+                Create Account
+              </button>
+            </form>
+
+            <p className="role-modal-helper">
+              Already have an account? <Link to="/login" className="role-modal-link">Sign in</Link>
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Footer Section */}
       <Footer />

@@ -2,6 +2,7 @@ package com.smartcampus.unisync.auth.controller;
 
 import com.smartcampus.unisync.auth.dto.AuthResponseDto;
 import com.smartcampus.unisync.auth.dto.LoginRequestDto;
+import com.smartcampus.unisync.auth.dto.SignupRequestDto;
 import com.smartcampus.unisync.auth.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,17 @@ public class AuthController {
     @GetMapping("/check")
     public ResponseEntity<AuthResponseDto> checkAuth() {
         return ResponseEntity.ok(authService.checkAuth());
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<AuthResponseDto> signup(@RequestBody SignupRequestDto signupRequestDto) {
+        AuthResponseDto response = authService.signup(signupRequestDto);
+
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response);
+        }
+
+        return ResponseEntity.status(400).body(response);
     }
 
     @PostMapping("/login")
