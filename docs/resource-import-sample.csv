@@ -1,0 +1,4 @@
+name,type,capacity,location,description,availableFrom,availableTo,status,visibleTo,assignedUsers
+Room 101,LECTURE_HALL,120,Building A - Floor 1,Main lecture hall,08:00,17:00,ACTIVE,ALL,
+Chem Lab 2,LAB,30,Building B - Floor 2,Lab with safety equipment,09:00,16:30,ACTIVE,ALL,
+Projector Set,EQUIPMENT,5,IT Store,Portable projectors,08:00,18:00,OUT_OF_SERVICE,ALL,

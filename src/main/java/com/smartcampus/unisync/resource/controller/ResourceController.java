@@ -1,6 +1,7 @@
 package com.smartcampus.unisync.resource.controller;
 
 import com.smartcampus.unisync.common.enums.ResourceStatus;
+import com.smartcampus.unisync.resource.dto.ResourceCsvImportResultDto;
 import com.smartcampus.unisync.resource.dto.ResourceRequestDto;
 import com.smartcampus.unisync.resource.dto.ResourceResponseDto;
 import com.smartcampus.unisync.resource.service.ResourceService;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/resources")
@@ -132,5 +134,20 @@ public class ResourceController {
             @RequestParam ResourceStatus status) {
         ResourceResponseDto updatedResource = resourceService.updateStatus(id, status);
         return ResponseEntity.ok(updatedResource);
+    }
+
+    /**
+     * POST /api/resources/import/csv
+     * Bulk import resources from a CSV file (ADMIN only).
+     *
+     * Required headers: name,type,capacity,location,availableFrom,availableTo
+     * Optional headers: description,status,visibleTo,assignedUsers
+     */
+    @PostMapping("/import/csv")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ResourceCsvImportResultDto> importResourcesCsv(
+            @RequestParam("file") MultipartFile file) {
+        ResourceCsvImportResultDto result = resourceService.importResourcesCsv(file);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }
