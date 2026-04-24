@@ -1,6 +1,6 @@
 import { Link, NavLink } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { getNotificationsByEmail } from "../../services/notificationService";
+import { useMemo } from "react";
+import { useAnnouncements } from "../../context/AnnouncementContext";
 
 const sidebarItems = [
     { label: "Student Dashboard", path: "/dashboard", icon: "📊" },
@@ -13,25 +13,15 @@ const sidebarItems = [
 ];
 
 function StudentPortalLayout({ title, children }) {
-    const [unreadCount, setUnreadCount] = useState(0);
-    const userEmail = "student@gmail.com";
+    const { announcements } = useAnnouncements();
 
-    useEffect(() => {
-        const fetchNotifications = async () => {
-            try {
-                const notifications = await getNotificationsByEmail(userEmail);
-                const unread = notifications.filter((n) => !n.read).length;
-                setUnreadCount(unread);
-            } catch (error) {
-                console.error("Failed to fetch notifications:", error);
-            }
-        };
-
-        fetchNotifications();
-        // Refresh notification count every 30 seconds
-        const interval = setInterval(fetchNotifications, 30000);
-        return () => clearInterval(interval);
-    }, []);
+    // Calculate unread count for STUDENT role
+    const unreadCount = useMemo(() => {
+        return announcements.filter(announcement =>
+            announcement.status === 'ACTIVE' &&
+            (announcement.target.includes('ALL') || announcement.target.includes('STUDENT'))
+        ).length;
+    }, [announcements]);
 
     return (
         <div style={styles.page}>

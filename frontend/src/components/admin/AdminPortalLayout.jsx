@@ -5,7 +5,7 @@ const sidebarItems = [
     { label: "Ticket Manage", path: "/admin/tickets", icon: "🎫" },
     { label: "Booking Manage", path: "/admin/bookings", icon: "📅" },
     { label: "Resource Manager", path: "/admin/resources", icon: "📦" },
-    { label: "Announcement", path: "/admin/notifications", icon: "📢" },
+    { label: "Announcement", path: "/admin/announcements", icon: "📢" },
     { label: "Profile", path: "/admin/profile", icon: "👤" },
 ];
 
