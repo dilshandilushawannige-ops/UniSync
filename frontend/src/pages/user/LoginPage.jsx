@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../../services/authService";
+import googleIcon from "../../assets/google.png";
 
 function LoginPage() {
 
@@ -80,22 +81,6 @@ function LoginPage() {
 
     return (
         <div style={styles.page}>
-            <header style={styles.header}>
-                <div style={styles.logoWrap}>
-                    <span style={styles.logoMark} />
-                    <span style={styles.logoText}>UniSync</span>
-                </div>
-
-                <nav style={styles.nav}>
-                    <Link to="/" style={styles.navLink}>Home</Link>
-                    <a href="#services" style={styles.navLink}>Services</a>
-                    <a href="#achievements" style={styles.navLink}>Achievements</a>
-                    <a href="#about" style={styles.navLink}>About Us</a>
-                    <a href="#contact" style={styles.navLink}>Contact</a>
-                    <span style={styles.activePill}>Login</span>
-                </nav>
-            </header>
-
             <main style={styles.main}>
                 <section style={styles.card}>
                     <p style={styles.overline}>Welcome Back</p>
@@ -154,12 +139,11 @@ function LoginPage() {
                             onClick={handleGoogleLogin}
                             disabled={loadingProvider === "google"}
                         >
-                            <span style={styles.oauthIcon}>
-                                <span style={{ ...styles.googleDot, backgroundColor: "#ea4335" }} />
-                                <span style={{ ...styles.googleDot, backgroundColor: "#fbbc05" }} />
-                                <span style={{ ...styles.googleDot, backgroundColor: "#34a853" }} />
-                                <span style={{ ...styles.googleDot, backgroundColor: "#4285f4" }} />
-                            </span>
+                            <img
+                                src={googleIcon}
+                                alt="Google"
+                                style={styles.googleIcon}
+                            />
 
                             <span>
                                 {loadingProvider === "google"
@@ -207,54 +191,8 @@ const styles = {
         minHeight: "100vh",
         background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
     },
-    header: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "18px 40px",
-        borderBottom: "1px solid rgba(15, 23, 42, 0.08)",
-        backgroundColor: "#ffffff",
-    },
-    logoWrap: {
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-    },
-    logoMark: {
-        width: "22px",
-        height: "22px",
-        borderRadius: "6px",
-        background: "linear-gradient(135deg, #f59e0b 0%, #2563eb 100%)",
-        boxShadow: "0 8px 16px rgba(37, 99, 235, 0.18)",
-    },
-    logoText: {
-        fontSize: "1rem",
-        fontWeight: 800,
-        color: "#1e3a8a",
-        letterSpacing: "-0.02em",
-    },
-    nav: {
-        display: "flex",
-        alignItems: "center",
-        gap: "22px",
-        flexWrap: "wrap",
-        justifyContent: "flex-end",
-    },
-    navLink: {
-        color: "#475569",
-        textDecoration: "none",
-        fontSize: "0.95rem",
-    },
-    activePill: {
-        padding: "10px 20px",
-        borderRadius: "999px",
-        backgroundColor: "#1d4ed8",
-        color: "#ffffff",
-        fontWeight: 700,
-        boxShadow: "0 12px 24px rgba(37, 99, 235, 0.2)",
-    },
     main: {
-        minHeight: "calc(100vh - 78px)",
+        minHeight: "100vh",
         display: "grid",
         placeItems: "center",
         padding: "32px 20px",
@@ -305,18 +243,10 @@ const styles = {
         transition: "transform 0.16s ease, box-shadow 0.16s ease",
         boxShadow: "0 10px 25px rgba(15, 23, 42, 0.05)",
     },
-    oauthIcon: {
-        display: "grid",
-        gridTemplateColumns: "repeat(2, 7px)",
-        gap: "2px",
-        alignItems: "center",
-        justifyItems: "center",
-    },
-    googleDot: {
-        width: "7px",
-        height: "7px",
-        borderRadius: "999px",
-        display: "block",
+    googleIcon: {
+        width: "20px",
+        height: "20px",
+        objectFit: "contain",
     },
     helper: {
         marginTop: "18px",

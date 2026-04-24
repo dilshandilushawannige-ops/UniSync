@@ -35,6 +35,10 @@ const HomePage = () => {
     password: '',
     contact: ''
   });
+  const [emailError, setEmailError] = React.useState('');
+  const [usernameError, setUsernameError] = React.useState('');
+  const [passwordError, setPasswordError] = React.useState('');
+  const [contactError, setContactError] = React.useState('');
   const navigate = useNavigate();
 
   const handleRoleSelect = (role) => {
@@ -43,18 +47,137 @@ const HomePage = () => {
     setShowSignupForm(true);
   };
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  };
+
+  const validateUsername = (username) => {
+    // Only letters (a-z, A-Z) and special characters, no numbers
+    const usernameRegex = /^[a-zA-Z\s\-_.@#$%&*!]+$/;
+    return usernameRegex.test(username);
+  };
+
+  const validatePassword = (password) => {
+    // Minimum 6 characters, at least one uppercase, one lowercase, one number, one special character
+    if (password.length < 6) return false;
+
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+    return hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
+  };
+
+  const getPasswordStrength = (password) => {
+    const checks = {
+      length: password.length >= 6,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /[0-9]/.test(password),
+      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+    };
+    return checks;
+  };
+
+  const validateContact = (contact) => {
+    // Must be exactly 10 digits and start with 070, 071, 072, 074, 075, 076, or 078
+    const contactRegex = /^(070|071|072|074|075|076|078)\d{7}$/;
+    return contactRegex.test(contact);
+  };
+
   const handleSignupChange = (e) => {
     const { name, value } = e.target;
+
     setSignupData(prev => ({
       ...prev,
       [name]: value
     }));
+
+    // Real-time email validation
+    if (name === 'email') {
+      if (value && !validateEmail(value)) {
+        setEmailError('Please enter a valid email address (e.g., example@gmail.com)');
+      } else {
+        setEmailError('');
+      }
+    }
+
+    // Real-time username validation
+    if (name === 'username') {
+      if (value && !validateUsername(value)) {
+        setUsernameError('Username cannot contain numbers. Only letters and special characters allowed');
+      } else {
+        setUsernameError('');
+      }
+    }
+
+    // Real-time password validation
+    if (name === 'password') {
+      if (value && !validatePassword(value)) {
+        const checks = getPasswordStrength(value);
+        let errorMsg = 'Password must include: ';
+        const missing = [];
+        if (!checks.length) missing.push('at least 6 characters');
+        if (!checks.uppercase) missing.push('one uppercase letter');
+        if (!checks.lowercase) missing.push('one lowercase letter');
+        if (!checks.number) missing.push('one number');
+        if (!checks.special) missing.push('one special character');
+        setPasswordError(errorMsg + missing.join(', '));
+      } else {
+        setPasswordError('');
+      }
+    }
+
+    // Real-time contact number validation
+    if (name === 'contact') {
+      if (value && !validateContact(value)) {
+        if (value.length !== 10) {
+          setContactError('Contact number must be exactly 10 digits');
+        } else if (!/^(070|071|072|074|075|076|078)/.test(value)) {
+          setContactError('Contact number must start with 070, 071, 072, 074, 075, 076, or 078');
+        } else {
+          setContactError('Invalid contact number format');
+        }
+      } else {
+        setContactError('');
+      }
+    }
   };
 
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    // Validate username before submission
+    if (!validateUsername(signupData.username)) {
+      setError('Username cannot contain numbers. Only letters and special characters allowed');
+      setLoading(false);
+      return;
+    }
+
+    // Validate email before submission
+    if (!validateEmail(signupData.email)) {
+      setError('Please enter a valid email address (e.g., example@gmail.com)');
+      setLoading(false);
+      return;
+    }
+
+    // Validate password before submission
+    if (!validatePassword(signupData.password)) {
+      setError('Password must be at least 6 characters and include uppercase, lowercase, number, and special character');
+      setLoading(false);
+      return;
+    }
+
+    // Validate contact number before submission
+    if (!validateContact(signupData.contact)) {
+      setError('Contact number must be 10 digits and start with 070, 071, 072, 074, 075, 076, or 078');
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081'}/api/auth/signup`, {
@@ -449,8 +572,6 @@ const HomePage = () => {
           <div className="role-modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="role-modal-close" onClick={() => setShowSignupForm(false)}>×</button>
 
-            <button className="signup-back-btn" onClick={handleBackToRoles}>← Back</button>
-
             <p className="role-modal-overline">
               {selectedRole === 'USER' ? 'STUDENT' : selectedRole} REGISTRATION
             </p>
@@ -459,62 +580,209 @@ const HomePage = () => {
 
             <form onSubmit={handleSignupSubmit} className="signup-form">
               {error && (
-                <div style={{
-                  padding: '12px 16px',
-                  borderRadius: '10px',
-                  backgroundColor: '#fee2e2',
-                  color: '#dc2626',
-                  fontSize: '0.9rem',
-                  textAlign: 'left',
-                  border: '1px solid #fecaca'
-                }}>
+                <div className="error-message">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                  </svg>
                   {error}
                 </div>
               )}
 
-              <input
-                type="text"
-                name="username"
-                placeholder="Username"
-                value={signupData.username}
-                onChange={handleSignupChange}
-                className="signup-input"
-                required
-              />
+              <div className="input-group">
+                <label htmlFor="username" className="input-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  placeholder="Enter your full name (no numbers)"
+                  value={signupData.username}
+                  onChange={handleSignupChange}
+                  className={`signup-input ${usernameError ? 'input-error' : signupData.username && !usernameError ? 'input-valid' : ''}`}
+                  required
+                />
+                {usernameError && (
+                  <div className="field-error">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="15" y1="9" x2="9" y2="15"></line>
+                      <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                    {usernameError}
+                  </div>
+                )}
+                {signupData.username && !usernameError && (
+                  <div className="field-success">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="20,6 9,17 4,12"></polyline>
+                    </svg>
+                    Valid username
+                  </div>
+                )}
+              </div>
 
-              <input
-                type="email"
-                name="email"
-                placeholder="Email Address"
-                value={signupData.email}
-                onChange={handleSignupChange}
-                className="signup-input"
-                required
-              />
+              <div className="input-group">
+                <label htmlFor="email" className="input-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="example@gmail.com"
+                  value={signupData.email}
+                  onChange={handleSignupChange}
+                  className={`signup-input ${emailError ? 'input-error' : signupData.email && !emailError ? 'input-valid' : ''}`}
+                  required
+                />
+                {emailError && (
+                  <div className="field-error">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="15" y1="9" x2="9" y2="15"></line>
+                      <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                    {emailError}
+                  </div>
+                )}
+                {signupData.email && !emailError && (
+                  <div className="field-success">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="20,6 9,17 4,12"></polyline>
+                    </svg>
+                    Valid email address
+                  </div>
+                )}
+              </div>
 
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={signupData.password}
-                onChange={handleSignupChange}
-                className="signup-input"
-                required
-                minLength="6"
-              />
+              <div className="input-group">
+                <label htmlFor="password" className="input-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <circle cx="12" cy="16" r="1"></circle>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                  Password
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Min 6 chars: Aa1@"
+                  value={signupData.password}
+                  onChange={handleSignupChange}
+                  className={`signup-input ${passwordError ? 'input-error' : signupData.password && !passwordError ? 'input-valid' : ''}`}
+                  required
+                  minLength="6"
+                />
+                {signupData.password && (
+                  <div className="password-requirements">
+                    <div className={`requirement ${getPasswordStrength(signupData.password).length ? 'met' : ''}`}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="20,6 9,17 4,12"></polyline>
+                      </svg>
+                      At least 6 characters
+                    </div>
+                    <div className={`requirement ${getPasswordStrength(signupData.password).uppercase ? 'met' : ''}`}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="20,6 9,17 4,12"></polyline>
+                      </svg>
+                      One uppercase letter (A-Z)
+                    </div>
+                    <div className={`requirement ${getPasswordStrength(signupData.password).lowercase ? 'met' : ''}`}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="20,6 9,17 4,12"></polyline>
+                      </svg>
+                      One lowercase letter (a-z)
+                    </div>
+                    <div className={`requirement ${getPasswordStrength(signupData.password).number ? 'met' : ''}`}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="20,6 9,17 4,12"></polyline>
+                      </svg>
+                      One number (0-9)
+                    </div>
+                    <div className={`requirement ${getPasswordStrength(signupData.password).special ? 'met' : ''}`}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="20,6 9,17 4,12"></polyline>
+                      </svg>
+                      One special character (!@#$%...)
+                    </div>
+                  </div>
+                )}
+                {signupData.password && !passwordError && (
+                  <div className="field-success">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="20,6 9,17 4,12"></polyline>
+                    </svg>
+                    Strong password
+                  </div>
+                )}
+              </div>
 
-              <input
-                type="tel"
-                name="contact"
-                placeholder="Contact Number"
-                value={signupData.contact}
-                onChange={handleSignupChange}
-                className="signup-input"
-                required
-              />
+              <div className="input-group">
+                <label htmlFor="contact" className="input-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                  </svg>
+                  Contact Number
+                </label>
+                <input
+                  type="tel"
+                  id="contact"
+                  name="contact"
+                  placeholder="0712345678 (10 digits)"
+                  value={signupData.contact}
+                  onChange={handleSignupChange}
+                  className={`signup-input ${contactError ? 'input-error' : signupData.contact && !contactError ? 'input-valid' : ''}`}
+                  required
+                  maxLength="10"
+                  pattern="[0-9]*"
+                />
+                {contactError && (
+                  <div className="field-error">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="15" y1="9" x2="9" y2="15"></line>
+                      <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                    {contactError}
+                  </div>
+                )}
+                {signupData.contact && !contactError && (
+                  <div className="field-success">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="20,6 9,17 4,12"></polyline>
+                    </svg>
+                    Valid contact number
+                  </div>
+                )}
+                <div className="field-hint">
+                  Must start with: 070, 071, 072, 074, 075, 076, or 078
+                </div>
+              </div>
 
-              <button type="submit" className="signup-submit-btn">
-                Create Account
+              <button type="submit" className="signup-submit-btn" disabled={loading}>
+                {loading ? (
+                  <>
+                    <svg className="loading-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 12a9 9 0 11-6.219-8.56" />
+                    </svg>
+                    Creating Account...
+                  </>
+                ) : (
+                  'Create Account'
+                )}
               </button>
             </form>
 

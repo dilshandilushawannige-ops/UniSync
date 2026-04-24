@@ -125,15 +125,7 @@ function AnnouncementForm({ isOpen, onClose, onSubmit, editData }) {
                 <div className="modal-header-announcement">
                     <div className="modal-header-content">
                         <h2 className="modal-title">{editData ? 'Update Announcement' : 'Create Announcement'}</h2>
-                        <p className="modal-subtitle">Broadcast important information, system updates, or emergency notices to specific user roles across the platform.</p>
-                    </div>
-                    <div className="modal-header-actions">
-                        <button type="button" className="btn-discard-announcement" onClick={handleClose}>
-                            Discard
-                        </button>
-                        <button type="submit" form="announcement-form" className="btn-publish-announcement">
-                            {editData ? 'Update Now' : 'Publish Now'}
-                        </button>
+                        <p className="modal-subtitle">Create and share important updates with your users</p>
                     </div>
                 </div>
 
@@ -284,6 +276,15 @@ function AnnouncementForm({ isOpen, onClose, onSubmit, editData }) {
                             <option value="NORMAL">NORMAL</option>
                             <option value="IMPORTANT">IMPORTANT</option>
                         </select>
+                    </div>
+
+                    <div className="form-actions-announcement">
+                        <button type="button" className="btn-discard-announcement" onClick={handleClose}>
+                            Discard
+                        </button>
+                        <button type="submit" className="btn-publish-announcement">
+                            {editData ? 'Update Now' : 'Publish Now'}
+                        </button>
                     </div>
                 </form>
             </div>
