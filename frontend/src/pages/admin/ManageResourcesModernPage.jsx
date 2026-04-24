@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import AdminPortalLayout from '../../components/admin/AdminPortalLayout';
 import ResourceForm from '../../components/resource/ResourceForm';
-import { createResource, deleteResource, getAllResources, updateResource } from '../../services/resourceService';
+import { createResource, deleteResource, getAllResources, importResourcesCsv, updateResource } from '../../services/resourceService';
 import '../../styles/manage-resources-modern.css';
 
 function ManageResourcesModernPage() {
@@ -18,6 +18,7 @@ function ManageResourcesModernPage() {
   const [editingResource, setEditingResource] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [isImporting, setIsImporting] = useState(false);
 
   const loadResources = async () => {
     setIsLoading(true);
@@ -112,6 +113,59 @@ function ManageResourcesModernPage() {
     }
   };
 
+  const handleImportCsv = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    const result = await Swal.fire({
+      title: 'Import resources from CSV?',
+      text: 'This will add resources row by row. Invalid rows will be skipped with errors.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Import',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+    });
+    if (!result.isConfirmed) return;
+
+    setIsImporting(true);
+    try {
+      const response = await importResourcesCsv(file);
+      const data = response?.data;
+      const created = data?.created ?? 0;
+      const failed = data?.failed ?? 0;
+      const totalRows = data?.totalRows ?? 0;
+      const errors = Array.isArray(data?.errors) ? data.errors : [];
+
+      const errorPreview = errors
+        .slice(0, 6)
+        .map((err) => `Row ${err.rowNumber}: ${err.message}`)
+        .join('\n');
+
+      await Swal.fire({
+        title: 'Import finished',
+        icon: failed > 0 ? 'warning' : 'success',
+        text:
+          `Total rows: ${totalRows}\n` +
+          `Created: ${created}\n` +
+          `Failed: ${failed}` +
+          (errorPreview ? `\n\nErrors:\n${errorPreview}` : ''),
+        confirmButtonText: 'OK',
+      });
+
+      await loadResources();
+    } catch (error) {
+      await Swal.fire({
+        title: 'Import failed',
+        text: error?.response?.data?.message || 'Failed to import CSV.',
+        icon: 'error',
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   return (
     <AdminPortalLayout title="Manage Resources">
       <div className="resource-page">
@@ -151,7 +205,27 @@ function ManageResourcesModernPage() {
       <section className="resource-main">
         <div className="resource-row">
           <p className="crumb">Facilities / Resources</p>
-          <button type="button" className="add-btn" onClick={openCreateModal}>+ Add Resource</button>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              onChange={handleImportCsv}
+              style={{ display: 'none' }}
+              id="resourceCsvInput"
+            />
+            <label
+              htmlFor="resourceCsvInput"
+              className="add-btn"
+              style={{
+                background: '#0b3a66',
+                opacity: isImporting ? 0.7 : 1,
+                pointerEvents: isImporting ? 'none' : 'auto',
+              }}
+            >
+              {isImporting ? 'Importing...' : 'Import CSV'}
+            </label>
+            <button type="button" className="add-btn" onClick={openCreateModal}>+ Add Resource</button>
+          </div>
         </div>
 
         <div className="filters-box">
