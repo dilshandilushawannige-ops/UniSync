@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllTickets } from "../../services/ticketService";
 import TicketTable from "../../components/ticket/TicketTable";
+import AdminPortalLayout from "../../components/admin/AdminPortalLayout";
 import "./ManageTicketsPage.css";
 
 /**
@@ -39,43 +40,44 @@ function ManageTicketsPage() {
       : tickets.filter((t) => t.status === filterStatus);
 
   return (
-    <div className="manage-tickets-page">
+    <AdminPortalLayout title="Manage Tickets">
+      <div className="manage-tickets-page">
 
-      {/* Page header */}
-      <div className="page-top-bar">
-        <div>
-          <h1 className="page-title">Manage Tickets</h1>
-          <p className="page-subtitle">
-            View and manage all support tickets in the system.
-          </p>
+        {/* Page header */}
+        <div className="page-top-bar">
+          <div>
+            <p className="page-subtitle">
+              View and manage all support tickets in the system.
+            </p>
+          </div>
+
+          {/* Count badge */}
+          <span className="ticket-count">{tickets.length} Total</span>
         </div>
 
-        {/* Count badge */}
-        <span className="ticket-count">{tickets.length} Total</span>
-      </div>
+        {/* Status filter buttons */}
+        <div className="filter-bar">
+          {["ALL", "OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED", "REJECTED"].map(
+            (status) => (
+              <button
+                key={status}
+                className={`filter-btn ${filterStatus === status ? "active" : ""}`}
+                onClick={() => setFilterStatus(status)}
+              >
+                {status === "ALL" ? "All" : status.replace("_", " ")}
+              </button>
+            )
+          )}
+        </div>
 
-      {/* Status filter buttons */}
-      <div className="filter-bar">
-        {["ALL", "OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED", "REJECTED"].map(
-          (status) => (
-            <button
-              key={status}
-              className={`filter-btn ${filterStatus === status ? "active" : ""}`}
-              onClick={() => setFilterStatus(status)}
-            >
-              {status === "ALL" ? "All" : status.replace("_", " ")}
-            </button>
-          )
+        {/* Loading / error / table */}
+        {loading && <p className="status-msg">Loading tickets...</p>}
+        {error && <p className="error-msg">{error}</p>}
+        {!loading && !error && (
+          <TicketTable tickets={filteredTickets} isAdmin={true} />
         )}
       </div>
-
-      {/* Loading / error / table */}
-      {loading && <p className="status-msg">Loading tickets...</p>}
-      {error && <p className="error-msg">{error}</p>}
-      {!loading && !error && (
-        <TicketTable tickets={filteredTickets} isAdmin={true} />
-      )}
-    </div>
+    </AdminPortalLayout>
   );
 }
 

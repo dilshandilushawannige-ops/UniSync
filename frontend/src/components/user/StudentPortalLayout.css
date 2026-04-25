@@ -24,6 +24,24 @@
   overflow-y: auto;
 }
 
+/* Custom Scrollbar for Sidebar */
+.student-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.student-sidebar::-webkit-scrollbar-track {
+  background: #F5F6FA;
+}
+
+.student-sidebar::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+
+.student-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
 /* Sidebar Header */
 .sidebar-header {
   padding: 24px 24px 20px;
@@ -144,6 +162,9 @@
   padding: 24px 32px;
   background-color: #FFFFFF;
   border-bottom: 1px solid #E8E8E8;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .main-title {
@@ -207,6 +228,24 @@
   flex: 1;
   padding: 0;
   overflow-y: auto;
+}
+
+/* Custom Scrollbar for Dashboard Content */
+.dashboard-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dashboard-content::-webkit-scrollbar-track {
+  background: #F5F6FA;
+}
+
+.dashboard-content::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+
+.dashboard-content::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
 }
 
 /* Fade-in-up Animation */

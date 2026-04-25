@@ -1,8 +1,8 @@
 /* Import Nunito Font */
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
 
-/* Technician Portal Layout */
-.technician-portal-layout {
+/* Admin Portal Layout */
+.admin-portal-layout {
   display: flex;
   min-height: 100vh;
   font-family: 'Nunito', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -11,7 +11,7 @@
 }
 
 /* Sidebar */
-.technician-sidebar {
+.admin-sidebar {
   width: 240px;
   height: 100vh;
   background-color: #FFFFFF;
@@ -25,20 +25,20 @@
 }
 
 /* Custom Scrollbar for Sidebar */
-.technician-sidebar::-webkit-scrollbar {
+.admin-sidebar::-webkit-scrollbar {
   width: 6px;
 }
 
-.technician-sidebar::-webkit-scrollbar-track {
+.admin-sidebar::-webkit-scrollbar-track {
   background: #F5F6FA;
 }
 
-.technician-sidebar::-webkit-scrollbar-thumb {
+.admin-sidebar::-webkit-scrollbar-thumb {
   background: #CBD5E1;
   border-radius: 3px;
 }
 
-.technician-sidebar::-webkit-scrollbar-thumb:hover {
+.admin-sidebar::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
 }
 
@@ -146,7 +146,7 @@
 }
 
 /* Main Content Area */
-.technician-main {
+.admin-main {
   flex: 1;
   margin-left: 240px;
   background-color: #F5F6FA;
@@ -261,11 +261,11 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .technician-sidebar {
+  .admin-sidebar {
     width: 200px;
   }
 
-  .technician-main {
+  .admin-main {
     margin-left: 200px;
   }
 
@@ -293,7 +293,7 @@
 }
 
 @media (max-width: 480px) {
-  .technician-sidebar {
+  .admin-sidebar {
     width: 100%;
     height: auto;
     position: relative;
@@ -301,7 +301,7 @@
     border-bottom: 1px solid #E8E8E8;
   }
 
-  .technician-main {
+  .admin-main {
     margin-left: 0;
   }
 

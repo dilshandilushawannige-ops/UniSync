@@ -115,12 +115,11 @@ function MyTicketsPage() {
   };
 
   return (
-    <StudentPortalLayout>
+    <StudentPortalLayout title="My Tickets">
       <div className="my-tickets-page">
-        {/* Page header */}
+        {/* Page subtitle */}
         <div className="page-header">
           <div>
-            <h1 className="page-title">My Tickets</h1>
             <p className="page-subtitle">
               Manage your active support requests, view technical assistance history, and track resolution progress from the University IT department.
             </p>

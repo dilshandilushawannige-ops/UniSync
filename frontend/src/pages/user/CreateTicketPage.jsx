@@ -115,11 +115,10 @@ function CreateTicketPage() {
     };
 
     return (
-        <StudentPortalLayout>
+        <StudentPortalLayout title="Create New Ticket">
             <div className="create-ticket-page">
-                {/* Page Header */}
+                {/* Page Subtitle */}
                 <div className="page-header">
-                    <h1 className="page-title">Create New Ticket</h1>
                     <p className="page-subtitle">
                         Fill out the details below to report a maintenance issue or request service from the campus facilities and IT teams.
                     </p>
