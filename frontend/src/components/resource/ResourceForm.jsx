@@ -1,4 +1,4 @@
-﻿import React, { useRef, useState } from 'react';
+﻿import React, { useState } from 'react';
 
 const TYPE_OPTIONS = ['LECTURE_HALL', 'LAB', 'MEETING_ROOM', 'EQUIPMENT'];
 const STATUS_OPTIONS = ['ACTIVE', 'OUT_OF_SERVICE'];
@@ -88,9 +88,6 @@ const toApiLocalTime = (value) => {
 
 const ResourceForm = ({ initialData, onSubmit, onCancel }) => {
   const isEditMode = Boolean(initialData && initialData.id);
-  const bookingDateRef = useRef(null);
-  const startTimeRef = useRef(null);
-  const endTimeRef = useRef(null);
 
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
@@ -122,19 +119,6 @@ const ResourceForm = ({ initialData, onSubmit, onCancel }) => {
       availableTo: toApiLocalTime(formData.endTime),
       status: formData.status,
     });
-  };
-
-  const openNativePicker = (inputRef) => {
-    const input = inputRef.current;
-    if (!input) return;
-
-    if (typeof input.showPicker === 'function') {
-      input.showPicker();
-      return;
-    }
-
-    input.focus();
-    input.click();
   };
 
   return (
@@ -232,69 +216,36 @@ const ResourceForm = ({ initialData, onSubmit, onCancel }) => {
 
         <div style={styles.fieldGroup}>
           <label style={styles.label}>Weekly Availability (Optional)</label>
-          <div style={styles.pickerField}>
-            <input
-              ref={bookingDateRef}
-              name="bookingDate"
-              type="date"
-              value={formData.bookingDate}
-              onChange={handleChange}
-              style={{ ...styles.input, ...styles.inputWithIcon }}
-            />
-            <button
-              type="button"
-              aria-label="Open date picker"
-              onClick={() => openNativePicker(bookingDateRef)}
-              style={styles.pickerButton}
-            >
-              📅
-            </button>
-          </div>
+          <input
+            name="bookingDate"
+            type="date"
+            value={formData.bookingDate}
+            onChange={handleChange}
+            style={styles.input}
+          />
         </div>
 
         <div style={styles.gridTwo}>
           <div style={styles.fieldGroup}>
             <label style={styles.label}>Start Time (Optional)</label>
-            <div style={styles.pickerField}>
-              <input
-                ref={startTimeRef}
-                name="startTime"
-                type="time"
-                value={normalizeTimeValue(formData.startTime)}
-                onChange={handleChange}
-                style={{ ...styles.input, ...styles.inputWithIcon }}
-              />
-              <button
-                type="button"
-                aria-label="Open start time picker"
-                onClick={() => openNativePicker(startTimeRef)}
-                style={styles.pickerButton}
-              >
-                🕒
-              </button>
-            </div>
+            <input
+              name="startTime"
+              type="time"
+              value={normalizeTimeValue(formData.startTime)}
+              onChange={handleChange}
+              style={styles.input}
+            />
           </div>
 
           <div style={styles.fieldGroup}>
             <label style={styles.label}>End Time (Optional)</label>
-            <div style={styles.pickerField}>
-              <input
-                ref={endTimeRef}
-                name="endTime"
-                type="time"
-                value={normalizeTimeValue(formData.endTime)}
-                onChange={handleChange}
-                style={{ ...styles.input, ...styles.inputWithIcon }}
-              />
-              <button
-                type="button"
-                aria-label="Open end time picker"
-                onClick={() => openNativePicker(endTimeRef)}
-                style={styles.pickerButton}
-              >
-                🕒
-              </button>
-            </div>
+            <input
+              name="endTime"
+              type="time"
+              value={normalizeTimeValue(formData.endTime)}
+              onChange={handleChange}
+              style={styles.input}
+            />
           </div>
         </div>
       </div>
@@ -387,24 +338,6 @@ const styles = {
     fontSize: '14px',
     color: '#233f5b',
     outline: 'none',
-  },
-  inputWithIcon: {
-    paddingRight: '44px',
-  },
-  pickerField: {
-    position: 'relative',
-  },
-  pickerButton: {
-    position: 'absolute',
-    top: '50%',
-    right: '10px',
-    transform: 'translateY(-50%)',
-    border: 'none',
-    background: 'transparent',
-    fontSize: '18px',
-    lineHeight: 1,
-    cursor: 'pointer',
-    padding: 0,
   },
   textarea: {
     resize: 'vertical',

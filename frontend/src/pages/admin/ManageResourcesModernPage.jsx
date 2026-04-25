@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import Swal from 'sweetalert2';
 import ResourceForm from '../../components/resource/ResourceForm';
-import { createResource, deleteResource, getAllResources, importResourcesCsv, updateResource } from '../../services/resourceService';
+import { createResource, deleteResource, getAllResources, updateResource } from '../../services/resourceService';
 import '../../styles/manage-resources-modern.css';
 
 function ManageResourcesModernPage() {
@@ -18,9 +17,6 @@ function ManageResourcesModernPage() {
   const [editingResource, setEditingResource] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
-  const [isImporting, setIsImporting] = useState(false);
-
-  const getResourceId = (resource) => resource?.id ?? resource?.resourceId ?? null;
 
   const loadResources = async () => {
     setIsLoading(true);
@@ -45,30 +41,6 @@ function ManageResourcesModernPage() {
     const outOfService = resources.filter((item) => item.status === 'OUT_OF_SERVICE').length;
     return { total, available, outOfService };
   }, [resources]);
-
-  const getStatusBadgeStyle = (status) => {
-    if (status === 'ACTIVE') {
-      return {
-        background: '#dcfce7',
-        color: '#166534',
-        border: '1px solid #86efac',
-      };
-    }
-
-    if (status === 'OUT_OF_SERVICE') {
-      return {
-        background: '#fee2e2',
-        color: '#b91c1c',
-        border: '1px solid #fca5a5',
-      };
-    }
-
-    return {
-      background: '#e2e8f0',
-      color: '#334155',
-      border: '1px solid #cbd5e1',
-    };
-  };
 
   const filteredResources = useMemo(() => {
     return resources.filter((resource) => {
@@ -96,7 +68,7 @@ function ManageResourcesModernPage() {
   };
 
   const openEditModal = (resource) => {
-    setEditingResource({ ...resource, id: getResourceId(resource) });
+    setEditingResource(resource);
     setSaveError('');
     setIsResourceModalOpen(true);
   };
@@ -112,10 +84,8 @@ function ManageResourcesModernPage() {
     setIsSaving(true);
     setSaveError('');
     try {
-      const editingId = getResourceId(editingResource);
-
-      if (editingId) {
-        await updateResource(editingId, formData);
+      if (editingResource?.id) {
+        await updateResource(editingResource.id, formData);
       } else {
         await createResource(formData);
       }
@@ -130,94 +100,14 @@ function ManageResourcesModernPage() {
   };
 
   const handleDeleteResource = async (resourceId) => {
-    if (!resourceId) {
-      setLoadError('Missing resource ID. Please refresh and try again.');
-      return;
-    }
-
-    const result = await Swal.fire({
-      title: 'Delete resource?',
-      text: 'This action cannot be undone.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete',
-      cancelButtonText: 'Cancel',
-      reverseButtons: true,
-      confirmButtonColor: '#b91c1c',
-    });
-
-    if (!result.isConfirmed) return;
+    const confirmed = window.confirm('Are you sure you want to delete this resource?');
+    if (!confirmed) return;
 
     try {
       await deleteResource(resourceId);
-      await Swal.fire({
-        title: 'Deleted',
-        text: 'Resource was deleted successfully.',
-        icon: 'success',
-        timer: 1600,
-        showConfirmButton: false,
-      });
       await loadResources();
     } catch (error) {
       setLoadError(error?.response?.data?.message || 'Failed to delete resource.');
-      await Swal.fire({
-        title: 'Delete failed',
-        text: error?.response?.data?.message || 'Failed to delete resource.',
-        icon: 'error',
-      });
-    }
-  };
-
-  const handleImportCsv = async (event) => {
-    const file = event.target.files?.[0];
-    event.target.value = '';
-    if (!file) return;
-
-    const result = await Swal.fire({
-      title: 'Import resources from CSV?',
-      text: 'This will add resources row by row. Invalid rows will be skipped with errors.',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Import',
-      cancelButtonText: 'Cancel',
-      reverseButtons: true,
-    });
-    if (!result.isConfirmed) return;
-
-    setIsImporting(true);
-    try {
-      const response = await importResourcesCsv(file);
-      const data = response?.data;
-      const created = data?.created ?? 0;
-      const failed = data?.failed ?? 0;
-      const totalRows = data?.totalRows ?? 0;
-      const errors = Array.isArray(data?.errors) ? data.errors : [];
-
-      const errorPreview = errors
-        .slice(0, 6)
-        .map((err) => `Row ${err.rowNumber}: ${err.message}`)
-        .join('\n');
-
-      await Swal.fire({
-        title: 'Import finished',
-        icon: failed > 0 ? 'warning' : 'success',
-        text:
-          `Total rows: ${totalRows}\n` +
-          `Created: ${created}\n` +
-          `Failed: ${failed}` +
-          (errorPreview ? `\n\nErrors:\n${errorPreview}` : ''),
-        confirmButtonText: 'OK',
-      });
-
-      await loadResources();
-    } catch (error) {
-      await Swal.fire({
-        title: 'Import failed',
-        text: error?.response?.data?.message || 'Failed to import CSV.',
-        icon: 'error',
-      });
-    } finally {
-      setIsImporting(false);
     }
   };
 
@@ -247,12 +137,6 @@ function ManageResourcesModernPage() {
               <p className="stat-label">AVAILABLE</p>
             </article>
 
-            <article className="stat-glass out">
-              <div className="stat-icon">!</div>
-              <p className="stat-value">{summary.outOfService}</p>
-              <p className="stat-label">OUT OF SERVICE</p>
-            </article>
-
             <article className="stat-glass admin">
               <div className="stat-icon">👤</div>
               <p className="stat-value">Admin</p>
@@ -265,27 +149,7 @@ function ManageResourcesModernPage() {
       <section className="resource-main">
         <div className="resource-row">
           <p className="crumb">Facilities / Resources</p>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
-            <input
-              type="file"
-              accept=".csv,text/csv"
-              onChange={handleImportCsv}
-              style={{ display: 'none' }}
-              id="resourceCsvInput"
-            />
-            <label
-              htmlFor="resourceCsvInput"
-              className="add-btn"
-              style={{
-                background: '#0b3a66',
-                opacity: isImporting ? 0.7 : 1,
-                pointerEvents: isImporting ? 'none' : 'auto',
-              }}
-            >
-              {isImporting ? 'Importing...' : 'Import CSV'}
-            </label>
-            <button type="button" className="add-btn" onClick={openCreateModal}>+ Add Resource</button>
-          </div>
+          <button type="button" className="add-btn" onClick={openCreateModal}>+ Add Resource</button>
         </div>
 
         <div className="filters-box">
@@ -365,38 +229,18 @@ function ManageResourcesModernPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredResources.map((resource) => {
-                    const resourceId = getResourceId(resource);
-
-                    return (
-                    <tr key={resourceId ?? `${resource.name}-${resource.location}`} style={{ borderTop: '1px solid #e2e8f0' }}>
+                  {filteredResources.map((resource) => (
+                    <tr key={resource.id} style={{ borderTop: '1px solid #e2e8f0' }}>
                       <td style={{ padding: '12px' }}>{resource.name}</td>
                       <td style={{ padding: '12px' }}>{resource.type}</td>
                       <td style={{ padding: '12px' }}>{resource.capacity}</td>
                       <td style={{ padding: '12px' }}>{resource.location}</td>
-                      <td style={{ padding: '12px' }}>
-                        <span
-                          style={{
-                            ...getStatusBadgeStyle(resource.status),
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            borderRadius: '999px',
-                            padding: '4px 10px',
-                            fontSize: '12px',
-                            fontWeight: 700,
-                            lineHeight: 1,
-                            textTransform: 'uppercase',
-                          }}
-                        >
-                          {resource.status === 'OUT_OF_SERVICE' ? 'Out of Service' : resource.status}
-                        </span>
-                      </td>
+                      <td style={{ padding: '12px' }}>{resource.status}</td>
                       <td style={{ padding: '12px' }}>
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                           <button
                             type="button"
                             onClick={() => openEditModal(resource)}
-                            disabled={!resourceId}
                             style={{
                               border: '1px solid #1d4e89',
                               borderRadius: '8px',
@@ -405,16 +249,14 @@ function ManageResourcesModernPage() {
                               fontWeight: 700,
                               background: '#ffffff',
                               color: '#1d4e89',
-                              cursor: resourceId ? 'pointer' : 'not-allowed',
-                              opacity: resourceId ? 1 : 0.5,
+                              cursor: 'pointer',
                             }}
                           >
                             Edit
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleDeleteResource(resourceId)}
-                            disabled={!resourceId}
+                            onClick={() => handleDeleteResource(resource.id)}
                             style={{
                               border: '1px solid #b91c1c',
                               borderRadius: '8px',
@@ -423,8 +265,7 @@ function ManageResourcesModernPage() {
                               fontWeight: 700,
                               background: '#ffffff',
                               color: '#b91c1c',
-                              cursor: resourceId ? 'pointer' : 'not-allowed',
-                              opacity: resourceId ? 1 : 0.5,
+                              cursor: 'pointer',
                             }}
                           >
                             Delete
@@ -432,8 +273,7 @@ function ManageResourcesModernPage() {
                         </div>
                       </td>
                     </tr>
-                  );
-                })}
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -442,29 +282,29 @@ function ManageResourcesModernPage() {
       </section>
 
       {isResourceModalOpen ? (
-        <div className="resource-modal-overlay">
-          <div className="resource-modal-content">
-            <div className="resource-modal-header">
-              <h2 className="resource-modal-title">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#0C447C]/45 p-4 backdrop-blur-sm sm:items-center">
+          <div className="my-4 w-full max-w-2xl rounded-2xl border border-[#D6E5F4] bg-white p-6 shadow-xl sm:my-0 sm:max-h-[90vh] sm:overflow-y-auto">
+            <div className="mb-5 flex items-center justify-between border-b border-[#E6F1FB] pb-3">
+              <h2 className="text-xl font-bold text-[#0C447C]">
                 {editingResource ? 'Update Resource' : 'Create Resource'}
               </h2>
               <button
                 type="button"
                 onClick={closeResourceModal}
-                className="resource-modal-close"
+                className="rounded-md px-2 py-1 text-slate-500 hover:bg-slate-100"
               >
                 Close
               </button>
             </div>
 
             {saveError ? (
-              <div className="resource-save-error">
+              <div className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
                 {saveError}
               </div>
             ) : null}
 
             {isSaving ? (
-              <div className="resource-saving-box">
+              <div className="rounded-lg border border-[#D6E5F4] bg-[#F8FBFF] p-4 text-sm text-slate-600">
                 Saving resource...
               </div>
             ) : (

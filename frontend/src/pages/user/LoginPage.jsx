@@ -121,6 +121,14 @@ function LoginPage() {
                         >
                             {loading ? "Signing in..." : "Sign In"}
                         </button>
+
+                        <button
+                            type="button"
+                            style={styles.cancelButton}
+                            onClick={() => navigate("/")}
+                        >
+                            Cancel
+                        </button>
                     </form>
 
                     {/* Divider */}
@@ -178,8 +186,6 @@ function LoginPage() {
                     </div>
 
                     <p style={styles.helper}>
-                        Don't have an account? <Link to="/signup" style={styles.signupLink}>Sign up</Link>
-                        <br />
                         By signing in, you agree to our Terms of Service and Privacy Policy.
                     </p>
                 </section>
@@ -256,11 +262,6 @@ const styles = {
         fontSize: "0.82rem",
         lineHeight: 1.6,
     },
-    signupLink: {
-        color: "#1d4ed8",
-        textDecoration: "none",
-        fontWeight: 600,
-    },
     loginForm: {
         display: "flex",
         flexDirection: "column",
@@ -292,6 +293,19 @@ const styles = {
         cursor: "pointer",
         transition: "all 0.2s ease",
         boxShadow: "0 12px 24px rgba(37, 99, 235, 0.2)",
+        marginTop: "8px",
+    },
+    cancelButton: {
+        width: "100%",
+        padding: "14px 18px",
+        borderRadius: "14px",
+        border: "1px solid #dbe3f0",
+        backgroundColor: "#ffffff",
+        color: "#64748b",
+        fontSize: "0.98rem",
+        fontWeight: 700,
+        cursor: "pointer",
+        transition: "all 0.2s ease",
         marginTop: "8px",
     },
     errorBox: {

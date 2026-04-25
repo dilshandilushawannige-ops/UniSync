@@ -17,19 +17,8 @@ A comprehensive platform for managing university resources, support tickets, and
 - User Management (Admin, Student, Technician roles)
 - Support Ticket System
 - Resource Booking
-- Resource catalogue bulk import (CSV upload)
 - Notifications
 - Google OAuth Authentication
-
-## 📥 Bulk Resource Import (CSV)
-
-Admins can import resources in bulk from a CSV file.
-
-- **Endpoint**: `POST /api/resources/import/csv` (multipart form-data)
-- **Form field**: `file`
-- **Required headers**: `name,type,capacity,location,availableFrom,availableTo`
-- **Optional headers**: `description,status,visibleTo,assignedUsers`
-- **Sample file**: `docs/resource-import-sample.csv`
 
 ## 🛠️ Tech Stack
 
