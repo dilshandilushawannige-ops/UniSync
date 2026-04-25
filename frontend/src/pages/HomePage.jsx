@@ -24,197 +24,6 @@ import techImg from '../assets/tech.png';
 const HomePage = () => {
   const [typedText, setTypedText] = React.useState('');
   const [openFaqIndex, setOpenFaqIndex] = React.useState(0);
-  const [showRoleModal, setShowRoleModal] = React.useState(false);
-  const [showSignupForm, setShowSignupForm] = React.useState(false);
-  const [selectedRole, setSelectedRole] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState('');
-  const [signupData, setSignupData] = React.useState({
-    username: '',
-    email: '',
-    password: '',
-    contact: ''
-  });
-  const [emailError, setEmailError] = React.useState('');
-  const [usernameError, setUsernameError] = React.useState('');
-  const [passwordError, setPasswordError] = React.useState('');
-  const [contactError, setContactError] = React.useState('');
-  const navigate = useNavigate();
-
-  const handleRoleSelect = (role) => {
-    setSelectedRole(role);
-    setShowRoleModal(false);
-    setShowSignupForm(true);
-  };
-
-  const validateEmail = (email) => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email);
-  };
-
-  const validateUsername = (username) => {
-    // Only letters (a-z, A-Z) and special characters, no numbers
-    const usernameRegex = /^[a-zA-Z\s\-_.@#$%&*!]+$/;
-    return usernameRegex.test(username);
-  };
-
-  const validatePassword = (password) => {
-    // Minimum 6 characters, at least one uppercase, one lowercase, one number, one special character
-    if (password.length < 6) return false;
-
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasNumber = /[0-9]/.test(password);
-    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
-
-    return hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
-  };
-
-  const getPasswordStrength = (password) => {
-    const checks = {
-      length: password.length >= 6,
-      uppercase: /[A-Z]/.test(password),
-      lowercase: /[a-z]/.test(password),
-      number: /[0-9]/.test(password),
-      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
-    };
-    return checks;
-  };
-
-  const validateContact = (contact) => {
-    // Must be exactly 10 digits and start with 070, 071, 072, 074, 075, 076, or 078
-    const contactRegex = /^(070|071|072|074|075|076|078)\d{7}$/;
-    return contactRegex.test(contact);
-  };
-
-  const handleSignupChange = (e) => {
-    const { name, value } = e.target;
-
-    setSignupData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-
-    // Real-time email validation
-    if (name === 'email') {
-      if (value && !validateEmail(value)) {
-        setEmailError('Please enter a valid email address (e.g., example@gmail.com)');
-      } else {
-        setEmailError('');
-      }
-    }
-
-    // Real-time username validation
-    if (name === 'username') {
-      if (value && !validateUsername(value)) {
-        setUsernameError('Username cannot contain numbers. Only letters and special characters allowed');
-      } else {
-        setUsernameError('');
-      }
-    }
-
-    // Real-time password validation
-    if (name === 'password') {
-      if (value && !validatePassword(value)) {
-        const checks = getPasswordStrength(value);
-        let errorMsg = 'Password must include: ';
-        const missing = [];
-        if (!checks.length) missing.push('at least 6 characters');
-        if (!checks.uppercase) missing.push('one uppercase letter');
-        if (!checks.lowercase) missing.push('one lowercase letter');
-        if (!checks.number) missing.push('one number');
-        if (!checks.special) missing.push('one special character');
-        setPasswordError(errorMsg + missing.join(', '));
-      } else {
-        setPasswordError('');
-      }
-    }
-
-    // Real-time contact number validation
-    if (name === 'contact') {
-      if (value && !validateContact(value)) {
-        if (value.length !== 10) {
-          setContactError('Contact number must be exactly 10 digits');
-        } else if (!/^(070|071|072|074|075|076|078)/.test(value)) {
-          setContactError('Contact number must start with 070, 071, 072, 074, 075, 076, or 078');
-        } else {
-          setContactError('Invalid contact number format');
-        }
-      } else {
-        setContactError('');
-      }
-    }
-  };
-
-  const handleSignupSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    // Validate username before submission
-    if (!validateUsername(signupData.username)) {
-      setError('Username cannot contain numbers. Only letters and special characters allowed');
-      setLoading(false);
-      return;
-    }
-
-    // Validate email before submission
-    if (!validateEmail(signupData.email)) {
-      setError('Please enter a valid email address (e.g., example@gmail.com)');
-      setLoading(false);
-      return;
-    }
-
-    // Validate password before submission
-    if (!validatePassword(signupData.password)) {
-      setError('Password must be at least 6 characters and include uppercase, lowercase, number, and special character');
-      setLoading(false);
-      return;
-    }
-
-    // Validate contact number before submission
-    if (!validateContact(signupData.contact)) {
-      setError('Contact number must be 10 digits and start with 070, 071, 072, 074, 075, 076, or 078');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081'}/api/auth/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: signupData.username,
-          email: signupData.email,
-          password: signupData.password,
-          contact: signupData.contact,
-          role: selectedRole
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        alert('Account created successfully! Please login.');
-        setShowSignupForm(false);
-        navigate('/login');
-      } else {
-        setError(data.message || 'Signup failed. Please try again.');
-      }
-    } catch (err) {
-      setError('Failed to create account. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleBackToRoles = () => {
-    setShowSignupForm(false);
-    setShowRoleModal(true);
-    setSelectedRole('');
-  };
 
   React.useEffect(() => {
     const word = 'UniSync';
@@ -247,6 +56,59 @@ const HomePage = () => {
     timer = setTimeout(typeLoop, 500);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleGetStartedClick = () => {
+    setSignupStep('role');
+    setTimeout(() => {
+      signupRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  };
+
+  const handleRoleSelect = (role) => {
+    setSelectedRole(role);
+    setFormData((prev) => ({ ...prev, role }));
+    setSignupStep('form');
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      await createUser(formData);
+      alert('Account created successfully! Please login.');
+      navigate('/login');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to create account. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBack = () => {
+    setSignupStep('role');
+    setSelectedRole('');
+  };
+
+  const handleCloseSignup = () => {
+    setSignupStep('hidden');
+    setSelectedRole('');
+    setFormData({
+      fullName: '',
+      email: '',
+      role: '',
+    });
+    setError('');
+  };
 
   return (
     <div className="landing-page">
@@ -294,7 +156,7 @@ const HomePage = () => {
             From reporting to resolution, manage all campus support tickets in one place
           </p>
           <div className="section-cta-wrapper">
-            <button onClick={() => setShowRoleModal(true)} className="section-cta-btn">Get Started</button>
+            <Link to="/create-ticket" className="section-cta-btn">Get Started</Link>
           </div>
 
           <div className="features-grid-landing">
@@ -360,6 +222,100 @@ const HomePage = () => {
           </div>
         </section>
       </div>
+
+      {/* Signup Section */}
+      {signupStep !== 'hidden' && (
+        <section ref={signupRef} className="signup-section" id="signup">
+          <div className="signup-container">
+            {signupStep === 'role' ? (
+              <div className="signup-card">
+                <button onClick={handleCloseSignup} className="close-btn">✕</button>
+                <p className="signup-overline">Get Started</p>
+                <h2 className="signup-title">Choose Your Role</h2>
+                <p className="signup-subtitle">Select how you'll be using UniSync</p>
+
+                <div className="role-grid">
+                  <button
+                    type="button"
+                    className="role-card"
+                    onClick={() => handleRoleSelect('USER')}
+                  >
+                    <div className="role-icon">👨‍🎓</div>
+                    <h3 className="role-title">Student</h3>
+                    <p className="role-desc">
+                      Report issues, track tickets, and manage campus support requests
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="role-card"
+                    onClick={() => handleRoleSelect('TECHNICIAN')}
+                  >
+                    <div className="role-icon">🔧</div>
+                    <h3 className="role-title">Technician</h3>
+                    <p className="role-desc">
+                      Manage assigned tickets, update status, and resolve campus issues
+                    </p>
+                  </button>
+                </div>
+
+                <p className="signup-helper">
+                  Already have an account? <Link to="/login" className="signup-link">Sign in</Link>
+                </p>
+              </div>
+            ) : (
+              <div className="signup-card">
+                <button onClick={handleCloseSignup} className="close-btn">✕</button>
+                <button type="button" onClick={handleBack} className="back-btn">
+                  ← Back
+                </button>
+
+                <p className="signup-overline">
+                  {selectedRole === 'USER' ? 'Student' : 'Technician'} Registration
+                </p>
+                <h2 className="signup-title">Create Your Account</h2>
+
+                {error && <div className="error-box">{error}</div>}
+
+                <form onSubmit={handleSubmit} className="signup-form">
+                  <input
+                    type="text"
+                    name="fullName"
+                    placeholder="Full Name"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    className="signup-input"
+                    required
+                  />
+
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Email Address"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="signup-input"
+                    required
+                  />
+
+                  <button
+                    type="submit"
+                    className="signup-submit-btn"
+                    disabled={loading}
+                  >
+                    {loading ? 'Creating Account...' : 'Create Account'}
+                  </button>
+                </form>
+
+                <p className="signup-helper">
+                  Already have an account? <Link to="/login" className="signup-link">Sign in</Link>
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Promo Banner Section */}
       <section className="promo-banner-section">

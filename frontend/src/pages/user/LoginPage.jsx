@@ -178,6 +178,8 @@ function LoginPage() {
                     </div>
 
                     <p style={styles.helper}>
+                        Don't have an account? <Link to="/signup" style={styles.signupLink}>Sign up</Link>
+                        <br />
                         By signing in, you agree to our Terms of Service and Privacy Policy.
                     </p>
                 </section>
@@ -253,6 +255,11 @@ const styles = {
         color: "#64748b",
         fontSize: "0.82rem",
         lineHeight: 1.6,
+    },
+    signupLink: {
+        color: "#1d4ed8",
+        textDecoration: "none",
+        fontWeight: 600,
     },
     loginForm: {
         display: "flex",

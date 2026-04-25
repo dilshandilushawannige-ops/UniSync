@@ -58,10 +58,12 @@ const Navbar = ({ onGetStartedClick }) => {
 
         <div className="nav-actions">
           <Link to="/login" className="btn-login">Login</Link>
+
           <button onClick={handleGetStarted} className="btn-get-started">Get Started</button>
           <button onClick={handleNotificationClick} className="btn-notification" title="Notifications">
             <img src={bellIcon} alt="Notifications" className="bell-icon-img" />
           </button>
+
         </div>
       </div>
     </nav>
