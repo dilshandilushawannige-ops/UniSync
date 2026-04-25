@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import StudentPortalLayout from "../../components/user/StudentPortalLayout";
 import Booking from "../../components/booking/Booking";
 import BookingStats from "../../components/booking/BookingStats";
 import BookingTable from "../../components/booking/BookingTable";
+import { getUserById } from "../../services/userService";
 import {
   cancelBooking,
   checkBookingAvailability,
@@ -43,8 +44,14 @@ function normalizeType(value) {
 
 function ResourceBookingPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const currentUserId = localStorage.getItem("userId");
-  const currentUserName = "Demo Student";
+  const [currentUserName, setCurrentUserName] = useState(
+    localStorage.getItem("userName") ||
+      localStorage.getItem("fullName") ||
+      localStorage.getItem("name") ||
+      "Student"
+  );
 
   const [activeView, setActiveView] = useState("form");
   const [bookings, setBookings] = useState([]);
@@ -55,12 +62,36 @@ function ResourceBookingPage() {
   const [filterCategory, setFilterCategory] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [sortBy, setSortBy] = useState("date_desc");
+  const [prefillBooking, setPrefillBooking] = useState(null);
+  const [hiddenRejectedIds, setHiddenRejectedIds] = useState([]);
 
   useEffect(() => {
     if (!currentUserId) {
       navigate("/login");
     }
   }, [currentUserId, navigate]);
+
+  useEffect(() => {
+    const loadCurrentUser = async () => {
+      if (!currentUserId) return;
+      try {
+        const user = await getUserById(currentUserId);
+        const resolvedName =
+          user?.fullName ||
+          user?.name ||
+          user?.username ||
+          user?.email ||
+          localStorage.getItem("userName") ||
+          "Student";
+        setCurrentUserName(resolvedName);
+        localStorage.setItem("userName", resolvedName);
+      } catch {
+        // Keep existing fallback value when user profile API is unavailable.
+      }
+    };
+
+    loadCurrentUser();
+  }, [currentUserId]);
 
   const fetchBookings = useCallback(async () => {
     if (!currentUserId) return;
@@ -79,6 +110,33 @@ function ResourceBookingPage() {
   useEffect(() => {
     fetchBookings();
   }, [fetchBookings]);
+
+  useEffect(() => {
+    if (!location?.state?.resourceId) return;
+    setPrefillBooking({
+      resourceId: location.state.resourceId,
+      resourceName: location.state.resourceName,
+      resourceType: location.state.resourceType,
+      resourceCapacity: location.state.resourceCapacity,
+      resourceDescription: location.state.resourceDescription,
+    });
+    setActiveView("form");
+  }, [location]);
+
+  useEffect(() => {
+    if (!currentUserId) return;
+    const storageKey = `hiddenRejectedBookingIds:${currentUserId}`;
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        setHiddenRejectedIds(parsed);
+      }
+    } catch {
+      setHiddenRejectedIds([]);
+    }
+  }, [currentUserId]);
 
   const filteredBookings = useMemo(() => {
     let list = [...bookings];
@@ -128,6 +186,23 @@ function ResourceBookingPage() {
     ).length;
     return { total, pending, approved, cancelled };
   }, [filteredBookings]);
+
+  const rejectedBookings = useMemo(
+    () => bookings.filter((booking) => booking.status === "REJECTED"),
+    [bookings]
+  );
+  const visibleRejectedBookings = useMemo(
+    () => rejectedBookings.filter((booking) => !hiddenRejectedIds.includes(booking.id)),
+    [rejectedBookings, hiddenRejectedIds]
+  );
+
+  const handleDismissRejectedBanner = () => {
+    if (!currentUserId || visibleRejectedBookings.length === 0) return;
+    const rejectedIdsToHide = visibleRejectedBookings.map((booking) => booking.id);
+    const mergedIds = Array.from(new Set([...hiddenRejectedIds, ...rejectedIdsToHide]));
+    setHiddenRejectedIds(mergedIds);
+    localStorage.setItem(`hiddenRejectedBookingIds:${currentUserId}`, JSON.stringify(mergedIds));
+  };
 
   const handleCreateBooking = async (newBooking) => {
     const payload = {
@@ -273,10 +348,34 @@ function ResourceBookingPage() {
               onCreate={handleCreateBooking}
               theme="light"
               mode="inline"
+              initialValues={prefillBooking}
             />
           </div>
         ) : (
           <>
+            {visibleRejectedBookings.length > 0 && (
+              <div style={styles.rejectedBanner}>
+                <div style={styles.rejectedBannerHeader}>
+                  <p style={styles.rejectedBannerTitle}>
+                    You have {visibleRejectedBookings.length} rejected booking
+                    {visibleRejectedBookings.length > 1 ? "s" : ""}.
+                  </p>
+                  <button
+                    type="button"
+                    style={styles.rejectedBannerDismiss}
+                    onClick={handleDismissRejectedBanner}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+                {visibleRejectedBookings.slice(0, 3).map((booking) => (
+                  <p key={booking.id} style={styles.rejectedBannerItem}>
+                    #{booking.id} - {booking.resourceName}:{" "}
+                    {booking.rejectionReason || "No reason provided by admin."}
+                  </p>
+                ))}
+              </div>
+            )}
             {filterToolbar}
             <BookingStats stats={stats} />
             {error && <p style={styles.inlineError}>{error}</p>}
@@ -284,6 +383,7 @@ function ResourceBookingPage() {
               bookings={filteredBookings}
               loading={loading}
               isAdminView={false}
+              currentUserName={currentUserName}
               onCancelBooking={handleCancelBooking}
               onAdminStatusUpdate={() => {}}
             />
@@ -373,6 +473,41 @@ const styles = {
     borderRadius: "8px",
     fontSize: "0.875rem",
     marginBottom: "12px",
+  },
+  rejectedBanner: {
+    background: "#fff1f2",
+    border: "1px solid #fecdd3",
+    color: "#9f1239",
+    borderRadius: "10px",
+    padding: "12px 14px",
+    marginBottom: "12px",
+  },
+  rejectedBannerHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "10px",
+    marginBottom: "4px",
+  },
+  rejectedBannerTitle: {
+    margin: 0,
+    fontWeight: 700,
+    fontSize: "0.92rem",
+  },
+  rejectedBannerDismiss: {
+    border: "1px solid #fda4af",
+    background: "#fff",
+    color: "#9f1239",
+    borderRadius: "8px",
+    padding: "4px 10px",
+    fontSize: "0.8rem",
+    fontWeight: 600,
+    cursor: "pointer",
+  },
+  rejectedBannerItem: {
+    margin: "4px 0 0",
+    fontSize: "0.86rem",
+    lineHeight: 1.35,
   },
 };
 
