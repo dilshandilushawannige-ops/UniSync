@@ -1,16 +1,27 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useMemo } from "react";
 import { useAnnouncements } from "../../context/AnnouncementContext";
+import { 
+  MdDashboard, 
+  MdLibraryBooks, 
+  MdEventAvailable, 
+  MdConfirmationNumber, 
+  MdAddCircleOutline, 
+  MdNotifications, 
+  MdPerson,
+  MdLogout,
+  MdNotificationsActive
+} from "react-icons/md";
 import "./StudentPortalLayout.css";
 
 const sidebarItems = [
-    { label: "Dashboard", path: "/dashboard", icon: "📊" },
-    { label: "Resources", path: "/resources", icon: "📚" },
-    { label: "Resource Booking", path: "/resource-booking", icon: "📅" },
-    { label: "My Tickets", path: "/my-tickets", icon: "🎫" },
-    { label: "New Ticket", path: "/create-ticket", icon: "📝" },
-    { label: "Notifications", path: "/my-notifications", icon: "🔔" },
-    { label: "Profile", path: "/profile", icon: "👤" },
+    { label: "Dashboard", path: "/dashboard", icon: MdDashboard },
+    { label: "Resources", path: "/resources", icon: MdLibraryBooks },
+    { label: "Resource Booking", path: "/resource-booking", icon: MdEventAvailable },
+    { label: "My Tickets", path: "/my-tickets", icon: MdConfirmationNumber },
+    { label: "New Ticket", path: "/create-ticket", icon: MdAddCircleOutline },
+    { label: "Notifications", path: "/my-notifications", icon: MdNotifications },
+    { label: "Profile", path: "/profile", icon: MdPerson },
 ];
 
 function StudentPortalLayout({ title, children }) {
@@ -44,23 +55,26 @@ function StudentPortalLayout({ title, children }) {
                 </div>
                 
                 <nav className="sidebar-nav">
-                    {sidebarItems.map((item) => (
-                        <NavLink
-                            key={item.path}
-                            to={item.path}
-                            className={({ isActive }) => 
-                                isActive ? "nav-item nav-item-active" : "nav-item"
-                            }
-                        >
-                            <span className="nav-icon">{item.icon}</span>
-                            <span className="nav-label">{item.label}</span>
-                        </NavLink>
-                    ))}
+                    {sidebarItems.map((item) => {
+                        const IconComponent = item.icon;
+                        return (
+                            <NavLink
+                                key={item.path}
+                                to={item.path}
+                                className={({ isActive }) => 
+                                    isActive ? "nav-item nav-item-active" : "nav-item"
+                                }
+                            >
+                                <IconComponent className="nav-icon" />
+                                <span className="nav-label">{item.label}</span>
+                            </NavLink>
+                        );
+                    })}
                 </nav>
 
                 <div className="sidebar-footer">
                     <button onClick={handleLogout} className="logout-btn">
-                        <span className="nav-icon">🚪</span>
+                        <MdLogout className="nav-icon" />
                         <span className="nav-label">Logout</span>
                     </button>
                 </div>
@@ -70,7 +84,7 @@ function StudentPortalLayout({ title, children }) {
                 <div className="main-header">
                     {title ? <h1 className="main-title">{title}</h1> : null}
                     <Link to="/my-notifications" className="notification-bell">
-                        <span className="bell-icon">🔔</span>
+                        <MdNotificationsActive className="bell-icon" />
                         {unreadCount > 0 && (
                             <span className="notification-badge">{unreadCount}</span>
                         )}

@@ -71,6 +71,7 @@
 .nav-item:hover {
   color: #3882F6;
   background-color: #F5F6FA;
+  text-decoration: none;
 }
 
 .nav-item-active {
@@ -81,7 +82,7 @@
 }
 
 .nav-icon {
-  font-size: 18px;
+  font-size: 20px;
   width: 20px;
   height: 20px;
   display: flex;
@@ -118,10 +119,12 @@
   cursor: pointer;
   transition: all 0.25s ease;
   text-align: left;
+  text-decoration: none;
 }
 
 .logout-btn:hover {
   background-color: #FEF2F2;
+  text-decoration: none;
 }
 
 /* Main Content Area */
@@ -170,7 +173,10 @@
 }
 
 .bell-icon {
-  font-size: 20px;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .notification-badge {
