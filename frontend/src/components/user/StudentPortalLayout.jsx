@@ -1,4 +1,4 @@
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useMemo } from "react";
 import { useAnnouncements } from "../../context/AnnouncementContext";
 import { 
@@ -26,6 +26,7 @@ const sidebarItems = [
 
 function StudentPortalLayout({ title, children }) {
     const navigate = useNavigate();
+    const location = useLocation();
     const { announcements } = useAnnouncements();
 
     // Calculate unread count for STUDENT role
@@ -50,7 +51,7 @@ function StudentPortalLayout({ title, children }) {
         <div className="student-portal-layout">
             <aside className="student-sidebar">
                 <div className="sidebar-header">
-                    <div className="sidebar-logo">EduSupport</div>
+                    <div className="sidebar-logo">UniSync</div>
                     <div className="sidebar-subtitle">STUDENT IT PORTAL</div>
                 </div>
                 
@@ -90,7 +91,7 @@ function StudentPortalLayout({ title, children }) {
                         )}
                     </Link>
                 </div>
-                <div className="main-content">
+                <div key={location.pathname} className="dashboard-content fade-in-up">
                     {children}
                 </div>
             </main>

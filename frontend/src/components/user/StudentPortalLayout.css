@@ -202,6 +202,29 @@
   padding: 24px 32px;
 }
 
+/* Dashboard Content with Animation */
+.dashboard-content {
+  flex: 1;
+  padding: 0;
+  overflow-y: auto;
+}
+
+/* Fade-in-up Animation */
+@keyframes fadePageIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadePageIn 0.35s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .student-sidebar {
