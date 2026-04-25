@@ -1,6 +1,6 @@
-import { Link, NavLink } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { getNotificationsByEmail } from "../../services/notificationService";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useMemo } from "react";
+import { useAnnouncements } from "../../context/AnnouncementContext";
 
 const sidebarItems = [
     { label: "Student Dashboard", path: "/dashboard", icon: "📊" },
@@ -13,25 +13,26 @@ const sidebarItems = [
 ];
 
 function StudentPortalLayout({ title, children }) {
-    const [unreadCount, setUnreadCount] = useState(0);
-    const userEmail = "student@gmail.com";
+    const navigate = useNavigate();
+    const { announcements } = useAnnouncements();
 
-    useEffect(() => {
-        const fetchNotifications = async () => {
-            try {
-                const notifications = await getNotificationsByEmail(userEmail);
-                const unread = notifications.filter((n) => !n.read).length;
-                setUnreadCount(unread);
-            } catch (error) {
-                console.error("Failed to fetch notifications:", error);
-            }
-        };
+    // Calculate unread count for STUDENT role
+    const unreadCount = useMemo(() => {
+        return announcements.filter(announcement =>
+            announcement.status === 'ACTIVE' &&
+            (announcement.target.includes('ALL') || announcement.target.includes('STUDENT'))
+        ).length;
+    }, [announcements]);
 
-        fetchNotifications();
-        // Refresh notification count every 30 seconds
-        const interval = setInterval(fetchNotifications, 30000);
-        return () => clearInterval(interval);
-    }, []);
+    const handleLogout = () => {
+        // Clear authentication data
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        localStorage.removeItem("userId");
+
+        // Redirect to home page
+        navigate("/");
+    };
 
     return (
         <div style={styles.page}>
@@ -54,10 +55,10 @@ function StudentPortalLayout({ title, children }) {
                         ))}
                     </div>
                     <div style={styles.sidebarFooter}>
-                        <Link to="/login" style={styles.logoutLink}>
+                        <button onClick={handleLogout} style={styles.logoutLink}>
                             <span style={styles.sidebarIcon}>🚪</span>
                             <span>Logout</span>
-                        </Link>
+                        </button>
                     </div>
                 </aside>
 
@@ -154,6 +155,12 @@ const styles = {
         fontWeight: 500,
         textAlign: "left",
         transition: "all 0.2s ease",
+        border: "none",
+        background: "none",
+        cursor: "pointer",
+        width: "100%",
+        fontSize: "inherit",
+        fontFamily: "inherit",
     },
     main: {
         flex: 1,

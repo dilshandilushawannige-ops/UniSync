@@ -70,6 +70,27 @@
   right: 3rem;
 }
 
+.btn-notification {
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-notification:hover {
+  transform: translateY(-2px);
+}
+
+.bell-icon-img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
 .btn-login {
   padding: 0.6rem 1.5rem;
   border-radius: 8px;
@@ -100,6 +121,7 @@
   border: none;
   cursor: pointer;
   font-family: inherit;
+
 }
 
 .btn-get-started:hover {

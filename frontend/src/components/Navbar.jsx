@@ -1,8 +1,48 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Navbar.css';
+import bellIcon from '../assets/bell.png';
 
-const Navbar = () => {
+const Navbar = ({ onGetStartedClick }) => {
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (onGetStartedClick) {
+      onGetStartedClick();
+    } else {
+      navigate('/login');
+    }
+  };
+
+  const handleNotificationClick = () => {
+    // Check if user is logged in by checking localStorage
+    const token = localStorage.getItem('token');
+    const userRole = localStorage.getItem('role');
+
+    if (!token || !userRole) {
+      // User not logged in, redirect to login
+      alert('Please login to view notifications');
+      navigate('/login');
+      return;
+    }
+
+    // Redirect based on user role
+    switch (userRole) {
+      case 'USER':
+      case 'STUDENT':
+        navigate('/my-notifications');
+        break;
+      case 'ADMIN':
+        navigate('/admin/notifications');
+        break;
+      case 'TECHNICIAN':
+        navigate('/technician/notifications');
+        break;
+      default:
+        navigate('/login');
+    }
+  };
+
   return (
     <nav className="navbar-landing">
       <div className="navbar-container">
@@ -18,7 +58,12 @@ const Navbar = () => {
 
         <div className="nav-actions">
           <Link to="/login" className="btn-login">Login</Link>
-          <Link to="/signup" className="btn-get-started">Get Started</Link>
+
+          <button onClick={handleGetStarted} className="btn-get-started">Get Started</button>
+          <button onClick={handleNotificationClick} className="btn-notification" title="Notifications">
+            <img src={bellIcon} alt="Notifications" className="bell-icon-img" />
+          </button>
+
         </div>
       </div>
     </nav>

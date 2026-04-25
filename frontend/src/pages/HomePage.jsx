@@ -17,22 +17,13 @@ import helpProfile from '../assets/help-profile.png';
 import helpTools from '../assets/help-tools.png';
 import helpAdmin from '../assets/help-admin.png';
 import helpTips from '../assets/help-tips.png';
+import studentImg from '../assets/student.png';
+import adminImg from '../assets/admin.png';
+import techImg from '../assets/tech.png';
 
 const HomePage = () => {
   const [typedText, setTypedText] = React.useState('');
   const [openFaqIndex, setOpenFaqIndex] = React.useState(0);
-  const [signupStep, setSignupStep] = React.useState('hidden'); // 'hidden', 'role', 'form'
-  const [selectedRole, setSelectedRole] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState('');
-  const navigate = useNavigate();
-  const signupRef = React.useRef(null);
-
-  const [formData, setFormData] = React.useState({
-    fullName: '',
-    email: '',
-    role: '',
-  });
 
   React.useEffect(() => {
     const word = 'UniSync';
@@ -121,7 +112,7 @@ const HomePage = () => {
 
   return (
     <div className="landing-page">
-      <Navbar />
+      <Navbar onGetStartedClick={() => setShowRoleModal(true)} />
 
       {/* Hero Section */}
       <section className="hero-landing">
@@ -165,7 +156,7 @@ const HomePage = () => {
             From reporting to resolution, manage all campus support tickets in one place
           </p>
           <div className="section-cta-wrapper">
-            <button onClick={handleGetStartedClick} className="section-cta-btn">Get Started</button>
+            <Link to="/create-ticket" className="section-cta-btn">Get Started</Link>
           </div>
 
           <div className="features-grid-landing">
@@ -469,6 +460,294 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      {/* Role Selection Modal */}
+      {showRoleModal && (
+        <div className="role-modal-overlay" onClick={() => setShowRoleModal(false)}>
+          <div className="role-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="role-modal-close" onClick={() => setShowRoleModal(false)}>×</button>
+
+            <p className="role-modal-overline">GET STARTED</p>
+            <h2 className="role-modal-title">Choose Your Role</h2>
+            <p className="role-modal-subtitle">Select how you'll be using UniSync</p>
+
+            <div className="role-modal-grid">
+              <div
+                className="role-modal-card"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRoleSelect('USER');
+                }}
+              >
+                <img src={studentImg} alt="Student" className="role-modal-image" />
+                <h3 className="role-modal-card-title">Student</h3>
+                <p className="role-modal-card-desc">
+                  Report issues, track tickets, and manage campus support requests
+                </p>
+              </div>
+
+              <div
+                className="role-modal-card"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRoleSelect('TECHNICIAN');
+                }}
+              >
+                <img src={techImg} alt="Technician" className="role-modal-image" />
+                <h3 className="role-modal-card-title">Technician</h3>
+                <p className="role-modal-card-desc">
+                  Manage assigned tickets, update status, and resolve campus issues
+                </p>
+              </div>
+
+              <div
+                className="role-modal-card"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRoleSelect('ADMIN');
+                }}
+              >
+                <img src={adminImg} alt="Admin" className="role-modal-image" />
+                <h3 className="role-modal-card-title">Admin</h3>
+                <p className="role-modal-card-desc">
+                  Oversee all operations, manage users, and configure system settings
+                </p>
+              </div>
+            </div>
+
+            <p className="role-modal-helper">
+              Already have an account? <Link to="/login" className="role-modal-link">Sign in</Link>
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Signup Form Modal */}
+      {showSignupForm && (
+        <div className="role-modal-overlay" onClick={() => setShowSignupForm(false)}>
+          <div className="role-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="role-modal-close" onClick={() => setShowSignupForm(false)}>×</button>
+
+            <p className="role-modal-overline">
+              {selectedRole === 'USER' ? 'STUDENT' : selectedRole} REGISTRATION
+            </p>
+            <h2 className="role-modal-title">Create Your Account</h2>
+            <p className="role-modal-subtitle">Fill in your details to get started</p>
+
+            <form onSubmit={handleSignupSubmit} className="signup-form">
+              {error && (
+                <div className="error-message">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                  </svg>
+                  {error}
+                </div>
+              )}
+
+              <div className="input-group">
+                <label htmlFor="username" className="input-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  placeholder="Enter your full name (no numbers)"
+                  value={signupData.username}
+                  onChange={handleSignupChange}
+                  className={`signup-input ${usernameError ? 'input-error' : signupData.username && !usernameError ? 'input-valid' : ''}`}
+                  required
+                />
+                {usernameError && (
+                  <div className="field-error">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="15" y1="9" x2="9" y2="15"></line>
+                      <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                    {usernameError}
+                  </div>
+                )}
+                {signupData.username && !usernameError && (
+                  <div className="field-success">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="20,6 9,17 4,12"></polyline>
+                    </svg>
+                    Valid username
+                  </div>
+                )}
+              </div>
+
+              <div className="input-group">
+                <label htmlFor="email" className="input-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="example@gmail.com"
+                  value={signupData.email}
+                  onChange={handleSignupChange}
+                  className={`signup-input ${emailError ? 'input-error' : signupData.email && !emailError ? 'input-valid' : ''}`}
+                  required
+                />
+                {emailError && (
+                  <div className="field-error">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="15" y1="9" x2="9" y2="15"></line>
+                      <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                    {emailError}
+                  </div>
+                )}
+                {signupData.email && !emailError && (
+                  <div className="field-success">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="20,6 9,17 4,12"></polyline>
+                    </svg>
+                    Valid email address
+                  </div>
+                )}
+              </div>
+
+              <div className="input-group">
+                <label htmlFor="password" className="input-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <circle cx="12" cy="16" r="1"></circle>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                  Password
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Min 6 chars: Aa1@"
+                  value={signupData.password}
+                  onChange={handleSignupChange}
+                  className={`signup-input ${passwordError ? 'input-error' : signupData.password && !passwordError ? 'input-valid' : ''}`}
+                  required
+                  minLength="6"
+                />
+                {signupData.password && (
+                  <div className="password-requirements">
+                    <div className={`requirement ${getPasswordStrength(signupData.password).length ? 'met' : ''}`}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="20,6 9,17 4,12"></polyline>
+                      </svg>
+                      At least 6 characters
+                    </div>
+                    <div className={`requirement ${getPasswordStrength(signupData.password).uppercase ? 'met' : ''}`}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="20,6 9,17 4,12"></polyline>
+                      </svg>
+                      One uppercase letter (A-Z)
+                    </div>
+                    <div className={`requirement ${getPasswordStrength(signupData.password).lowercase ? 'met' : ''}`}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="20,6 9,17 4,12"></polyline>
+                      </svg>
+                      One lowercase letter (a-z)
+                    </div>
+                    <div className={`requirement ${getPasswordStrength(signupData.password).number ? 'met' : ''}`}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="20,6 9,17 4,12"></polyline>
+                      </svg>
+                      One number (0-9)
+                    </div>
+                    <div className={`requirement ${getPasswordStrength(signupData.password).special ? 'met' : ''}`}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="20,6 9,17 4,12"></polyline>
+                      </svg>
+                      One special character (!@#$%...)
+                    </div>
+                  </div>
+                )}
+                {signupData.password && !passwordError && (
+                  <div className="field-success">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="20,6 9,17 4,12"></polyline>
+                    </svg>
+                    Strong password
+                  </div>
+                )}
+              </div>
+
+              <div className="input-group">
+                <label htmlFor="contact" className="input-label">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                  </svg>
+                  Contact Number
+                </label>
+                <input
+                  type="tel"
+                  id="contact"
+                  name="contact"
+                  placeholder="0712345678 (10 digits)"
+                  value={signupData.contact}
+                  onChange={handleSignupChange}
+                  className={`signup-input ${contactError ? 'input-error' : signupData.contact && !contactError ? 'input-valid' : ''}`}
+                  required
+                  maxLength="10"
+                  pattern="[0-9]*"
+                />
+                {contactError && (
+                  <div className="field-error">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="15" y1="9" x2="9" y2="15"></line>
+                      <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                    {contactError}
+                  </div>
+                )}
+                {signupData.contact && !contactError && (
+                  <div className="field-success">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="20,6 9,17 4,12"></polyline>
+                    </svg>
+                    Valid contact number
+                  </div>
+                )}
+                <div className="field-hint">
+                  Must start with: 070, 071, 072, 074, 075, 076, or 078
+                </div>
+              </div>
+
+              <button type="submit" className="signup-submit-btn" disabled={loading}>
+                {loading ? (
+                  <>
+                    <svg className="loading-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 12a9 9 0 11-6.219-8.56" />
+                    </svg>
+                    Creating Account...
+                  </>
+                ) : (
+                  'Create Account'
+                )}
+              </button>
+            </form>
+
+            <p className="role-modal-helper">
+              Already have an account? <Link to="/login" className="role-modal-link">Sign in</Link>
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Footer Section */}
       <Footer />

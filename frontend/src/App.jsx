@@ -62,6 +62,7 @@ function App() {
           <Route path="/admin/profile" element={<StatusPage title="Admin Profile" message="Admin profile details will appear here." />} />
           <Route path="/admin/users" element={<ManageUsersPage />} />
           <Route path="/admin/notifications" element={<ManageNotificationsPage />} />
+          <Route path="/admin/announcements" element={<ManageAnnouncementsPage />} />
           <Route path="/admin/tickets" element={<ManageTicketsPage />} />
           <Route path="/admin/tickets/:id" element={<TicketManagementDetailsPage />} />
           <Route path="/admin/resources" element={<ManageResourcesPage />} />

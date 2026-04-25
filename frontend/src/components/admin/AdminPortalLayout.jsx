@@ -1,15 +1,27 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
 const sidebarItems = [
     { label: "Dashboard", path: "/admin/dashboard", icon: "📊" },
     { label: "Ticket Manage", path: "/admin/tickets", icon: "🎫" },
     { label: "Booking Manage", path: "/admin/bookings", icon: "📅" },
     { label: "Resource Manager", path: "/admin/resources", icon: "📦" },
-    { label: "Announcement", path: "/admin/notifications", icon: "📢" },
+    { label: "Announcement", path: "/admin/announcements", icon: "📢" },
     { label: "Profile", path: "/admin/profile", icon: "👤" },
 ];
 
 function AdminPortalLayout({ title, children }) {
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        // Clear authentication data
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        localStorage.removeItem("userId");
+
+        // Redirect to home page
+        navigate("/");
+    };
+
     return (
         <div style={styles.page}>
             <div style={styles.contentShell}>
@@ -31,10 +43,10 @@ function AdminPortalLayout({ title, children }) {
                         ))}
                     </div>
                     <div style={styles.sidebarFooter}>
-                        <Link to="/login" style={styles.logoutLink}>
+                        <button onClick={handleLogout} style={styles.logoutLink}>
                             <span style={styles.sidebarIcon}>🚪</span>
                             <span>Logout</span>
-                        </Link>
+                        </button>
                     </div>
                 </aside>
 
@@ -123,6 +135,12 @@ const styles = {
         fontWeight: 500,
         textAlign: "left",
         transition: "all 0.2s ease",
+        border: "none",
+        background: "none",
+        cursor: "pointer",
+        width: "100%",
+        fontSize: "inherit",
+        fontFamily: "inherit",
     },
     main: {
         flex: 1,

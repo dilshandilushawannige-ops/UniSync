@@ -1,67 +1,34 @@
-import { useEffect, useMemo, useState } from "react";
-import NotificationPanel from "../../components/notification/NotificationPanel";
+import { useMemo } from "react";
 import StudentPortalLayout from "../../components/user/StudentPortalLayout";
-import {
-    deleteNotification,
-    getNotificationsByEmail,
-    markNotificationAsRead,
-} from "../../services/notificationService";
+import AnnouncementList from "../../components/announcement/AnnouncementList";
+import { useAnnouncements } from "../../context/AnnouncementContext";
 
 function MyNotificationsPage() {
-    const [notifications, setNotifications] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-    const userEmail = "student@gmail.com";
+    const { announcements } = useAnnouncements();
 
-    const loadNotifications = async () => {
-        try {
-            setError("");
-            const data = await getNotificationsByEmail(userEmail);
-            setNotifications(data);
-        } catch (loadError) {
-            setError("Failed to load notifications.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        loadNotifications();
-    }, []);
+    // Filter announcements for STUDENT role
+    const studentAnnouncements = useMemo(() => {
+        return announcements.filter(announcement =>
+            announcement.status === 'ACTIVE' &&
+            (announcement.target.includes('ALL') || announcement.target.includes('STUDENT'))
+        );
+    }, [announcements]);
 
     const stats = useMemo(() => {
-        const unreadCount = notifications.filter((notification) => !notification.read).length;
+        const importantCount = studentAnnouncements.filter(a => a.priority === 'IMPORTANT').length;
         return {
-            total: notifications.length,
-            unread: unreadCount,
-            read: notifications.length - unreadCount,
+            total: studentAnnouncements.length,
+            unread: studentAnnouncements.length,
+            important: importantCount,
         };
-    }, [notifications]);
-
-    const handleMarkAsRead = async (id) => {
-        try {
-            await markNotificationAsRead(id);
-            loadNotifications();
-        } catch (actionError) {
-            setError("Failed to mark notification as read.");
-        }
-    };
-
-    const handleDelete = async (id) => {
-        try {
-            await deleteNotification(id);
-            loadNotifications();
-        } catch (actionError) {
-            setError("Failed to delete notification.");
-        }
-    };
+    }, [studentAnnouncements]);
 
     return (
         <StudentPortalLayout title="Welcome to Student Dashboard">
             <section style={styles.card}>
                 <div style={styles.headerRow}>
                     <div>
-                        <h2 style={styles.cardTitle}>Notifications</h2>
+                        <h2 style={styles.cardTitle}>📢 Notifications</h2>
                         <p style={styles.cardText}>
                             Review unread alerts, track recent updates, and clear items after reading them.
                         </p>
@@ -70,33 +37,32 @@ function MyNotificationsPage() {
                     <div style={styles.statGrid}>
                         <StatCard label="Total" value={stats.total} />
                         <StatCard label="Unread" value={stats.unread} accent />
-                        <StatCard label="Read" value={stats.read} />
+                        <StatCard label="Important" value={stats.important} important />
                     </div>
                 </div>
 
-                {loading ? <p style={styles.status}>Loading notifications...</p> : null}
-                {error ? <p style={styles.error}>{error}</p> : null}
-
-                {!loading && !error ? (
-                    <div style={styles.panelWrap}>
-                        <NotificationPanel
-                            notifications={notifications}
-                            onMarkAsRead={handleMarkAsRead}
-                            onDelete={handleDelete}
-                        />
-                    </div>
-                ) : null}
+                <div style={styles.announcementSection}>
+                    {studentAnnouncements.length === 0 ? (
+                        <div style={styles.emptyState}>
+                            <div style={styles.emptyIcon}>📭</div>
+                            <p style={styles.emptyText}>No notifications available.</p>
+                        </div>
+                    ) : (
+                        <AnnouncementList announcements={announcements} userRole="STUDENT" />
+                    )}
+                </div>
             </section>
         </StudentPortalLayout>
     );
 }
 
-function StatCard({ label, value, accent = false }) {
+function StatCard({ label, value, accent = false, important = false }) {
     return (
         <div
             style={{
                 ...styles.statCard,
                 ...(accent ? styles.statCardAccent : {}),
+                ...(important ? styles.statCardImportant : {}),
             }}
         >
             <span style={styles.statLabel}>{label}</span>
@@ -110,68 +76,81 @@ const styles = {
         backgroundColor: "#ffffff",
         border: "1px solid #e2e8f0",
         borderRadius: "18px",
-        padding: "24px",
+        padding: "28px",
         boxShadow: "0 14px 32px rgba(15, 23, 42, 0.05)",
     },
     headerRow: {
         display: "flex",
         alignItems: "flex-start",
         justifyContent: "space-between",
-        gap: "20px",
+        gap: "24px",
         flexWrap: "wrap",
-        marginBottom: "20px",
+        marginBottom: "28px",
     },
     cardTitle: {
-        margin: "0 0 8px",
+        margin: "0 0 10px",
         color: "#0f172a",
-        fontSize: "1.15rem",
+        fontSize: "1.5rem",
+        fontWeight: "700",
     },
     cardText: {
         margin: 0,
         color: "#64748b",
         lineHeight: 1.6,
         maxWidth: "60ch",
+        fontSize: "15px",
     },
     statGrid: {
         display: "grid",
-        gridTemplateColumns: "repeat(3, minmax(90px, 1fr))",
-        gap: "12px",
-        minWidth: "300px",
+        gridTemplateColumns: "repeat(3, minmax(100px, 1fr))",
+        gap: "14px",
+        minWidth: "320px",
     },
     statCard: {
-        padding: "14px 16px",
+        padding: "16px 18px",
         borderRadius: "14px",
         backgroundColor: "#f8fafc",
-        border: "1px solid #e2e8f0",
+        border: "2px solid #e2e8f0",
         display: "flex",
         flexDirection: "column",
-        gap: "6px",
+        gap: "8px",
+        transition: "all 0.2s ease",
     },
     statCardAccent: {
         backgroundColor: "#eff6ff",
-        borderColor: "#bfdbfe",
+        borderColor: "#3b82f6",
+    },
+    statCardImportant: {
+        backgroundColor: "#fef2f2",
+        borderColor: "#ef4444",
     },
     statLabel: {
         color: "#64748b",
-        fontSize: "0.82rem",
-        fontWeight: 700,
+        fontSize: "0.75rem",
+        fontWeight: "700",
+        textTransform: "uppercase",
+        letterSpacing: "0.5px",
     },
     statValue: {
         color: "#0f172a",
-        fontSize: "1.25rem",
+        fontSize: "1.75rem",
+        fontWeight: "800",
     },
-    status: {
-        color: "#64748b",
+    announcementSection: {
+        marginTop: "8px",
+    },
+    emptyState: {
+        textAlign: "center",
+        padding: "60px 20px",
+    },
+    emptyIcon: {
+        fontSize: "64px",
+        marginBottom: "16px",
+    },
+    emptyText: {
+        color: "#94a3b8",
+        fontSize: "15px",
         margin: 0,
-    },
-    error: {
-        color: "#b91c1c",
-        margin: 0,
-        fontWeight: 700,
-    },
-    panelWrap: {
-        display: "flex",
-        justifyContent: "flex-start",
     },
 };
 
