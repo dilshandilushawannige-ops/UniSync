@@ -16,3 +16,11 @@ export const updateResourceStatus = (id, status) =>
   api.patch(`/resources/${id}/status`, null, {
     params: { status },
   });
+
+export const importResourcesCsv = (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  return api.post("/resources/import/csv", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};

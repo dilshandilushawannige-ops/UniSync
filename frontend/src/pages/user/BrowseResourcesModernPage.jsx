@@ -35,15 +35,15 @@ const toDisplayType = (value) => {
 const getStatusStyles = (status) => {
   if (status === 'ACTIVE') {
     return {
-      pill: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
-      dot: 'bg-emerald-500',
+      pill: 'browse-status-active',
+      dot: 'browse-status-dot-active',
       label: 'Active',
     };
   }
 
   return {
-    pill: 'bg-rose-100 text-rose-700 border border-rose-200',
-    dot: 'bg-rose-500',
+    pill: 'browse-status-inactive',
+    dot: 'browse-status-dot-inactive',
     label: 'Out of Service',
   };
 };
@@ -141,7 +141,8 @@ function BrowseResourcesModernPage() {
   const summary = useMemo(() => {
     const total = allResources.length;
     const available = allResources.filter((item) => item.status === 'ACTIVE').length;
-    return { total, available };
+    const outOfResource = allResources.filter((item) => item.status !== 'ACTIVE').length;
+    return { total, available, outOfResource };
   }, [allResources]);
 
   const handleFilterChange = (event) => {
@@ -180,7 +181,7 @@ function BrowseResourcesModernPage() {
       return;
     }
 
-    navigate('/dashboard', {
+    navigate('/resource-booking', {
       state: {
         resourceId: resource.id,
         resourceName: resource.name,
@@ -214,6 +215,12 @@ function BrowseResourcesModernPage() {
                 <div className="browse-stat-icon">✓</div>
                 <p className="browse-stat-value">{summary.available}</p>
                 <p className="browse-stat-label">AVAILABLE</p>
+              </article>
+
+              <article className="browse-stat-glass browse-out-resource-card">
+                <div className="browse-stat-icon">📦</div>
+                <p className="browse-stat-value">{summary.outOfResource}</p>
+                <p className="browse-stat-label">OUT OF RESOURCE</p>
               </article>
 
               <article className="browse-stat-glass browse-admin-card">
@@ -284,29 +291,30 @@ function BrowseResourcesModernPage() {
               <div className="browse-results-grid">
                 {visibleResources.map((resource) => {
                   const statusStyles = getStatusStyles(resource.status);
-                  const statusBorderClass = resource.status === 'ACTIVE' ? 'border-t-emerald-400' : 'border-t-rose-400';
+                  const statusBorderClass =
+                    resource.status === 'ACTIVE'
+                      ? 'browse-resource-card-active'
+                      : 'browse-resource-card-inactive';
                   const isBookable = resource.status === 'ACTIVE';
                   return (
-                    <article key={resource.id} className={`browse-resource-card border-t-[3px] ${statusBorderClass}`}>
-                      <div className="mb-2 flex items-center justify-between gap-2">
-                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                          {toDisplayType(resource.type)}
-                        </span>
-                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles.pill}`}>
-                          <span className={`h-2 w-2 rounded-full ${statusStyles.dot}`} />
+                    <article key={resource.id} className={`browse-resource-card ${statusBorderClass}`}>
+                      <div className="browse-resource-top">
+                        <span className="browse-type-pill">{toDisplayType(resource.type)}</span>
+                        <span className={`browse-status-pill ${statusStyles.pill}`}>
+                          <span className={`browse-status-dot ${statusStyles.dot}`} />
                           {statusStyles.label}
                         </span>
                       </div>
 
-                      <h3 className="mb-1">{resource.name}</h3>
+                      <h3>{resource.name}</h3>
                       <p>Capacity: {resource.capacity ?? '-'}</p>
                       <p>Location: {resource.location || 'N/A'}</p>
                       <p>Availability: {formatAvailability(resource)}</p>
 
-                      <div className="mt-3 grid grid-cols-2 gap-2">
+                      <div className="browse-resource-actions">
                         <button
                           type="button"
-                          className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                          className="browse-details-btn"
                           onClick={() => handleViewDetails(resource)}
                         >
                           View Details
@@ -314,11 +322,7 @@ function BrowseResourcesModernPage() {
                         <button
                           type="button"
                           disabled={!isBookable}
-                          className={`rounded-lg px-3 py-2 text-sm font-semibold text-white transition ${
-                            isBookable
-                              ? 'bg-[#123a66] hover:bg-[#0f3154]'
-                              : 'bg-slate-300 text-slate-100 cursor-not-allowed'
-                          }`}
+                          className={`browse-booking-btn ${isBookable ? '' : 'browse-booking-btn-disabled'}`}
                           onClick={() => handleBookNow(resource)}
                         >
                           Booking Now
@@ -333,38 +337,38 @@ function BrowseResourcesModernPage() {
         </section>
 
         {selectedResource ? (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-lg rounded-2xl bg-white p-5 shadow-xl">
-              <div className="mb-4 flex items-start justify-between gap-3 border-b border-slate-100 pb-3">
+          <div className="browse-modal-overlay">
+            <div className="browse-modal">
+              <div className="browse-modal-head">
                 <div>
-                  <h3 className="text-xl font-bold text-[#0f3d74]">{selectedResource.name}</h3>
-                  <p className="mt-1 text-sm text-slate-500">Resource Details</p>
+                  <h3 className="browse-modal-title">{selectedResource.name}</h3>
+                  <p className="browse-modal-subtitle">Resource Details</p>
                 </div>
                 <button
                   type="button"
-                  className="rounded-md px-2 py-1 text-sm text-slate-500 hover:bg-slate-100"
+                  className="browse-modal-close"
                   onClick={() => setSelectedResource(null)}
                 >
                   Close
                 </button>
               </div>
 
-              <div className="mb-4 flex items-center gap-2">
-                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+              <div className="browse-modal-badges">
+                <span className="browse-type-pill">
                   {toDisplayType(selectedResource.type)}
                 </span>
                 {(() => {
                   const statusStyles = getStatusStyles(selectedResource.status);
                   return (
-                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles.pill}`}>
-                      <span className={`h-2 w-2 rounded-full ${statusStyles.dot}`} />
+                    <span className={`browse-status-pill ${statusStyles.pill}`}>
+                      <span className={`browse-status-dot ${statusStyles.dot}`} />
                       {statusStyles.label}
                     </span>
                   );
                 })()}
               </div>
 
-              <div className="grid grid-cols-1 gap-2 text-sm text-slate-700 sm:grid-cols-2">
+              <div className="browse-modal-grid">
                 <p><strong>ID:</strong> {selectedResource.id ?? 'N/A'}</p>
                 <p><strong>Capacity:</strong> {selectedResource.capacity ?? 'N/A'}</p>
                 <p><strong>Location:</strong> {selectedResource.location || 'N/A'}</p>
@@ -375,19 +379,17 @@ function BrowseResourcesModernPage() {
                 <p><strong>Updated:</strong> {selectedResource.updatedAt ? new Date(selectedResource.updatedAt).toLocaleString() : 'N/A'}</p>
               </div>
 
-              <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
-                <p className="font-semibold text-slate-800">Description</p>
-                <p className="mt-1">{selectedResource.description || 'N/A'}</p>
+              <div className="browse-modal-description">
+                <p className="browse-modal-description-title">Description</p>
+                <p>{selectedResource.description || 'N/A'}</p>
               </div>
 
-              <div className="mt-4 flex justify-end">
+              <div className="browse-modal-actions">
                 <button
                   type="button"
                   disabled={selectedResource.status !== 'ACTIVE'}
-                  className={`rounded-lg px-4 py-2 text-sm font-semibold text-white transition ${
-                    selectedResource.status === 'ACTIVE'
-                      ? 'bg-[#123a66] hover:bg-[#0f3154]'
-                      : 'bg-slate-300 text-slate-100 cursor-not-allowed'
+                  className={`browse-booking-btn ${
+                    selectedResource.status === 'ACTIVE' ? '' : 'browse-booking-btn-disabled'
                   }`}
                   onClick={() => handleBookNow(selectedResource)}
                 >
