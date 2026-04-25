@@ -1,16 +1,28 @@
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { 
+  MdDashboard, 
+  MdAssignment, 
+  MdHourglassEmpty, 
+  MdCheckCircle, 
+  MdNotifications, 
+  MdPerson,
+  MdLogout,
+  MdNotificationsActive
+} from "react-icons/md";
+import "./TechnicianPortalLayout.css";
 
 const sidebarItems = [
-    { label: "Technician Dashboard", path: "/technician/dashboard", icon: "📊" },
-    { label: "Assign Ticket", path: "/technician/tickets", icon: "🎫" },
-    { label: "In Progress", path: "/technician/in-progress", icon: "⏳" },
-    { label: "Result", path: "/technician/logs", icon: "✅" },
-    { label: "Notification", path: "/technician/notifications", icon: "🔔" },
-    { label: "Profile", path: "/technician/profile", icon: "👤" },
+    { label: "Dashboard", path: "/technician/dashboard", icon: MdDashboard },
+    { label: "Assigned Tickets", path: "/technician/tickets", icon: MdAssignment },
+    { label: "In Progress", path: "/technician/in-progress", icon: MdHourglassEmpty },
+    { label: "Maintenance Logs", path: "/technician/logs", icon: MdCheckCircle },
+    { label: "Notifications", path: "/technician/notifications", icon: MdNotifications },
+    { label: "Profile", path: "/technician/profile", icon: MdPerson },
 ];
 
 function TechnicianPortalLayout({ title, children }) {
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleLogout = () => {
         // Clear authentication data
@@ -23,136 +35,52 @@ function TechnicianPortalLayout({ title, children }) {
     };
 
     return (
-        <div style={styles.page}>
-            <div style={styles.contentShell}>
-                <aside style={styles.sidebar}>
-                    <div style={styles.sidebarTitle}>Technician Portal</div>
-                    <div style={styles.sidebarList}>
-                        {sidebarItems.map((item) => (
+        <div className="technician-portal-layout">
+            <aside className="technician-sidebar">
+                <div className="sidebar-header">
+                    <div className="sidebar-logo">UniSync</div>
+                    <div className="sidebar-subtitle">TECHNICIAN PORTAL</div>
+                </div>
+                
+                <nav className="sidebar-nav">
+                    {sidebarItems.map((item) => {
+                        const IconComponent = item.icon;
+                        return (
                             <NavLink
                                 key={item.path}
                                 to={item.path}
-                                style={({ isActive }) => ({
-                                    ...styles.sidebarLink,
-                                    ...(isActive ? styles.sidebarLinkActive : {}),
-                                })}
+                                className={({ isActive }) => 
+                                    isActive ? "nav-item nav-item-active" : "nav-item"
+                                }
                             >
-                                <span style={styles.sidebarIcon}>{item.icon}</span>
-                                <span>{item.label}</span>
+                                <IconComponent className="nav-icon" />
+                                <span className="nav-label">{item.label}</span>
                             </NavLink>
-                        ))}
-                    </div>
-                    <div style={styles.sidebarFooter}>
-                        <button onClick={handleLogout} style={styles.logoutLink}>
-                            <span style={styles.sidebarIcon}>🚪</span>
-                            <span>Logout</span>
-                        </button>
-                    </div>
-                </aside>
+                        );
+                    })}
+                </nav>
 
-                <main style={styles.main}>
-                    {title ? <h1 style={styles.title}>{title}</h1> : null}
+                <div className="sidebar-footer">
+                    <button onClick={handleLogout} className="logout-btn">
+                        <MdLogout className="nav-icon" />
+                        <span className="nav-label">Logout</span>
+                    </button>
+                </div>
+            </aside>
+
+            <main className="technician-main">
+                <div className="main-header">
+                    {title ? <h1 className="main-title">{title}</h1> : null}
+                    <Link to="/technician/notifications" className="notification-bell">
+                        <MdNotificationsActive className="bell-icon" />
+                    </Link>
+                </div>
+                <div key={location.pathname} className="dashboard-content fade-in-up">
                     {children}
-                </main>
-            </div>
+                </div>
+            </main>
         </div>
     );
 }
-
-const styles = {
-    page: {
-        minHeight: "100vh",
-        backgroundColor: "#f8fafc",
-    },
-    contentShell: {
-        display: "flex",
-        minHeight: "100vh",
-    },
-    sidebar: {
-        width: "280px",
-        backgroundColor: "#f8f9fa",
-        color: "#495057",
-        padding: "24px 16px",
-        boxSizing: "border-box",
-        borderRight: "1px solid #e9ecef",
-        display: "flex",
-        flexDirection: "column",
-    },
-    sidebarTitle: {
-        marginBottom: "24px",
-        paddingBottom: "16px",
-        borderBottom: "1px solid #dee2e6",
-        fontWeight: 700,
-        color: "#212529",
-        textAlign: "left",
-        fontSize: "1.1rem",
-    },
-    sidebarList: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "6px",
-        flex: 1,
-    },
-    sidebarLink: {
-        display: "flex",
-        alignItems: "center",
-        gap: "14px",
-        textDecoration: "none",
-        color: "#6c757d",
-        padding: "14px 16px",
-        borderRadius: "10px",
-        fontWeight: 500,
-        textAlign: "left",
-        transition: "all 0.2s ease",
-    },
-    sidebarLinkActive: {
-        backgroundColor: "#e7f1ff",
-        color: "#0d6efd",
-        fontWeight: 600,
-    },
-    sidebarIcon: {
-        width: "24px",
-        height: "24px",
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: "1.2rem",
-        flexShrink: 0,
-    },
-    sidebarFooter: {
-        marginTop: "auto",
-        paddingTop: "16px",
-        borderTop: "1px solid #dee2e6",
-    },
-    logoutLink: {
-        display: "flex",
-        alignItems: "center",
-        gap: "14px",
-        textDecoration: "none",
-        color: "#dc3545",
-        padding: "14px 16px",
-        borderRadius: "10px",
-        fontWeight: 500,
-        textAlign: "left",
-        transition: "all 0.2s ease",
-        border: "none",
-        background: "none",
-        cursor: "pointer",
-        width: "100%",
-        fontSize: "inherit",
-        fontFamily: "inherit",
-    },
-    main: {
-        flex: 1,
-        padding: "28px",
-        textAlign: "left",
-    },
-    title: {
-        margin: "0 0 20px",
-        fontSize: "1.8rem",
-        color: "#0f172a",
-        letterSpacing: "-0.04em",
-    },
-};
 
 export default TechnicianPortalLayout;
