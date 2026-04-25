@@ -18,6 +18,8 @@ function MyTicketsPage() {
   const [priorityFilter, setPriorityFilter] = useState("ALL");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
   const [viewMode, setViewMode] = useState("grid"); // 'grid' or 'list'
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Get userId from localStorage (set during OAuth login)
   const currentUserId = localStorage.getItem("userId");
@@ -64,8 +66,21 @@ function MyTicketsPage() {
   const categories = ["ALL", ...new Set(tickets.map(t => t.category))];
 
   // Calculate statistics
+  const totalTickets = tickets.length;
   const openTickets = tickets.filter(t => t.status === "OPEN").length;
-  const avgWaitTime = tickets.length > 0 ? "1.4h" : "0h"; // Placeholder calculation
+  const inProgressTickets = tickets.filter(t => t.status === "IN_PROGRESS").length;
+  const resolvedThisMonth = tickets.filter(t => {
+    const ticketDate = new Date(t.updatedAt || t.createdAt);
+    const now = new Date();
+    return t.status === "RESOLVED" && 
+           ticketDate.getMonth() === now.getMonth() && 
+           ticketDate.getFullYear() === now.getFullYear();
+  }).length;
+
+  // Pagination
+  const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedTickets = filteredTickets.slice(startIndex, startIndex + itemsPerPage);
 
   // Get status badge color
   const getStatusColor = (status) => {
@@ -102,78 +117,74 @@ function MyTicketsPage() {
   return (
     <StudentPortalLayout>
       <div className="my-tickets-page">
-        {/* Breadcrumb */}
-        <div className="breadcrumb">
-          <span className="breadcrumb-item">Maintenance</span>
-          <span className="breadcrumb-separator">›</span>
-          <span className="breadcrumb-item active">My Tickets</span>
-        </div>
-
         {/* Page header */}
         <div className="page-header">
           <div>
             <h1 className="page-title">My Tickets</h1>
-            <p className="page-subtitle">Manage and track your active service requests across campus.</p>
+            <p className="page-subtitle">
+              Manage your active support requests, view technical assistance history, and track resolution progress from the University IT department.
+            </p>
           </div>
           <button className="create-ticket-btn" onClick={() => navigate("/create-ticket")}>
-            + Create Ticket
+            <span className="btn-icon">+</span> Create New Ticket
           </button>
         </div>
 
-        {/* Filters and view toggle */}
-        <div className="filters-bar">
-          <div className="filters-group">
-            <div className="filter-item">
-              <label>STATUS</label>
-              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                <option value="ALL">All Tickets</option>
-                <option value="OPEN">Open</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="RESOLVED">Resolved</option>
-                <option value="CLOSED">Closed</option>
-              </select>
-            </div>
-
-            <div className="filter-item">
-              <label>PRIORITY</label>
-              <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)}>
-                <option value="ALL">Any Priority</option>
-                <option value="HIGH">High</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="LOW">Low</option>
-              </select>
-            </div>
-
-            <div className="filter-item">
-              <label>CATEGORY</label>
-              <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>
-                    {cat === "ALL" ? "All Categories" : cat}
-                  </option>
-                ))}
-              </select>
-            </div>
+        {/* Statistics Cards */}
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-label">TOTAL TICKETS</div>
+            <div className="stat-value">{totalTickets}</div>
           </div>
+          <div className="stat-card">
+            <div className="stat-label">OPEN REQUESTS</div>
+            <div className="stat-value stat-value-blue">{openTickets}</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-label">IN PROGRESS</div>
+            <div className="stat-value stat-value-orange">{inProgressTickets}</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-label">RESOLVED THIS MONTH</div>
+            <div className="stat-value stat-value-green">{resolvedThisMonth}</div>
+          </div>
+        </div>
 
-          <div className="view-controls">
-            <span className="ticket-count">Showing {filteredTickets.length} tickets</span>
-            <div className="view-toggle">
-              <button 
-                className={viewMode === "grid" ? "active" : ""} 
-                onClick={() => setViewMode("grid")}
-                title="Grid view"
-              >
-                ⊞
-              </button>
-              <button 
-                className={viewMode === "list" ? "active" : ""} 
-                onClick={() => setViewMode("list")}
-                title="List view"
-              >
-                ☰
-              </button>
-            </div>
+        {/* Tab Navigation */}
+        <div className="tabs-container">
+          <div className="tabs">
+            <button 
+              className={statusFilter === "ALL" ? "tab active" : "tab"}
+              onClick={() => setStatusFilter("ALL")}
+            >
+              All Tickets
+            </button>
+            <button 
+              className={statusFilter === "OPEN" ? "tab active" : "tab"}
+              onClick={() => setStatusFilter("OPEN")}
+            >
+              Open
+            </button>
+            <button 
+              className={statusFilter === "IN_PROGRESS" ? "tab active" : "tab"}
+              onClick={() => setStatusFilter("IN_PROGRESS")}
+            >
+              In Progress
+            </button>
+            <button 
+              className={statusFilter === "RESOLVED" ? "tab active" : "tab"}
+              onClick={() => setStatusFilter("RESOLVED")}
+            >
+              Resolved
+            </button>
+          </div>
+          <div className="tab-actions">
+            <button className="action-btn">
+              <span className="action-icon">⚙</span> Filter
+            </button>
+            <button className="action-btn">
+              <span className="action-icon">↕</span> Sort
+            </button>
           </div>
         </div>
 
@@ -183,94 +194,103 @@ function MyTicketsPage() {
         {/* Error state */}
         {error && <p className="error-msg">{error}</p>}
 
-        {/* Tickets grid/list */}
+        {/* Tickets Table */}
         {!loading && !error && (
-          <div className="tickets-content">
-            <div className={`tickets-${viewMode}`}>
-              {filteredTickets.length === 0 ? (
-                <p className="no-tickets">No tickets found matching your filters.</p>
-              ) : (
-                filteredTickets.map((ticket) => (
-                  <div
-                    key={ticket.id}
-                    className="ticket-card"
-                    style={{ borderLeftColor: getBorderColor(ticket.status) }}
-                    onClick={() => navigate(`/tickets/${ticket.id}`)}
-                  >
-                    <div className="ticket-card-header">
-                      <span className="ticket-id">#{ticket.id}</span>
-                      <span 
-                        className="ticket-status-badge"
-                        style={{ 
-                          backgroundColor: `${getStatusColor(ticket.status)}20`,
-                          color: getStatusColor(ticket.status)
-                        }}
+          <div className="tickets-table-container">
+            {filteredTickets.length === 0 ? (
+              <p className="no-tickets">No tickets found matching your filters.</p>
+            ) : (
+              <>
+                <table className="tickets-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>TITLE</th>
+                      <th>CATEGORY</th>
+                      <th>PRIORITY</th>
+                      <th>STATUS</th>
+                      <th>CREATED DATE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedTickets.map((ticket) => (
+                      <tr 
+                        key={ticket.id}
+                        onClick={() => navigate(`/tickets/${ticket.id}`)}
+                        className="ticket-row"
                       >
-                        ● {ticket.status.replace("_", " ")}
-                      </span>
-                    </div>
+                        <td>
+                          <span className="ticket-id-link">#US-{ticket.id}</span>
+                        </td>
+                        <td>
+                          <div className="ticket-title-cell">
+                            <div className="ticket-title-text">{ticket.title}</div>
+                            <div className="ticket-assigned">Assigned to: {ticket.assignedTo || 'Network Operations'}</div>
+                          </div>
+                        </td>
+                        <td>
+                          <span className="category-text">{ticket.category}</span>
+                        </td>
+                        <td>
+                          <span 
+                            className={`priority-badge priority-${ticket.priority.toLowerCase()}`}
+                          >
+                            {ticket.priority}
+                          </span>
+                        </td>
+                        <td>
+                          <span 
+                            className={`status-badge status-${ticket.status.toLowerCase().replace('_', '-')}`}
+                          >
+                            {ticket.status === "IN_PROGRESS" ? "IN PROGRESS" : ticket.status}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="date-text">
+                            {new Date(ticket.createdAt).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric"
+                            })}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
 
-                    <h3 className="ticket-title">{ticket.title}</h3>
-                    
-                    <div className="ticket-location">
-                      <span className="location-icon">📍</span>
-                      {ticket.location || "No location specified"}
-                    </div>
-
-                    <p className="ticket-description">
-                      {ticket.description?.substring(0, 100) || "No description provided"}
-                      {ticket.description?.length > 100 ? "..." : ""}
-                    </p>
-
-                    <div className="ticket-card-footer">
-                      <div className="ticket-meta">
-                        <span className="meta-label">CREATED</span>
-                        <span className="meta-value">
-                          {new Date(ticket.createdAt).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit"
-                          })}
-                        </span>
-                      </div>
-                      <div className="ticket-meta">
-                        <span className="meta-label">PRIORITY</span>
-                        <span 
-                          className="meta-value priority"
-                          style={{ color: getPriorityColor(ticket.priority) }}
-                        >
-                          {ticket.priority}
-                        </span>
-                      </div>
-                    </div>
+                {/* Pagination */}
+                <div className="pagination-container">
+                  <div className="pagination-info">
+                    Showing {startIndex + 1} of {filteredTickets.length} tickets
                   </div>
-                ))
-              )}
-            </div>
-
-            {/* Operational Insight Section */}
-            {!loading && !error && tickets.length > 0 && (
-              <div className="operational-insight">
-                <div className="insight-header">
-                  <span className="insight-icon">💡</span>
-                  <span className="insight-label">OPERATIONAL INSIGHT</span>
+                  <div className="pagination">
+                    <button 
+                      className="pagination-btn"
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      ‹
+                    </button>
+                    {[...Array(totalPages)].map((_, index) => (
+                      <button
+                        key={index + 1}
+                        className={currentPage === index + 1 ? "pagination-btn active" : "pagination-btn"}
+                        onClick={() => setCurrentPage(index + 1)}
+                      >
+                        {index + 1}
+                      </button>
+                    ))}
+                    <button 
+                      className="pagination-btn"
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages}
+                    >
+                      ›
+                    </button>
+                  </div>
                 </div>
-                <h2 className="insight-title">Efficiency is up 12% this week.</h2>
-                <p className="insight-description">
-                  Your ticket resolution time has improved significantly. Most issues are being addressed within 4 hours of reporting.
-                </p>
-                <div className="insight-stats">
-                  <div className="stat-box">
-                    <div className="stat-label">Open Tickets</div>
-                    <div className="stat-value">{openTickets.toString().padStart(2, "0")}</div>
-                  </div>
-                  <div className="stat-box">
-                    <div className="stat-label">Average Wait</div>
-                    <div className="stat-value">{avgWaitTime}</div>
-                  </div>
-                </div>
-              </div>
+              </>
             )}
           </div>
         )}
