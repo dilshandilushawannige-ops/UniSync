@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { createUser } from '../services/userService';
 import './HomePage.css';
 import heroImage from '../assets/hero.png';
 import arrow1 from '../assets/arrow1.png';
@@ -17,13 +18,40 @@ import helpProfile from '../assets/help-profile.png';
 import helpTools from '../assets/help-tools.png';
 import helpAdmin from '../assets/help-admin.png';
 import helpTips from '../assets/help-tips.png';
-import studentImg from '../assets/student.png';
+import studentImg from '../assets/students.png';
 import adminImg from '../assets/admin.png';
 import techImg from '../assets/tech.png';
 
 const HomePage = () => {
   const [typedText, setTypedText] = React.useState('');
   const [openFaqIndex, setOpenFaqIndex] = React.useState(0);
+  const signupRef = React.useRef(null);
+  const navigate = useNavigate();
+
+  // Signup related states
+  const [signupStep, setSignupStep] = React.useState('hidden');
+  const [selectedRole, setSelectedRole] = React.useState('');
+  const [formData, setFormData] = React.useState({
+    fullName: '',
+    email: '',
+    role: ''
+  });
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState('');
+
+  // Modal signup states
+  const [showRoleModal, setShowRoleModal] = React.useState(false);
+  const [showSignupForm, setShowSignupForm] = React.useState(false);
+  const [signupData, setSignupData] = React.useState({
+    username: '',
+    email: '',
+    password: '',
+    contact: ''
+  });
+  const [emailError, setEmailError] = React.useState('');
+  const [usernameError, setUsernameError] = React.useState('');
+  const [passwordError, setPasswordError] = React.useState('');
+  const [contactError, setContactError] = React.useState('');
 
   React.useEffect(() => {
     const word = 'UniSync';
@@ -108,6 +136,163 @@ const HomePage = () => {
       role: '',
     });
     setError('');
+  };
+
+  // Handler for modal role selection
+  const handleModalRoleSelect = (role) => {
+    setSelectedRole(role);
+    setShowRoleModal(false);
+    setShowSignupForm(true);
+  };
+
+  // Validation functions for modal signup
+  const validateEmail = (email) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  };
+
+  const validateUsername = (username) => {
+    const usernameRegex = /^[a-zA-Z\s\-_.@#$%&*!]+$/;
+    return usernameRegex.test(username);
+  };
+
+  const validatePassword = (password) => {
+    if (password.length < 6) return false;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+    return hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
+  };
+
+  const validateContact = (contact) => {
+    const contactRegex = /^(070|071|072|074|075|076|078)\d{7}$/;
+    return contactRegex.test(contact);
+  };
+
+  const getPasswordStrength = (password) => {
+    const checks = {
+      length: password.length >= 6,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /[0-9]/.test(password),
+      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+    };
+    return checks;
+  };
+
+  const handleSignupChange = (e) => {
+    const { name, value } = e.target;
+    setSignupData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    if (name === 'email') {
+      if (value && !validateEmail(value)) {
+        setEmailError('Please enter a valid email address (e.g., example@gmail.com)');
+      } else {
+        setEmailError('');
+      }
+    }
+
+    if (name === 'username') {
+      if (value && !validateUsername(value)) {
+        setUsernameError('Username cannot contain numbers. Only letters and special characters allowed');
+      } else {
+        setUsernameError('');
+      }
+    }
+
+    if (name === 'password') {
+      if (value && !validatePassword(value)) {
+        const checks = getPasswordStrength(value);
+        let errorMsg = 'Password must include: ';
+        const missing = [];
+        if (!checks.length) missing.push('at least 6 characters');
+        if (!checks.uppercase) missing.push('one uppercase letter');
+        if (!checks.lowercase) missing.push('one lowercase letter');
+        if (!checks.number) missing.push('one number');
+        if (!checks.special) missing.push('one special character');
+        setPasswordError(errorMsg + missing.join(', '));
+      } else {
+        setPasswordError('');
+      }
+    }
+
+    if (name === 'contact') {
+      if (value && !validateContact(value)) {
+        if (value.length !== 10) {
+          setContactError('Contact number must be exactly 10 digits');
+        } else if (!/^(070|071|072|074|075|076|078)/.test(value)) {
+          setContactError('Contact number must start with 070, 071, 072, 074, 075, 076, or 078');
+        } else {
+          setContactError('Invalid contact number format');
+        }
+      } else {
+        setContactError('');
+      }
+    }
+  };
+
+  const handleSignupSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    if (!validateUsername(signupData.username)) {
+      setError('Username cannot contain numbers. Only letters and special characters allowed');
+      setLoading(false);
+      return;
+    }
+
+    if (!validateEmail(signupData.email)) {
+      setError('Please enter a valid email address (e.g., example@gmail.com)');
+      setLoading(false);
+      return;
+    }
+
+    if (!validatePassword(signupData.password)) {
+      setError('Password must be at least 6 characters and include uppercase, lowercase, number, and special character');
+      setLoading(false);
+      return;
+    }
+
+    if (!validateContact(signupData.contact)) {
+      setError('Contact number must be 10 digits and start with 070, 071, 072, 074, 075, 076, or 078');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081'}/api/auth/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: signupData.username,
+          email: signupData.email,
+          password: signupData.password,
+          contact: signupData.contact,
+          role: selectedRole
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('Account created successfully! Please login.');
+        setShowSignupForm(false);
+        navigate('/login');
+      } else {
+        setError(data.message || 'Signup failed. Please try again.');
+      }
+    } catch (err) {
+      setError('Failed to create account. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -476,7 +661,7 @@ const HomePage = () => {
                 className="role-modal-card"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleRoleSelect('USER');
+                  handleModalRoleSelect('USER');
                 }}
               >
                 <img src={studentImg} alt="Student" className="role-modal-image" />
@@ -490,7 +675,7 @@ const HomePage = () => {
                 className="role-modal-card"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleRoleSelect('TECHNICIAN');
+                  handleModalRoleSelect('TECHNICIAN');
                 }}
               >
                 <img src={techImg} alt="Technician" className="role-modal-image" />
@@ -504,7 +689,7 @@ const HomePage = () => {
                 className="role-modal-card"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleRoleSelect('ADMIN');
+                  handleModalRoleSelect('ADMIN');
                 }}
               >
                 <img src={adminImg} alt="Admin" className="role-modal-image" />
