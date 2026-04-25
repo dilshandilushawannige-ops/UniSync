@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useMemo } from "react";
 import { useAnnouncements } from "../../context/AnnouncementContext";
 
@@ -13,6 +13,7 @@ const sidebarItems = [
 ];
 
 function StudentPortalLayout({ title, children }) {
+    const navigate = useNavigate();
     const { announcements } = useAnnouncements();
 
     // Calculate unread count for STUDENT role
@@ -22,6 +23,16 @@ function StudentPortalLayout({ title, children }) {
             (announcement.target.includes('ALL') || announcement.target.includes('STUDENT'))
         ).length;
     }, [announcements]);
+
+    const handleLogout = () => {
+        // Clear authentication data
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        localStorage.removeItem("userId");
+
+        // Redirect to home page
+        navigate("/");
+    };
 
     return (
         <div style={styles.page}>
@@ -44,10 +55,10 @@ function StudentPortalLayout({ title, children }) {
                         ))}
                     </div>
                     <div style={styles.sidebarFooter}>
-                        <Link to="/login" style={styles.logoutLink}>
+                        <button onClick={handleLogout} style={styles.logoutLink}>
                             <span style={styles.sidebarIcon}>🚪</span>
                             <span>Logout</span>
-                        </Link>
+                        </button>
                     </div>
                 </aside>
 
@@ -144,6 +155,12 @@ const styles = {
         fontWeight: 500,
         textAlign: "left",
         transition: "all 0.2s ease",
+        border: "none",
+        background: "none",
+        cursor: "pointer",
+        width: "100%",
+        fontSize: "inherit",
+        fontFamily: "inherit",
     },
     main: {
         flex: 1,
