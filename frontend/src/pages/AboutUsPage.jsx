@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import sliitImage from '../assets/sliit.png';
-import person1 from '../assets/person1.jpg';
+import person1 from '../assets/person1.png';
 import person2 from '../assets/person2.png';
 import person3 from '../assets/person3.png';
 import './AboutUsPage.css';
@@ -22,13 +22,16 @@ const AboutUsPage = () => {
                             About <span className="highlight">UniSync</span>
                         </h1>
                         <p className="about-description">
-                            We are bridging the gap between students and educational through
+                            We are bridging the gap between students and educational institutions through
                             innovative digital solutions. Our team empowers universities to be
                             more efficient, modern, and connected, creating a seamless experience
                             for students.
                         </p>
                         <Link to="/create-ticket" className="btn-learn-more">
-                            See How We Do It →
+                            <span>See How We Do It</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M5 12h14M12 5l7 7-7 7" />
+                            </svg>
                         </Link>
                     </div>
                     <div className="about-hero-image">
@@ -83,7 +86,12 @@ const AboutUsPage = () => {
 
             {/* Core Values */}
             <section className="core-values">
-                <h2 className="section-title">Core Values</h2>
+                <div className="core-values-header">
+                    <h2 className="section-title">Core Values</h2>
+                    <p className="section-subtitle">
+                        The principles that guide everything we do at UniSync
+                    </p>
+                </div>
                 <div className="values-grid">
                     <div className="value-card">
                         <div className="value-icon blue">
@@ -152,7 +160,12 @@ const AboutUsPage = () => {
                             user experience.
                         </p>
                     </div>
-                    <button className="btn-view-team">View Our Team →</button>
+                    <button className="btn-view-team">
+                        <span>View Our Team</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                    </button>
                 </div>
 
                 <div className="founders-grid">

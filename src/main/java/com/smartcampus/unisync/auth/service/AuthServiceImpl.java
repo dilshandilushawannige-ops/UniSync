@@ -73,7 +73,8 @@ public class AuthServiceImpl implements AuthService {
             true,
             token,
             user.getRole().name(),
-            user.getId()
+            user.getId(),
+            user.getEmail()
         );
     }
 

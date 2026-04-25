@@ -7,6 +7,7 @@ public class AuthResponseDto {
     private String token;
     private String role;
     private Long userId;
+    private String email;
 
     public AuthResponseDto() {
     }
@@ -22,6 +23,15 @@ public class AuthResponseDto {
         this.token = token;
         this.role = role;
         this.userId = userId;
+    }
+
+    public AuthResponseDto(String message, boolean success, String token, String role, Long userId, String email) {
+        this.message = message;
+        this.success = success;
+        this.token = token;
+        this.role = role;
+        this.userId = userId;
+        this.email = email;
     }
 
     public String getMessage() {
@@ -62,5 +72,13 @@ public class AuthResponseDto {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

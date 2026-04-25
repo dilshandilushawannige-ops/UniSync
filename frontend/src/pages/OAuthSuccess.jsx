@@ -9,11 +9,13 @@ function OAuthSuccess() {
         const token = searchParams.get("token");
         const role = searchParams.get("role");
         const userId = searchParams.get("userId");
+        const email = searchParams.get("email");
 
         console.log("=== OAuth Success Page ===");
         console.log("Token:", token);
         console.log("Role:", role);
         console.log("User ID:", userId);
+        console.log("Email:", email);
 
         if (!token || !role) {
             console.log("Missing token or role, redirecting to login");
@@ -25,6 +27,9 @@ function OAuthSuccess() {
         localStorage.setItem("role", role);
         if (userId) {
             localStorage.setItem("userId", userId);
+        }
+        if (email) {
+            localStorage.setItem("email", email);
         }
 
         console.log("Role check:", role);

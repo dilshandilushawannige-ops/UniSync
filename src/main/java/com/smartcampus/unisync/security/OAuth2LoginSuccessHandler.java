@@ -83,6 +83,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String encodedUserId = userId != null
                 ? URLEncoder.encode(String.valueOf(userId), StandardCharsets.UTF_8)
                 : "";
+        String encodedEmail = email != null
+                ? URLEncoder.encode(email, StandardCharsets.UTF_8)
+                : "";
 
         String base = frontendBaseUrl.endsWith("/")
                 ? frontendBaseUrl.substring(0, frontendBaseUrl.length() - 1)
@@ -92,6 +95,11 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         // Add userId to the redirect URL if found
         if (userId != null) {
             targetUrl += "&userId=" + userId;
+        }
+        
+        // Add email to the redirect URL if found
+        if (email != null) {
+            targetUrl += "&email=" + encodedEmail;
         }
 
         System.out.println("Mapped frontend role: " + frontendRole);
