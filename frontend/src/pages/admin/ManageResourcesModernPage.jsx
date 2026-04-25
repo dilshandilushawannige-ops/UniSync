@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import AdminPortalLayout from '../../components/admin/AdminPortalLayout';
 import ResourceForm from '../../components/resource/ResourceForm';
 import { createResource, deleteResource, getAllResources, updateResource } from '../../services/resourceService';
 import '../../styles/manage-resources-modern.css';
@@ -112,7 +113,8 @@ function ManageResourcesModernPage() {
   };
 
   return (
-    <div className="resource-page">
+    <AdminPortalLayout title="Manage Resources">
+      <div className="resource-page">
       <section
         className="resource-hero"
         style={{
@@ -318,6 +320,7 @@ function ManageResourcesModernPage() {
         </div>
       ) : null}
     </div>
+    </AdminPortalLayout>
   );
 }
 
