@@ -29,6 +29,7 @@ function StudentPortalLayout({ title, children }) {
         localStorage.removeItem("token");
         localStorage.removeItem("role");
         localStorage.removeItem("userId");
+        localStorage.removeItem("email");
 
         // Redirect to home page
         navigate("/");

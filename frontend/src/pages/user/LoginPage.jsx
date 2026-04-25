@@ -41,6 +41,7 @@ function LoginPage() {
                 localStorage.setItem("token", response.token);
                 localStorage.setItem("role", response.role);
                 localStorage.setItem("userId", response.userId);
+                localStorage.setItem("email", response.email);
 
                 // Redirect based on role
                 if (response.role === "ADMIN") {
