@@ -261,7 +261,6 @@ function Booking({ isOpen, onClose, onCreate, theme = "light", mode = "modal", i
             value={formData.purpose}
             onChange={handleChange}
             placeholder="Describe the purpose (lecture, meeting, event, etc.)"
-            readOnly={hasLockedPrefill}
           />
 
           <div className="booking-options">
