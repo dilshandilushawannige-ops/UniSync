@@ -1,0 +1,333 @@
+/* Import Nunito Font */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
+
+/* Student Portal Layout */
+.student-portal-layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Nunito', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Sidebar */
+.student-sidebar {
+  width: 240px;
+  height: 100vh;
+  background-color: #FFFFFF;
+  border-right: 1px solid #E8E8E8;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+}
+
+/* Custom Scrollbar for Sidebar */
+.student-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.student-sidebar::-webkit-scrollbar-track {
+  background: #F5F6FA;
+}
+
+.student-sidebar::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+
+.student-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid #F5F6FA;
+}
+
+.sidebar-logo {
+  font-size: 20px;
+  font-weight: 700;
+  color: #3882F6;
+  margin-bottom: 4px;
+  font-family: 'Nunito', 'Inter', sans-serif;
+}
+
+.sidebar-subtitle {
+  font-size: 12px;
+  color: #8B8B8B;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  text-decoration: none;
+  color: #4A4A4A;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.25s ease;
+  border-radius: 0;
+  margin: 0;
+}
+
+.nav-item:hover {
+  color: #3882F6;
+  background-color: #F5F6FA;
+  text-decoration: none;
+}
+
+.nav-item-active {
+  color: #3882F6;
+  background-color: #F5F6FA;
+  border-radius: 8px;
+  margin: 0 12px;
+}
+
+.nav-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nav-label {
+  font-family: 'Nunito', 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+  padding: 16px 0;
+  border-top: 1px solid #F5F6FA;
+  margin-top: auto;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #DC3545;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Nunito', 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: left;
+  text-decoration: none;
+}
+
+.logout-btn:hover {
+  background-color: #FEF2F2;
+  text-decoration: none;
+}
+
+/* Main Content Area */
+.student-main {
+  flex: 1;
+  margin-left: 240px;
+  background-color: #F5F6FA;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 32px;
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E8E8E8;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.main-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1A1A1A;
+  font-family: 'Nunito', 'Inter', sans-serif;
+}
+
+.notification-bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #F5F6FA;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.notification-bell:hover {
+  background-color: #E8EAED;
+}
+
+.bell-icon {
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background-color: #DC3545;
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid #FFFFFF;
+}
+
+.main-content {
+  flex: 1;
+  padding: 24px 32px;
+}
+
+/* Dashboard Content with Animation */
+.dashboard-content {
+  flex: 1;
+  padding: 0;
+  overflow-y: auto;
+}
+
+/* Custom Scrollbar for Dashboard Content */
+.dashboard-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dashboard-content::-webkit-scrollbar-track {
+  background: #F5F6FA;
+}
+
+.dashboard-content::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+
+.dashboard-content::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Fade-in-up Animation */
+@keyframes fadePageIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadePageIn 0.35s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .student-sidebar {
+    width: 200px;
+  }
+
+  .student-main {
+    margin-left: 200px;
+  }
+
+  .sidebar-header {
+    padding: 20px 16px;
+  }
+
+  .nav-item,
+  .logout-btn {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .nav-item-active {
+    margin: 0 8px;
+  }
+
+  .main-header {
+    padding: 20px 24px;
+  }
+
+  .main-content {
+    padding: 20px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .student-sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    border-right: none;
+    border-bottom: 1px solid #E8E8E8;
+  }
+
+  .student-main {
+    margin-left: 0;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 8px 0;
+  }
+
+  .nav-item {
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 12px;
+    min-width: 70px;
+  }
+
+  .nav-label {
+    font-size: 11px;
+  }
+
+  .nav-item-active {
+    margin: 0 4px;
+  }
+}
