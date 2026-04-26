@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import Swal from 'sweetalert2';
 import AdminPortalLayout from '../../components/admin/AdminPortalLayout';
 import ResourceForm from '../../components/resource/ResourceForm';
 import { createResource, deleteResource, getAllResources, importResourcesCsv, updateResource } from '../../services/resourceService';
@@ -102,14 +103,36 @@ function ManageResourcesModernPage() {
   };
 
   const handleDeleteResource = async (resourceId) => {
-    const confirmed = window.confirm('Are you sure you want to delete this resource?');
-    if (!confirmed) return;
+    const result = await Swal.fire({
+      title: 'Delete Resource?',
+      text: 'This action cannot be undone. Are you sure you want to delete this resource?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Delete',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#b91c1c',
+      cancelButtonColor: '#64748b',
+      reverseButtons: true,
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       await deleteResource(resourceId);
+      await Swal.fire({
+        title: 'Deleted!',
+        text: 'Resource has been deleted successfully.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+      });
       await loadResources();
     } catch (error) {
-      setLoadError(error?.response?.data?.message || 'Failed to delete resource.');
+      await Swal.fire({
+        title: 'Delete Failed',
+        text: error?.response?.data?.message || 'Failed to delete resource.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
     }
   };
 
@@ -311,7 +334,21 @@ function ManageResourcesModernPage() {
                       <td style={{ padding: '12px' }}>{resource.type}</td>
                       <td style={{ padding: '12px' }}>{resource.capacity}</td>
                       <td style={{ padding: '12px' }}>{resource.location}</td>
-                      <td style={{ padding: '12px' }}>{resource.status}</td>
+                      <td style={{ padding: '12px' }}>
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            padding: '4px 12px',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            backgroundColor: resource.status === 'ACTIVE' ? '#dcfce7' : '#fee2e2',
+                            color: resource.status === 'ACTIVE' ? '#166534' : '#991b1b',
+                          }}
+                        >
+                          {resource.status === 'ACTIVE' ? 'Active' : 'Out of Service'}
+                        </span>
+                      </td>
                       <td style={{ padding: '12px' }}>
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                           <button

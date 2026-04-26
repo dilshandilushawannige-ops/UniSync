@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -134,17 +135,20 @@ public class ResourceServiceImpl implements ResourceService {
                     .build();
         }
 
-        ResourceCsvImportResultDto result = ResourceCsvImportResultDto.builder().build();
+        ResourceCsvImportResultDto result = ResourceCsvImportResultDto.builder()
+                .totalRows(0)
+                .created(0)
+                .failed(0)
+                .errors(new ArrayList<>())
+                .build();
 
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
              CSVParser parser = CSVFormat.DEFAULT
-                     .builder()
-                     .setHeader()
-                     .setSkipHeaderRecord(true)
-                     .setIgnoreEmptyLines(true)
-                     .setTrim(true)
-                     .build()
+                     .withHeader()
+                     .withSkipHeaderRecord(true)
+                     .withIgnoreEmptyLines(true)
+                     .withTrim(true)
                      .parse(reader)) {
 
             int rowNumber = 1;
