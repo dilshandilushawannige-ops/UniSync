@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import Swal from 'sweetalert2';
 import AdminPortalLayout from '../../components/admin/AdminPortalLayout';
 import ResourceForm from '../../components/resource/ResourceForm';
 import { createResource, deleteResource, getAllResources, importResourcesCsv, updateResource } from '../../services/resourceService';
