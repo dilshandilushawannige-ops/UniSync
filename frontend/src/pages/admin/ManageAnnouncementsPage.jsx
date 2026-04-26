@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AdminPortalLayout from '../../components/admin/AdminPortalLayout';
-import AnnouncementForm from '../../components/announcement/AnnouncementForm';
 import { useAnnouncements } from '../../context/AnnouncementContext';
+import Swal from 'sweetalert2';
 import './ManageAnnouncementsPage.css';
 
 // Import stat card images
@@ -15,12 +16,11 @@ import editIcon from '../../assets/edit.png';
 import deleteIcon from '../../assets/delete.png';
 
 function ManageAnnouncementsPage() {
+    const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
     const [targetRole, setTargetRole] = useState('ALL');
-    const [isFormOpen, setIsFormOpen] = useState(false);
-    const [editingAnnouncement, setEditingAnnouncement] = useState(null);
 
-    const { announcements, addAnnouncement, updateAnnouncement, deleteAnnouncement } = useAnnouncements();
+    const { announcements, deleteAnnouncement } = useAnnouncements();
 
     // Calculate stats
     const stats = {
@@ -51,69 +51,49 @@ function ManageAnnouncementsPage() {
     }, [announcements, searchQuery, targetRole]);
 
     const handleEdit = (id) => {
-        const announcement = announcements.find(a => a.id === id);
-        if (announcement) {
-            setEditingAnnouncement(announcement);
-            setIsFormOpen(true);
-        }
+        navigate(`/admin/announcements/edit/${id}`);
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this announcement?')) {
-            try {
-                await deleteAnnouncement(id);
-                alert('Announcement deleted successfully!');
-            } catch (error) {
-                alert('Error deleting announcement. Please try again.');
-                console.error('Error:', error);
+    const handleDelete = (id) => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                try {
+                    deleteAnnouncement(id);
+                    Swal.fire({
+                        title: 'Deleted!',
+                        text: 'Announcement has been deleted successfully.',
+                        icon: 'success',
+                        confirmButtonColor: '#3085d6',
+                        timer: 2000
+                    });
+                } catch (error) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Error deleting announcement. Please try again.',
+                        icon: 'error',
+                        confirmButtonColor: '#d33'
+                    });
+                    console.error('Error:', error);
+                }
             }
-        }
+        });
     };
 
     const handleCreateAnnouncement = () => {
-        setEditingAnnouncement(null);
-        setIsFormOpen(true);
-    };
-
-    const handleFormSubmit = async (newAnnouncement) => {
-        try {
-            if (editingAnnouncement) {
-                await updateAnnouncement(editingAnnouncement.id, {
-                    title: newAnnouncement.title,
-                    message: newAnnouncement.message,
-                    targetRoles: newAnnouncement.targetRoles,
-                    priority: newAnnouncement.priority,
-                    status: newAnnouncement.status
-                });
-                alert('Announcement updated successfully!');
-            } else {
-                await addAnnouncement({
-                    title: newAnnouncement.title,
-                    message: newAnnouncement.message,
-                    targetRoles: newAnnouncement.targetRoles,
-                    priority: newAnnouncement.priority,
-                    status: newAnnouncement.status
-                });
-                alert('Announcement created successfully!');
-            }
-            setEditingAnnouncement(null);
-        } catch (error) {
-            alert('Error saving announcement. Please try again.');
-            console.error('Error:', error);
-        }
+        navigate('/admin/announcements/create');
     };
 
     return (
         <AdminPortalLayout>
-            <AnnouncementForm
-                isOpen={isFormOpen}
-                onClose={() => {
-                    setIsFormOpen(false);
-                    setEditingAnnouncement(null);
-                }}
-                onSubmit={handleFormSubmit}
-                editData={editingAnnouncement}
-            />
             <div className="announcements-page">
                 {/* Header Section */}
                 <div className="announcements-header">

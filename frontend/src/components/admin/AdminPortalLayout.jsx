@@ -1,15 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { 
-  MdDashboard, 
-  MdConfirmationNumber, 
-  MdEventAvailable, 
-  MdInventory, 
-  MdCampaign, 
-  MdPerson,
-  MdLogout,
-  MdNotificationsActive
+import {
+    MdDashboard,
+    MdConfirmationNumber,
+    MdEventAvailable,
+    MdInventory,
+    MdCampaign,
+    MdPerson,
+    MdLogout,
+    MdNotificationsActive
 } from "react-icons/md";
+import { getAllTickets } from "../../services/ticketService";
 import "./AdminPortalLayout.css";
 
 const sidebarItems = [
@@ -25,6 +26,33 @@ function AdminPortalLayout({ title, children }) {
     const navigate = useNavigate();
     const location = useLocation();
     const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
+    const [tickets, setTickets] = useState([]);
+
+    // Fetch tickets on component mount and when location changes
+    useEffect(() => {
+        const fetchTickets = async () => {
+            try {
+                const ticketsData = await getAllTickets();
+                setTickets(ticketsData);
+            } catch (error) {
+                console.error("Error fetching tickets:", error);
+            }
+        };
+        fetchTickets();
+    }, [location.pathname]);
+
+    // Calculate count of new tickets (OPEN status)
+    const newTicketCount = useMemo(() => {
+        return tickets.filter(ticket => ticket.status === "OPEN").length;
+    }, [tickets]);
+
+    // Get new tickets for dropdown
+    const newTickets = useMemo(() => {
+        return tickets
+            .filter(ticket => ticket.status === "OPEN")
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 5); // Show only latest 5 tickets
+    }, [tickets]);
 
     const handleLogout = () => {
         // Clear authentication data
@@ -37,27 +65,18 @@ function AdminPortalLayout({ title, children }) {
         navigate("/");
     };
 
-    const handleNotificationClick = () => {
+    const handleNotificationClick = (e) => {
+        e.preventDefault();
         setShowNotificationDropdown(!showNotificationDropdown);
     };
 
-    const handleNotificationItemClick = async (notification) => {
-        // Mark notification as read
-        try {
-            await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081'}/api/notifications/${notification.id}/read`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-        } catch (error) {
-            console.error('Error marking notification as read:', error);
-        }
+    const handleTicketClick = (ticketId) => {
+        navigate(`/admin/tickets/${ticketId}`);
+        setShowNotificationDropdown(false);
+    };
 
-        // Navigate to the ticket
-        if (notification.ticketId) {
-            navigate(`/admin/tickets/${notification.ticketId}`);
-        }
+    const handleViewAllClick = () => {
+        navigate('/admin/tickets');
         setShowNotificationDropdown(false);
     };
 
@@ -81,7 +100,7 @@ function AdminPortalLayout({ title, children }) {
                     <div className="sidebar-logo">UniSync</div>
                     <div className="sidebar-subtitle">ADMIN PORTAL</div>
                 </div>
-                
+
                 <nav className="sidebar-nav">
                     {sidebarItems.map((item) => {
                         const IconComponent = item.icon;
@@ -89,7 +108,7 @@ function AdminPortalLayout({ title, children }) {
                             <NavLink
                                 key={item.path}
                                 to={item.path}
-                                className={({ isActive }) => 
+                                className={({ isActive }) =>
                                     isActive ? "nav-item nav-item-active" : "nav-item"
                                 }
                             >
@@ -111,9 +130,73 @@ function AdminPortalLayout({ title, children }) {
             <main className="admin-main">
                 <div className="main-header">
                     {title ? <h1 className="main-title">{title}</h1> : null}
-                    <Link to="/admin/notifications" className="notification-bell">
-                        <MdNotificationsActive className="bell-icon" />
-                    </Link>
+                    <div className="notification-container">
+                        <button
+                            className="notification-bell"
+                            onClick={handleNotificationClick}
+                        >
+                            <MdNotificationsActive className="bell-icon" />
+                            {newTicketCount > 0 && (
+                                <span className="notification-badge">{newTicketCount}</span>
+                            )}
+                        </button>
+
+                        {showNotificationDropdown && (
+                            <div className="notification-dropdown">
+                                <div className="notification-dropdown-header">
+                                    <h3>New Tickets</h3>
+                                    <span className="notification-count-text">
+                                        {newTicketCount} new {newTicketCount === 1 ? 'ticket' : 'tickets'}
+                                    </span>
+                                </div>
+                                <div className="notification-dropdown-body">
+                                    {newTickets.length === 0 ? (
+                                        <div className="notification-empty">
+                                            <p>No new tickets</p>
+                                        </div>
+                                    ) : (
+                                        newTickets.map((ticket) => (
+                                            <div
+                                                key={ticket.id}
+                                                className="notification-item"
+                                                onClick={() => handleTicketClick(ticket.id)}
+                                            >
+                                                <div className="notification-item-icon">
+                                                    <MdConfirmationNumber />
+                                                </div>
+                                                <div className="notification-item-content">
+                                                    <div className="notification-item-title">
+                                                        #{ticket.id} - {ticket.title}
+                                                    </div>
+                                                    <div className="notification-item-meta">
+                                                        <span className={`priority-tag priority-${ticket.priority?.toLowerCase()}`}>
+                                                            {ticket.priority}
+                                                        </span>
+                                                        <span className="notification-item-category">
+                                                            {ticket.category}
+                                                        </span>
+                                                    </div>
+                                                    <div className="notification-item-user">
+                                                        By: {ticket.reportedByName || 'Unknown'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                                {newTicketCount > 0 && (
+                                    <div className="notification-dropdown-footer">
+                                        <button
+                                            className="view-all-btn"
+                                            onClick={handleViewAllClick}
+                                        >
+                                            View All Tickets
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
                 <div key={location.pathname} className="dashboard-content fade-in-up">
                     {children}

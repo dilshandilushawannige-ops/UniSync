@@ -1,63 +1,42 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
 
 const AnnouncementContext = createContext();
 
-const API_BASE_URL = 'http://localhost:8081/api/announcements';
-
 export function AnnouncementProvider({ children }) {
-    const [announcements, setAnnouncements] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [announcements, setAnnouncements] = useState(() => {
+        // Load announcements from localStorage on initial load
+        const saved = localStorage.getItem('announcements');
+        return saved ? JSON.parse(saved) : [];
+    });
 
-    // Fetch announcements from backend on initial load
+    // Save to localStorage whenever announcements change
     useEffect(() => {
-        fetchAnnouncements();
-    }, []);
+        localStorage.setItem('announcements', JSON.stringify(announcements));
+    }, [announcements]);
 
-    const fetchAnnouncements = async () => {
-        try {
-            setLoading(true);
-            const response = await axios.get(API_BASE_URL);
-            setAnnouncements(response.data);
-        } catch (error) {
-            console.error('Error fetching announcements:', error);
-        } finally {
-            setLoading(false);
-        }
+    const addAnnouncement = (announcement) => {
+        const newAnnouncement = {
+            ...announcement,
+            id: Date.now(), // Generate unique ID
+            target: announcement.targetRoles || announcement.target,
+            createdAt: new Date().toLocaleString()
+        };
+        setAnnouncements([newAnnouncement, ...announcements]);
+        return newAnnouncement;
     };
 
-    const addAnnouncement = async (announcement) => {
-        try {
-            const response = await axios.post(API_BASE_URL, announcement);
-            setAnnouncements([response.data, ...announcements]);
-            return response.data;
-        } catch (error) {
-            console.error('Error creating announcement:', error);
-            throw error;
-        }
+    const updateAnnouncement = (id, updatedData) => {
+        const updated = {
+            ...updatedData,
+            target: updatedData.targetRoles || updatedData.target
+        };
+        setAnnouncements(announcements.map(a =>
+            a.id === id ? { ...a, ...updated } : a
+        ));
     };
 
-    const updateAnnouncement = async (id, updatedData) => {
-        try {
-            const response = await axios.put(`${API_BASE_URL}/${id}`, updatedData);
-            setAnnouncements(announcements.map(a =>
-                a.id === id ? response.data : a
-            ));
-            return response.data;
-        } catch (error) {
-            console.error('Error updating announcement:', error);
-            throw error;
-        }
-    };
-
-    const deleteAnnouncement = async (id) => {
-        try {
-            await axios.delete(`${API_BASE_URL}/${id}`);
-            setAnnouncements(announcements.filter(a => a.id !== id));
-        } catch (error) {
-            console.error('Error deleting announcement:', error);
-            throw error;
-        }
+    const deleteAnnouncement = (id) => {
+        setAnnouncements(announcements.filter(a => a.id !== id));
     };
 
     const getAnnouncementsForRole = (role) => {
@@ -74,9 +53,7 @@ export function AnnouncementProvider({ children }) {
             addAnnouncement,
             updateAnnouncement,
             deleteAnnouncement,
-            getAnnouncementsForRole,
-            loading,
-            refreshAnnouncements: fetchAnnouncements
+            getAnnouncementsForRole
         }}>
             {children}
         </AnnouncementContext.Provider>
