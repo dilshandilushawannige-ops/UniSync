@@ -2,7 +2,6 @@ package com.smartcampus.unisync.security;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -15,7 +14,6 @@ public class OAuth2AuthorizationRequestFilter implements Filter {
             throws IOException, ServletException {
         
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
         
         // Check if this is an OAuth2 authorization request
         String requestURI = httpRequest.getRequestURI();
