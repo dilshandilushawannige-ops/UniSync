@@ -35,7 +35,6 @@ import InProgressTicketsPage from "./pages/technician/InProgressTicketsPage";
 import BrowseResourcesModernPage from "./pages/user/BrowseResourcesModernPage";
 import AboutUsPage from "./pages/AboutUsPage";
 import ContactUsPage from "./pages/ContactUsPage";
-import ServicesPage from "./pages/ServicesPage";
 
 function App() {
   return (
@@ -44,7 +43,6 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/about" element={<AboutUsPage />} />
-          <Route path="/services" element={<ServicesPage />} />
           <Route path="/contact" element={<ContactUsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
