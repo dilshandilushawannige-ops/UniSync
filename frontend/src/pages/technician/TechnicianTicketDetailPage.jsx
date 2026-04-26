@@ -403,17 +403,21 @@ function TechnicianTicketDetailPage() {
               <form className="tech-td-comment-input-area" onSubmit={handlePostComment}>
                 <textarea 
                   className="tech-td-textarea" 
-                  placeholder="Write a comment..."
+                  placeholder="Write a reply or internal note..."
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                 />
                 <div className="tech-td-input-actions">
+                  <div className="tech-td-input-tools">
+                    <button type="button" className="tech-td-tool-btn">📎</button>
+                    <button type="button" className="tech-td-tool-btn">@</button>
+                  </div>
                   <button 
                     type="submit" 
                     className="tech-td-btn-send"
                     disabled={submittingComment || !newComment.trim()}
                   >
-                    {submittingComment ? "Sending..." : "Send Message"}
+                    Send Message ➤
                   </button>
                 </div>
               </form>

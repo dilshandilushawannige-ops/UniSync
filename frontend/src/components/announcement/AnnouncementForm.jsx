@@ -224,18 +224,10 @@ function AnnouncementForm({ isOpen, onClose, onSubmit, editData }) {
                             <label className="checkbox-label-announcement">
                                 <input
                                     type="checkbox"
-                                    checked={formData.targetRoles.includes('STUDENT')}
-                                    onChange={() => handleRoleToggle('STUDENT')}
+                                    checked={formData.targetRoles.includes('USER')}
+                                    onChange={() => handleRoleToggle('USER')}
                                 />
-                                <span className="checkbox-text">STUDENT</span>
-                            </label>
-                            <label className="checkbox-label-announcement">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.targetRoles.includes('LECTURER')}
-                                    onChange={() => handleRoleToggle('LECTURER')}
-                                />
-                                <span className="checkbox-text">LECTURER</span>
+                                <span className="checkbox-text">STUDENTS</span>
                             </label>
                             <label className="checkbox-label-announcement">
                                 <input
@@ -244,14 +236,6 @@ function AnnouncementForm({ isOpen, onClose, onSubmit, editData }) {
                                     onChange={() => handleRoleToggle('TECHNICIAN')}
                                 />
                                 <span className="checkbox-text">TECHNICIAN</span>
-                            </label>
-                            <label className="checkbox-label-announcement">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.targetRoles.includes('MANAGER')}
-                                    onChange={() => handleRoleToggle('MANAGER')}
-                                />
-                                <span className="checkbox-text">MANAGER</span>
                             </label>
                             <label className="checkbox-label-announcement">
                                 <input

@@ -427,7 +427,7 @@
   color: #9CA3AF;
 }
 
-/* Comment Input */
+/* Comment Input - Matching Admin Style */
 .tech-td-comment-input-area {
   border-top: 1px solid #E5E7EB;
   padding-top: 16px;
@@ -445,6 +445,7 @@
   margin-bottom: 10px;
   color: #FFFFFF;
   background: #374151;
+  outline: none;
 }
 
 .tech-td-textarea::placeholder {
@@ -452,14 +453,37 @@
 }
 
 .tech-td-textarea:focus {
-  outline: none;
   border-color: #3B82F6;
 }
 
 .tech-td-input-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
+}
+
+.tech-td-input-tools {
+  display: flex;
+  gap: 8px;
+}
+
+.tech-td-tool-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #D1D5DB;
+  background: #FFFFFF;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.tech-td-tool-btn:hover {
+  background: #F9FAFB;
+  border-color: #9CA3AF;
 }
 
 .tech-td-btn-send {
