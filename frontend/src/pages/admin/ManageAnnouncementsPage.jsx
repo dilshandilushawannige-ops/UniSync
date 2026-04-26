@@ -58,10 +58,15 @@ function ManageAnnouncementsPage() {
         }
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this announcement?')) {
-            deleteAnnouncement(id);
-            alert('Announcement deleted successfully!');
+            try {
+                await deleteAnnouncement(id);
+                alert('Announcement deleted successfully!');
+            } catch (error) {
+                alert('Error deleting announcement. Please try again.');
+                console.error('Error:', error);
+            }
         }
     };
 
@@ -70,36 +75,32 @@ function ManageAnnouncementsPage() {
         setIsFormOpen(true);
     };
 
-    const handleFormSubmit = (newAnnouncement) => {
-        if (editingAnnouncement) {
-            updateAnnouncement(editingAnnouncement.id, {
-                title: newAnnouncement.title,
-                message: newAnnouncement.message,
-                target: newAnnouncement.targetRoles,
-                priority: newAnnouncement.priority,
-                status: newAnnouncement.status
-            });
-            alert('Announcement updated successfully!');
-        } else {
-            // Create new announcement with sequential ID
-            const maxId = announcements.length > 0
-                ? Math.max(...announcements.map(a => a.id))
-                : 0;
-            const newId = maxId + 1;
-
-            const announcement = {
-                id: newId,
-                title: newAnnouncement.title,
-                message: newAnnouncement.message,
-                target: newAnnouncement.targetRoles,
-                priority: newAnnouncement.priority,
-                status: newAnnouncement.status,
-                createdAt: newAnnouncement.createdAt
-            };
-            addAnnouncement(announcement);
-            alert('Announcement created successfully!');
+    const handleFormSubmit = async (newAnnouncement) => {
+        try {
+            if (editingAnnouncement) {
+                await updateAnnouncement(editingAnnouncement.id, {
+                    title: newAnnouncement.title,
+                    message: newAnnouncement.message,
+                    targetRoles: newAnnouncement.targetRoles,
+                    priority: newAnnouncement.priority,
+                    status: newAnnouncement.status
+                });
+                alert('Announcement updated successfully!');
+            } else {
+                await addAnnouncement({
+                    title: newAnnouncement.title,
+                    message: newAnnouncement.message,
+                    targetRoles: newAnnouncement.targetRoles,
+                    priority: newAnnouncement.priority,
+                    status: newAnnouncement.status
+                });
+                alert('Announcement created successfully!');
+            }
+            setEditingAnnouncement(null);
+        } catch (error) {
+            alert('Error saving announcement. Please try again.');
+            console.error('Error:', error);
         }
-        setEditingAnnouncement(null);
     };
 
     return (

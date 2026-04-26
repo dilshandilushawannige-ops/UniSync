@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import com.smartcampus.unisync.user.entity.User;
 
 @Component
 @RequiredArgsConstructor
@@ -80,9 +79,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8);
         String encodedRole = URLEncoder.encode(frontendRole, StandardCharsets.UTF_8);
-        String encodedUserId = userId != null
-                ? URLEncoder.encode(String.valueOf(userId), StandardCharsets.UTF_8)
-                : "";
         String encodedEmail = email != null
                 ? URLEncoder.encode(email, StandardCharsets.UTF_8)
                 : "";
