@@ -237,7 +237,23 @@ function ManageResourcesModernPage() {
                       <td style={{ padding: '12px' }}>{resource.type}</td>
                       <td style={{ padding: '12px' }}>{resource.capacity}</td>
                       <td style={{ padding: '12px' }}>{resource.location}</td>
-                      <td style={{ padding: '12px' }}>{resource.status}</td>
+                      <td style={{ padding: '12px' }}>
+                        <span
+                          style={{
+                            padding: '4px 12px',
+                            borderRadius: '9999px',
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            color: 'white',
+                            backgroundColor:
+                              resource.status === 'ACTIVE'
+                                ? '#16a34a' // Green
+                                : '#dc2626', // Red
+                          }}
+                        >
+                          {resource.status}
+                        </span>
+                      </td>
                       <td style={{ padding: '12px' }}>
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                           <button
