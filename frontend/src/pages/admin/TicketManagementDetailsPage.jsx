@@ -1,57 +1,57 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import Swal from "sweetalert2";
 import {
   getTicketById,
   updateTicketStatus,
   assignTechnician,
+  getComments,
+  addComment,
+  updateComment,
+  deleteComment,
+  getAttachments,
+  uploadAttachment
 } from "../../services/ticketService";
-import TicketDetailsCard from "../../components/ticket/TicketDetailsCard";
-import TicketComments from "../../components/ticket/TicketComments";
-import AttachmentPreview from "../../components/ticket/AttachmentPreview";
+import { MdEdit, MdDelete, MdSync, MdPerson, MdAttachFile, MdChat } from "react-icons/md";
+import AdminPortalLayout from "../../components/admin/AdminPortalLayout";
+import { API_ORIGIN } from "../../config/apiConfig";
 import "./TicketManagementDetailsPage.css";
 
-/**
- * Admin-only detail page for a ticket.
- * Allows admin to:
- *   - View full ticket info
- *   - Change the ticket status (with optional notes/reason)
- *   - Assign a technician by user ID
- *   - View attachments and comments
- *
- * TODO: Replace hardcoded technicianId input with a user search/select
- *       dropdown once Member 4's user list API is available.
- */
 function TicketManagementDetailsPage() {
-  const { id } = useParams();     // ticket ID from URL
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [ticket, setTicket] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [attachments, setAttachments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [newComment, setNewComment] = useState("");
+  const [submittingComment, setSubmittingComment] = useState(false);
 
   // Status update form state
   const [newStatus, setNewStatus] = useState("");
-  const [resolutionNotes, setResolutionNotes] = useState("");
-  const [rejectedReason, setRejectedReason] = useState("");
-  const [statusMsg, setStatusMsg] = useState("");
 
   // Technician assign form state
   const [technicianId, setTechnicianId] = useState("");
-  const [assignMsg, setAssignMsg] = useState("");
 
-  // Get admin userId from localStorage (set during OAuth login)
   const adminUserId = Number(localStorage.getItem("userId"));
 
-  // Load ticket on mount
   useEffect(() => {
-    fetchTicket();
+    fetchTicketData();
   }, [id]);
 
-  const fetchTicket = async () => {
+  const fetchTicketData = async () => {
     try {
-      const data = await getTicketById(id);
-      setTicket(data);
-      setNewStatus(data.status); // pre-fill status dropdown
+      const [ticketData, commentsData, attachmentsData] = await Promise.all([
+        getTicketById(id),
+        getComments(id),
+        getAttachments(id)
+      ]);
+      setTicket(ticketData);
+      setComments(commentsData);
+      setAttachments(attachmentsData);
+      setNewStatus(ticketData.status);
     } catch (err) {
       setError("Failed to load ticket.");
     } finally {
@@ -59,153 +59,369 @@ function TicketManagementDetailsPage() {
     }
   };
 
-  // ── Handle status update ──────────────────────────────
   const handleStatusUpdate = async (e) => {
     e.preventDefault();
     try {
-      await updateTicketStatus(id, {
-        status: newStatus,
-        resolutionNotes: resolutionNotes || null,
-        rejectedReason: rejectedReason || null,
+      const updatedTicket = await updateTicketStatus(id, { status: newStatus });
+      setTicket(updatedTicket);
+      Swal.fire({
+        icon: 'success',
+        title: 'Status Updated!',
+        text: 'Ticket status has been updated successfully.',
+        timer: 2000,
+        showConfirmButton: false
       });
-      setStatusMsg("✅ Status updated successfully.");
-      fetchTicket(); // reload to show updated data
     } catch (err) {
-      setStatusMsg("❌ Failed to update status.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to update status.',
+        confirmButtonColor: '#2563EB'
+      });
     }
   };
 
-  // ── Handle technician assignment ─────────────────────
   const handleAssign = async (e) => {
     e.preventDefault();
     if (!technicianId) {
-      setAssignMsg("Please enter a technician ID.");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Missing Information',
+        text: 'Please enter a technician ID.',
+        confirmButtonColor: '#2563EB'
+      });
       return;
     }
     try {
       await assignTechnician(id, technicianId);
-      setAssignMsg("✅ Technician assigned successfully.");
-      fetchTicket(); // reload to show assigned tech
+      fetchTicketData();
+      Swal.fire({
+        icon: 'success',
+        title: 'Assigned!',
+        text: 'Technician has been assigned successfully.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+      setTechnicianId("");
     } catch (err) {
-      setAssignMsg("❌ Failed to assign technician.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to assign technician.',
+        confirmButtonColor: '#2563EB'
+      });
     }
   };
 
-  if (loading) return <p className="status-msg">Loading ticket...</p>;
-  if (error)   return <p className="error-msg">{error}</p>;
+  const handlePostComment = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+
+    setSubmittingComment(true);
+    try {
+      const posted = await addComment(id, newComment, adminUserId);
+      setComments([...comments, posted]);
+      setNewComment("");
+    } catch (err) {
+      alert("Failed to post comment.");
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
+
+  const handleEditComment = async (commentId, currentContent) => {
+    const result = await Swal.fire({
+      title: 'Edit Comment',
+      input: 'textarea',
+      inputValue: currentContent,
+      showCancelButton: true,
+      confirmButtonText: 'Save',
+      confirmButtonColor: '#2563EB'
+    });
+
+    if (result.isConfirmed && result.value) {
+      try {
+        const updated = await updateComment(commentId, result.value, adminUserId);
+        setComments(comments.map(c => c.id === commentId ? updated : c));
+      } catch (err) {
+        Swal.fire('Error', 'Failed to edit comment', 'error');
+      }
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    const result = await Swal.fire({
+      title: 'Delete Comment?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#EF4444',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteComment(commentId, adminUserId);
+        setComments(comments.filter(c => c.id !== commentId));
+      } catch (err) {
+        Swal.fire('Error', 'Failed to delete comment', 'error');
+      }
+    }
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      const uploaded = await uploadAttachment(id, file);
+      setAttachments([...attachments, uploaded]);
+    } catch (err) {
+      alert("Failed to upload attachment.");
+    }
+  };
+
+  if (loading) return (
+    <AdminPortalLayout title="Ticket Details">
+      <p className="status-msg">Loading ticket...</p>
+    </AdminPortalLayout>
+  );
+  
+  if (error) return (
+    <AdminPortalLayout title="Ticket Details">
+      <p className="error-msg">{error}</p>
+    </AdminPortalLayout>
+  );
+
+  const formattedDate = new Date(ticket.createdAt).toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric'
+  });
+  const formattedTime = new Date(ticket.createdAt).toLocaleTimeString('en-US', {
+    hour: '2-digit', minute: '2-digit', hour12: true
+  });
 
   return (
-    <div className="management-details-page">
-
-      {/* Back button */}
-      <button className="back-btn" onClick={() => navigate(-1)}>
-        ← Back to Manage Tickets
-      </button>
-
-      {/* Ticket info card */}
-      <TicketDetailsCard ticket={ticket} />
-
-      {/* ── Admin Controls ─────────────────────────── */}
-      <div className="admin-controls">
-
-        {/* Status Update Form */}
-        <div className="control-card">
-          <h3 className="control-title">Update Status</h3>
-          <form onSubmit={handleStatusUpdate} className="control-form">
-
-            <div className="form-group">
-              <label>New Status</label>
-              <select
-                value={newStatus}
-                onChange={(e) => setNewStatus(e.target.value)}
-              >
-                <option value="OPEN">Open</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="RESOLVED">Resolved</option>
-                <option value="CLOSED">Closed</option>
-                <option value="REJECTED">Rejected</option>
-              </select>
-            </div>
-
-            {/* Resolution notes — shown only when resolving */}
-            {(newStatus === "RESOLVED" || newStatus === "CLOSED") && (
-              <div className="form-group">
-                <label>Resolution Notes</label>
-                <textarea
-                  rows={3}
-                  placeholder="Describe how the issue was resolved..."
-                  value={resolutionNotes}
-                  onChange={(e) => setResolutionNotes(e.target.value)}
-                />
-              </div>
-            )}
-
-            {/* Rejected reason — shown only when rejecting */}
-            {newStatus === "REJECTED" && (
-              <div className="form-group">
-                <label>Rejection Reason</label>
-                <textarea
-                  rows={3}
-                  placeholder="Explain why this ticket is being rejected..."
-                  value={rejectedReason}
-                  onChange={(e) => setRejectedReason(e.target.value)}
-                />
-              </div>
-            )}
-
-            <button type="submit" className="control-btn">
-              Update Status
-            </button>
-
-            {statusMsg && (
-              <p className={`feedback-msg ${statusMsg.startsWith("✅") ? "success" : "fail"}`}>
-                {statusMsg}
-              </p>
-            )}
-          </form>
+    <AdminPortalLayout title={`Ticket #US-${ticket.id}`}>
+      <div className="admin-ticket-detail-page">
+        {/* Breadcrumb */}
+        <div className="admin-breadcrumb">
+          <Link to="/admin/dashboard" className="breadcrumb-link">Dashboard</Link>
+          <span className="breadcrumb-separator">/</span>
+          <Link to="/admin/tickets" className="breadcrumb-link">Manage Tickets</Link>
+          <span className="breadcrumb-separator">/</span>
+          <span className="breadcrumb-current">Ticket #US-{ticket.id}</span>
         </div>
 
-        {/* Assign Technician Form */}
-        <div className="control-card">
-          <h3 className="control-title">Assign Technician</h3>
-          <p className="control-hint">
-            Currently assigned:{" "}
-            <strong>{ticket.assignedTechnicianName || "Not assigned"}</strong>
-          </p>
-          <form onSubmit={handleAssign} className="control-form">
-            <div className="form-group">
-              <label>Technician User ID</label>
-              <input
-                type="number"
-                placeholder="Enter technician's user ID"
-                value={technicianId}
-                onChange={(e) => setTechnicianId(e.target.value)}
-              />
+        {/* Header Card */}
+        <div className="admin-ticket-header-card">
+          <div className="admin-ticket-header-top">
+            <div className="admin-ticket-id-badge">
+              #US-{ticket.id} <span className={`priority-label priority-${ticket.priority?.toLowerCase()}`}>! {ticket.priority}</span>
+            </div>
+            <div className={`admin-status-badge status-${ticket.status?.toLowerCase().replace('_', '-')}`}>
+              {ticket.status?.replace('_', ' ')}
+            </div>
+          </div>
+          <h1 className="admin-ticket-title">{ticket.title}</h1>
+
+          <div className="admin-ticket-meta-grid">
+            <div className="admin-meta-section">
+              <h3>Description</h3>
+              <p>{ticket.description}</p>
+              
+              {/* Category and Location moved here */}
+              <div className="admin-ticket-details-row" style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #E5E7EB' }}>
+                <div className="admin-detail-item">
+                  <span className="admin-detail-label">Category</span>
+                  <span className="admin-detail-value">{ticket.category}</span>
+                </div>
+                <div className="admin-detail-item">
+                  <span className="admin-detail-label">Location</span>
+                  <span className="admin-detail-value">{ticket.location || "Engineering North, Lab C"}</span>
+                </div>
+              </div>
             </div>
 
-            <button type="submit" className="control-btn">
-              Assign Technician
-            </button>
+            <div className="admin-meta-sidebar">
+              <div className="admin-meta-item">
+                <span className="admin-meta-label">REPORTED BY</span>
+                <div className="admin-user-info">
+                  <div className="admin-user-avatar">{ticket.reportedByName?.charAt(0) || "U"}</div>
+                  <div>
+                    <div className="admin-user-name">{ticket.reportedByName}</div>
+                  </div>
+                </div>
+              </div>
 
-            {assignMsg && (
-              <p className={`feedback-msg ${assignMsg.startsWith("✅") ? "success" : "fail"}`}>
-                {assignMsg}
-              </p>
-            )}
-          </form>
+              <div className="admin-meta-item">
+                <span className="admin-meta-label">Assigned To</span>
+                <div className="admin-user-info">
+                  <div className="admin-user-avatar tech-avatar">{ticket.assignedTechnicianName?.charAt(0) || "?"}</div>
+                  <div>
+                    <div className="admin-user-name">{ticket.assignedTechnicianName || "Not assigned"}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="admin-meta-item">
+                <span className="admin-meta-label">Created</span>
+                <div className="admin-meta-value">{formattedDate} at {formattedTime}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Two Column Layout */}
+        <div className="admin-main-grid">
+          {/* Left Column - Action Cards and Communication */}
+          <div className="admin-left-section">
+            {/* Action Cards Stacked */}
+            <div className="admin-action-cards-stack">
+              {/* Update Status Card */}
+              <div className="admin-action-card admin-compact-card">
+                <div className="admin-action-card-header">
+                  <MdSync className="admin-action-icon" />
+                  <h3>Update Status</h3>
+                </div>
+                <form onSubmit={handleStatusUpdate}>
+                  <div className="admin-form-group">
+                    <label>SELECT NEW STATUS</label>
+                    <select value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
+                      <option value="OPEN">Open</option>
+                      <option value="IN_PROGRESS">In Progress</option>
+                      <option value="RESOLVED">Resolved</option>
+                      <option value="CLOSED">Closed</option>
+                      <option value="REJECTED">Rejected</option>
+                    </select>
+                  </div>
+                  <button type="submit" className="admin-action-btn">Update Status</button>
+                </form>
+              </div>
+
+              {/* Assign Technician Card */}
+              <div className="admin-action-card admin-compact-card">
+                <div className="admin-action-card-header">
+                  <MdPerson className="admin-action-icon-user" />
+                  <h3>Assign Technician</h3>
+                </div>
+                <div className="admin-current-tech">
+                  <div className="admin-tech-avatar-circle">
+                    <MdPerson className="admin-tech-icon" />
+                  </div>
+                  <div className="admin-tech-info">
+                    <span className="admin-current-label">Current Technician</span>
+                    <span className="admin-current-value">
+                      {ticket.assignedTechnicianName 
+                        ? `${ticket.assignedTechnicianName} (ID: ${ticket.assignedTechnicianId || 'N/A'})`
+                        : 'Not assigned'}
+                    </span>
+                  </div>
+                </div>
+                <form onSubmit={handleAssign}>
+                  <div className="admin-form-group">
+                    <label>TECHNICIAN USER ID</label>
+                    <input
+                      type="number"
+                      placeholder="Enter ID e.g. 5582"
+                      value={technicianId}
+                      onChange={(e) => setTechnicianId(e.target.value)}
+                    />
+                  </div>
+                  <button type="submit" className="admin-action-btn">Assign Technician</button>
+                </form>
+              </div>
+            </div>
+
+            {/* Activity & Communication - Below Action Cards */}
+            <div className="admin-section-card">
+              <div className="admin-section-header">
+                <MdChat className="admin-section-icon" />
+                <h3>Activity & Communication</h3>
+              </div>
+
+              <div className="admin-comments-thread">
+                {comments.map((comment) => {
+                  const isAdmin = comment.authorRole === 'ADMIN';
+                  const isTechnician = comment.authorRole === 'TECHNICIAN';
+                  const isOwnComment = comment.authorId === adminUserId;
+                  const time = new Date(comment.createdAt).toLocaleTimeString('en-US', {
+                    hour: '2-digit', minute: '2-digit', hour12: true
+                  });
+
+                  return (
+                    <div key={comment.id} className="admin-comment">
+                      <div className="admin-comment-avatar">
+                        {comment.authorName?.charAt(0) || "U"}
+                      </div>
+                      <div className="admin-comment-content">
+                        <div className="admin-comment-header">
+                          <span className="admin-comment-author">{comment.authorName}</span>
+                          {(isAdmin || isTechnician) && (
+                            <span className="admin-comment-badge">{isAdmin ? 'ADMIN' : 'TECHNICIAN'}</span>
+                          )}
+                          <span className="admin-comment-time">{time}</span>
+                          {isOwnComment && (
+                            <div className="admin-comment-actions">
+                              <button onClick={() => handleEditComment(comment.id, comment.content)}>
+                                <MdEdit />
+                              </button>
+                              <button onClick={() => handleDeleteComment(comment.id)}>
+                                <MdDelete />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        <div className="admin-comment-text">{comment.content}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <form className="admin-comment-form" onSubmit={handlePostComment}>
+                <textarea
+                  placeholder="Write a reply or internal note..."
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                />
+                <div className="admin-comment-form-actions">
+                  <div className="admin-comment-tools">
+                    <button type="button">📎</button>
+                    <button type="button">@</button>
+                  </div>
+                  <button type="submit" className="admin-send-btn" disabled={submittingComment || !newComment.trim()}>
+                    Send Message ➤
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          {/* Right Column - Attachments */}
+          <div className="admin-right-section">
+            <div className="admin-action-card">
+              <div className="admin-action-card-header">
+                <MdAttachFile className="admin-section-icon" />
+                <h3>Attachments</h3>
+              </div>
+              <div className="admin-attachments-grid">
+                {attachments.map((file) => (
+                  <div key={file.id} className="admin-attachment-item">
+                    <img src={`${API_ORIGIN}${file.fileUrl}`} alt={file.fileName} />
+                    <div className="admin-attachment-name">{file.fileName}</div>
+                  </div>
+                ))}
+                <label className="admin-attachment-add">
+                  <input type="file" style={{display: 'none'}} onChange={handleFileUpload} />
+                  <div className="admin-add-icon">+</div>
+                  <span>Add File</span>
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Attachments */}
-      <div className="section-block">
-        <AttachmentPreview ticketId={Number(id)} refreshTrigger={0} />
-      </div>
-
-      {/* Comments */}
-      <div className="section-block">
-        <TicketComments ticketId={Number(id)} currentUserId={adminUserId} />
-      </div>
-    </div>
+    </AdminPortalLayout>
   );
 }
 

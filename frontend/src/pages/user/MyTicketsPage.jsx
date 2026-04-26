@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyTickets } from "../../services/ticketService";
 import StudentPortalLayout from "../../components/user/StudentPortalLayout";
+import { MdOutlineDashboard, MdChevronRight } from "react-icons/md";
+import { FiPlus, FiMail, FiClock, FiCheckCircle, FiFilter } from "react-icons/fi";
+import { IoTicketOutline } from "react-icons/io5";
+import { BsSortDown } from "react-icons/bs";
 import "./MyTicketsPage.css";
 
 /**
@@ -17,9 +21,8 @@ function MyTicketsPage() {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
-  const [viewMode, setViewMode] = useState("grid"); // 'grid' or 'list'
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 4;
 
   // Get userId from localStorage (set during OAuth login)
   const currentUserId = localStorage.getItem("userId");
@@ -62,9 +65,6 @@ function MyTicketsPage() {
     return matchesStatus && matchesPriority && matchesCategory;
   });
 
-  // Get unique categories from tickets
-  const categories = ["ALL", ...new Set(tickets.map(t => t.category))];
-
   // Calculate statistics
   const totalTickets = tickets.length;
   const openTickets = tickets.filter(t => t.status === "OPEN").length;
@@ -82,42 +82,18 @@ function MyTicketsPage() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedTickets = filteredTickets.slice(startIndex, startIndex + itemsPerPage);
 
-  // Get status badge color
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "OPEN": return "#f59e0b";
-      case "IN_PROGRESS": return "#f97316";
-      case "RESOLVED": return "#10b981";
-      case "CLOSED": return "#6b7280";
-      default: return "#94a3b8";
-    }
-  };
-
-  // Get priority color
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case "HIGH": return "#ef4444";
-      case "MEDIUM": return "#f59e0b";
-      case "LOW": return "#94a3b8";
-      default: return "#64748b";
-    }
-  };
-
-  // Get border color based on status
-  const getBorderColor = (status) => {
-    switch (status) {
-      case "OPEN": return "#fbbf24";
-      case "IN_PROGRESS": return "#fb923c";
-      case "RESOLVED": return "#34d399";
-      case "CLOSED": return "#9ca3af";
-      default: return "#cbd5e1";
-    }
-  };
-
   return (
     <StudentPortalLayout title="My Tickets">
       <div className="my-tickets-page">
-        {/* Page subtitle */}
+        {/* Breadcrumb Navigation */}
+        <div className="breadcrumb">
+          <MdOutlineDashboard className="breadcrumb-icon" />
+          <span className="breadcrumb-text">Dashboard</span>
+          <MdChevronRight className="breadcrumb-separator" />
+          <span className="breadcrumb-current">My Tickets</span>
+        </div>
+
+        {/* Page header */}
         <div className="page-header">
           <div>
             <p className="page-subtitle">
@@ -125,27 +101,55 @@ function MyTicketsPage() {
             </p>
           </div>
           <button className="create-ticket-btn" onClick={() => navigate("/create-ticket")}>
-            <span className="btn-icon">+</span> Create New Ticket
+            <FiPlus className="btn-icon" /> Create New Ticket
           </button>
         </div>
 
         {/* Statistics Cards */}
         <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-label">TOTAL TICKETS</div>
-            <div className="stat-value">{totalTickets}</div>
+          <div className="stat-card border-blue">
+            <div className="stat-card-content">
+              <div>
+                <div className="stat-label">TOTAL TICKETS</div>
+                <div className="stat-value">{totalTickets}</div>
+              </div>
+              <div className="stat-icon-wrapper bg-blue-100 text-blue-500">
+                <IoTicketOutline className="stat-icon" />
+              </div>
+            </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-label">OPEN REQUESTS</div>
-            <div className="stat-value stat-value-blue">{openTickets}</div>
+          <div className="stat-card border-blue">
+            <div className="stat-card-content">
+              <div>
+                <div className="stat-label">OPEN REQUESTS</div>
+                <div className="stat-value stat-value-blue">{openTickets}</div>
+              </div>
+              <div className="stat-icon-wrapper bg-blue-100 text-blue-500">
+                <FiMail className="stat-icon" />
+              </div>
+            </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-label">IN PROGRESS</div>
-            <div className="stat-value stat-value-orange">{inProgressTickets}</div>
+          <div className="stat-card border-orange">
+            <div className="stat-card-content">
+              <div>
+                <div className="stat-label">IN PROGRESS</div>
+                <div className="stat-value stat-value-orange">{inProgressTickets}</div>
+              </div>
+              <div className="stat-icon-wrapper bg-orange-100 text-orange-500">
+                <FiClock className="stat-icon" />
+              </div>
+            </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-label">RESOLVED THIS MONTH</div>
-            <div className="stat-value stat-value-green">{resolvedThisMonth}</div>
+          <div className="stat-card border-green">
+            <div className="stat-card-content">
+              <div>
+                <div className="stat-label">RESOLVED</div>
+                <div className="stat-value stat-value-green">{resolvedThisMonth}</div>
+              </div>
+              <div className="stat-icon-wrapper bg-green-100 text-green-500">
+                <FiCheckCircle className="stat-icon" />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -179,10 +183,10 @@ function MyTicketsPage() {
           </div>
           <div className="tab-actions">
             <button className="action-btn">
-              <span className="action-icon">⚙</span> Filter
+              <FiFilter className="action-icon" /> Filter
             </button>
             <button className="action-btn">
-              <span className="action-icon">↕</span> Sort
+              <BsSortDown className="action-icon" /> Sort
             </button>
           </div>
         </div>
@@ -261,7 +265,7 @@ function MyTicketsPage() {
                 {/* Pagination */}
                 <div className="pagination-container">
                   <div className="pagination-info">
-                    Showing {startIndex + 1} of {filteredTickets.length} tickets
+                    Showing {paginatedTickets.length} of {filteredTickets.length} tickets
                   </div>
                   <div className="pagination">
                     <button 
@@ -269,7 +273,7 @@ function MyTicketsPage() {
                       onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                       disabled={currentPage === 1}
                     >
-                      ‹
+                      {"<"}
                     </button>
                     {[...Array(totalPages)].map((_, index) => (
                       <button
@@ -285,7 +289,7 @@ function MyTicketsPage() {
                       onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                       disabled={currentPage === totalPages}
                     >
-                      ›
+                      {">"}
                     </button>
                   </div>
                 </div>
@@ -299,3 +303,4 @@ function MyTicketsPage() {
 }
 
 export default MyTicketsPage;
+

@@ -32,6 +32,7 @@ import AssignedTicketsPage from "./pages/technician/AssignedTicketsPage";
 import TechnicianNotificationsPage from "./pages/technician/TechnicianNotificationsPage";
 import MaintenanceLogsPage from "./pages/technician/MaintenanceLogsPage";
 import InProgressTicketsPage from "./pages/technician/InProgressTicketsPage";
+import TechnicianTicketDetailPage from "./pages/technician/TechnicianTicketDetailPage";
 import BrowseResourcesModernPage from "./pages/user/BrowseResourcesModernPage";
 import AboutUsPage from "./pages/AboutUsPage";
 import ContactUsPage from "./pages/ContactUsPage";
@@ -69,6 +70,7 @@ function App() {
           <Route path="/technician/dashboard" element={<TechnicianDashboardPage />} />
           <Route path="/technician/profile" element={<TechnicianProfilePage />} />
           <Route path="/technician/tickets" element={<AssignedTicketsPage />} />
+          <Route path="/technician/tickets/:id" element={<TechnicianTicketDetailPage />} />
           <Route path="/technician/in-progress" element={<InProgressTicketsPage />} />
           <Route path="/technician/notifications" element={<TechnicianNotificationsPage />} />
           <Route path="/technician/logs" element={<MaintenanceLogsPage />} />
