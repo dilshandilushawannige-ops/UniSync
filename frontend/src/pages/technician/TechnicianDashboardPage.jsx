@@ -1,8 +1,20 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import TechnicianPortalLayout from "../../components/technician/TechnicianPortalLayout";
 import api from "../../services/api";
+import { 
+    MdAssignment, 
+    MdNotifications, 
+    MdPerson,
+    MdArrowForward,
+    MdCheckCircle,
+    MdHourglassEmpty,
+    MdPending
+} from "react-icons/md";
+import "./TechnicianDashboardPage.css";
 
 function TechnicianDashboardPage() {
+    const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -44,95 +56,133 @@ function TechnicianDashboardPage() {
         }
     };
 
+    const quickAccessCards = [
+        {
+            title: "Assigned Tickets",
+            description: "View and manage all tickets assigned to you",
+            icon: MdAssignment,
+            path: "/technician/tickets",
+            color: "#3B82F6",
+            bgColor: "#EFF6FF",
+            count: stats?.assigned || 0
+        },
+        {
+            title: "Notifications",
+            description: "Check announcements and system updates",
+            icon: MdNotifications,
+            path: "/technician/notifications",
+            color: "#F59E0B",
+            bgColor: "#FEF3C7",
+            count: null
+        },
+        {
+            title: "Profile",
+            description: "Manage your account and preferences",
+            icon: MdPerson,
+            path: "/technician/profile",
+            color: "#8B5CF6",
+            bgColor: "#F3E8FF",
+            count: null
+        }
+    ];
+
     return (
         <TechnicianPortalLayout title="Technician Dashboard">
-            <div style={styles.welcomeSection}>
-                <h2 style={styles.welcomeText}>Welcome TECHNICIAN!!</h2>
-                {loading && <p style={styles.loadingText}>Loading ticket statistics...</p>}
-                {error && <p style={styles.errorText}>{error}</p>}
-            </div>
-
-            {!loading && !error && stats && (
-                <div style={styles.statsGrid}>
-                    <div style={{ ...styles.statCard, ...styles.statCardBlue }}>
-                        <div style={styles.statNumber}>{stats.assigned}</div>
-                        <div style={styles.statLabel}>Assigned Tickets</div>
-                    </div>
-                    <div style={{ ...styles.statCard, ...styles.statCardYellow }}>
-                        <div style={styles.statNumber}>{stats.inProgress}</div>
-                        <div style={styles.statLabel}>In Progress</div>
-                    </div>
-                    <div style={{ ...styles.statCard, ...styles.statCardGreen }}>
-                        <div style={styles.statNumber}>{stats.completed}</div>
-                        <div style={styles.statLabel}>Completed</div>
-                    </div>
-                    <div style={{ ...styles.statCard, ...styles.statCardOrange }}>
-                        <div style={styles.statNumber}>{stats.pending}</div>
-                        <div style={styles.statLabel}>Pending Review</div>
-                    </div>
+            <div className="tech-dashboard-container">
+                <div className="tech-dashboard-welcome">
+                    <h2 className="tech-dashboard-title">Welcome Back, Technician!</h2>
+                    <p className="tech-dashboard-subtitle">
+                        Here's an overview of your assigned tickets and quick access to key features.
+                    </p>
                 </div>
-            )}
+
+                {loading && <p className="tech-dashboard-loading">Loading ticket statistics...</p>}
+                {error && <p className="tech-dashboard-error">{error}</p>}
+
+                {!loading && !error && stats && (
+                    <>
+                        {/* Statistics Cards */}
+                        <div className="tech-stats-grid">
+                            <div className="tech-stat-card tech-stat-blue">
+                                <div className="tech-stat-icon">
+                                    <MdAssignment />
+                                </div>
+                                <div className="tech-stat-content">
+                                    <div className="tech-stat-number">{stats.assigned}</div>
+                                    <div className="tech-stat-label">Assigned Tickets</div>
+                                </div>
+                            </div>
+                            <div className="tech-stat-card tech-stat-yellow">
+                                <div className="tech-stat-icon">
+                                    <MdHourglassEmpty />
+                                </div>
+                                <div className="tech-stat-content">
+                                    <div className="tech-stat-number">{stats.inProgress}</div>
+                                    <div className="tech-stat-label">In Progress</div>
+                                </div>
+                            </div>
+                            <div className="tech-stat-card tech-stat-green">
+                                <div className="tech-stat-icon">
+                                    <MdCheckCircle />
+                                </div>
+                                <div className="tech-stat-content">
+                                    <div className="tech-stat-number">{stats.completed}</div>
+                                    <div className="tech-stat-label">Completed</div>
+                                </div>
+                            </div>
+                            <div className="tech-stat-card tech-stat-orange">
+                                <div className="tech-stat-icon">
+                                    <MdPending />
+                                </div>
+                                <div className="tech-stat-content">
+                                    <div className="tech-stat-number">{stats.pending}</div>
+                                    <div className="tech-stat-label">Pending Review</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Quick Access Section */}
+                        <div className="tech-quick-access-section">
+                            <h3 className="tech-section-title">Quick Access</h3>
+                            <div className="tech-quick-access-grid">
+                                {quickAccessCards.map((card) => {
+                                    const IconComponent = card.icon;
+                                    return (
+                                        <div 
+                                            key={card.path}
+                                            className="tech-quick-card"
+                                            onClick={() => navigate(card.path)}
+                                        >
+                                            <div className="tech-quick-card-header">
+                                                <div 
+                                                    className="tech-quick-icon"
+                                                    style={{ 
+                                                        backgroundColor: card.bgColor,
+                                                        color: card.color 
+                                                    }}
+                                                >
+                                                    <IconComponent />
+                                                </div>
+                                                {card.count !== null && (
+                                                    <span className="tech-quick-badge">{card.count}</span>
+                                                )}
+                                            </div>
+                                            <h4 className="tech-quick-title">{card.title}</h4>
+                                            <p className="tech-quick-description">{card.description}</p>
+                                            <div className="tech-quick-action">
+                                                <span>Go to {card.title}</span>
+                                                <MdArrowForward />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </>
+                )}
+            </div>
         </TechnicianPortalLayout>
     );
 }
-
-const styles = {
-    welcomeSection: {
-        marginBottom: "32px",
-    },
-    welcomeText: {
-        fontSize: "2rem",
-        fontWeight: 700,
-        color: "#1e293b",
-        margin: "0 0 12px",
-    },
-    loadingText: {
-        color: "#64748b",
-        fontSize: "1rem",
-        margin: 0,
-    },
-    errorText: {
-        color: "#ef4444",
-        fontSize: "1rem",
-        margin: 0,
-    },
-    statsGrid: {
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-        gap: "20px",
-        marginTop: "24px",
-    },
-    statCard: {
-        padding: "28px",
-        borderRadius: "12px",
-        backgroundColor: "#ffffff",
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-        textAlign: "center",
-        transition: "transform 0.2s ease, box-shadow 0.2s ease",
-    },
-    statCardBlue: {
-        borderLeft: "4px solid #3498db",
-    },
-    statCardYellow: {
-        borderLeft: "4px solid #f39c12",
-    },
-    statCardGreen: {
-        borderLeft: "4px solid #27ae60",
-    },
-    statCardOrange: {
-        borderLeft: "4px solid #e67e22",
-    },
-    statNumber: {
-        fontSize: "2.5rem",
-        fontWeight: 800,
-        color: "#1e293b",
-        marginBottom: "8px",
-    },
-    statLabel: {
-        fontSize: "1rem",
-        color: "#64748b",
-        fontWeight: 600,
-    },
-};
 
 export default TechnicianDashboardPage;
