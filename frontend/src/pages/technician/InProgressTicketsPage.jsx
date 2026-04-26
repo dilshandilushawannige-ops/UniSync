@@ -82,7 +82,7 @@ function InProgressTicketsPage() {
                         </p>
                     </div>
                 ) : (
-                    <TicketTable tickets={tickets} />
+                    <TicketTable tickets={tickets} isTechnician={true} />
                 )}
             </div>
         </TechnicianPortalLayout>

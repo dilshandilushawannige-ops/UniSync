@@ -19,8 +19,6 @@ import "./TechnicianPortalLayout.css";
 const sidebarItems = [
     { label: "Dashboard", path: "/technician/dashboard", icon: MdDashboard },
     { label: "Assigned Tickets", path: "/technician/tickets", icon: MdAssignment },
-    { label: "In Progress", path: "/technician/in-progress", icon: MdHourglassEmpty },
-    { label: "Maintenance Logs", path: "/technician/logs", icon: MdCheckCircle },
     { label: "Notifications", path: "/technician/notifications", icon: MdNotifications },
     { label: "Profile", path: "/technician/profile", icon: MdPerson },
 ];
