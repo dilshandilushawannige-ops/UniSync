@@ -1,16 +1,16 @@
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useMemo } from "react";
 import { useAnnouncements } from "../../context/AnnouncementContext";
-import { 
-  MdDashboard, 
-  MdLibraryBooks, 
-  MdEventAvailable, 
-  MdConfirmationNumber, 
-  MdAddCircleOutline, 
-  MdNotifications, 
-  MdPerson,
-  MdLogout,
-  MdNotificationsActive
+import {
+    MdDashboard,
+    MdLibraryBooks,
+    MdEventAvailable,
+    MdConfirmationNumber,
+    MdAddCircleOutline,
+    MdNotifications,
+    MdPerson,
+    MdLogout,
+    MdNotificationsActive
 } from "react-icons/md";
 import "./StudentPortalLayout.css";
 
@@ -55,7 +55,7 @@ function StudentPortalLayout({ title, children }) {
                     <div className="sidebar-logo">UniSync</div>
                     <div className="sidebar-subtitle">STUDENT IT PORTAL</div>
                 </div>
-                
+
                 <nav className="sidebar-nav">
                     {sidebarItems.map((item) => {
                         const IconComponent = item.icon;
@@ -63,7 +63,7 @@ function StudentPortalLayout({ title, children }) {
                             <NavLink
                                 key={item.path}
                                 to={item.path}
-                                className={({ isActive }) => 
+                                className={({ isActive }) =>
                                     isActive ? "nav-item nav-item-active" : "nav-item"
                                 }
                             >

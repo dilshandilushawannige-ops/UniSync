@@ -21,6 +21,8 @@ import ManageNotificationsPage from "./pages/admin/ManageNotificationsPage";
 import ManageResourcesModernPage from "./pages/admin/ManageResourcesModernPage";
 import ManageResourcesPage from "./pages/admin/ManageResourcesPage";
 import ManageAnnouncementsPage from "./pages/admin/ManageAnnouncementsPage";
+import CreateAnnouncementPage from "./pages/admin/CreateAnnouncementPage";
+import EditAnnouncementPage from "./pages/admin/EditAnnouncementPage";
 import ManageTicketsPage from "./pages/admin/ManageTicketsPage";
 import ManageUsersPage from "./pages/admin/ManageUsersPage";
 import TicketManagementDetailsPage from "./pages/admin/TicketManagementDetailsPage";
@@ -64,6 +66,8 @@ function App() {
           <Route path="/admin/users" element={<ManageUsersPage />} />
           <Route path="/admin/notifications" element={<ManageNotificationsPage />} />
           <Route path="/admin/announcements" element={<ManageAnnouncementsPage />} />
+          <Route path="/admin/announcements/create" element={<CreateAnnouncementPage />} />
+          <Route path="/admin/announcements/edit/:id" element={<EditAnnouncementPage />} />
           <Route path="/admin/tickets" element={<ManageTicketsPage />} />
           <Route path="/admin/tickets/:id" element={<TicketManagementDetailsPage />} />
           <Route path="/admin/resources" element={<ManageResourcesModernPage />} />
