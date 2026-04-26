@@ -29,10 +29,48 @@ function AdminPortalLayout({ title, children }) {
         localStorage.removeItem("token");
         localStorage.removeItem("role");
         localStorage.removeItem("userId");
+        localStorage.removeItem("email");
 
         // Redirect to home page
         navigate("/");
     };
+
+    const handleNotificationClick = () => {
+        setShowNotificationDropdown(!showNotificationDropdown);
+    };
+
+    const handleNotificationItemClick = async (notification) => {
+        // Mark notification as read
+        try {
+            await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081'}/api/notifications/${notification.id}/read`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+        } catch (error) {
+            console.error('Error marking notification as read:', error);
+        }
+
+        // Navigate to the ticket
+        if (notification.ticketId) {
+            navigate(`/admin/tickets/${notification.ticketId}`);
+        }
+        setShowNotificationDropdown(false);
+    };
+
+    const handleClickOutside = (e) => {
+        if (!e.target.closest('.notification-container')) {
+            setShowNotificationDropdown(false);
+        }
+    };
+
+    useEffect(() => {
+        if (showNotificationDropdown) {
+            document.addEventListener('click', handleClickOutside);
+        }
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, [showNotificationDropdown]);
 
     return (
         <div className="admin-portal-layout">
