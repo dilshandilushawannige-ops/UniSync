@@ -1,20 +1,49 @@
 import "./Booking.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-function Booking({ isOpen, onClose, onCreate, theme = "light", mode = "modal" }) {
+const DEFAULT_FORM_DATA = {
+  resource: "",
+  resourceId: "",
+  resourceType: "classroom",
+  date: "",
+  startTime: "",
+  endTime: "",
+  purpose: "",
+  attendees: "",
+  needsProjector: false,
+  needsWhiteboard: false,
+};
+
+function normalizeResourceType(value) {
+  if (!value) return "classroom";
+  const normalized = String(value).trim().toLowerCase().replace(/\s+/g, "_");
+  if (["classroom", "lab", "lecture_hall", "meeting_room", "equipment"].includes(normalized)) {
+    return normalized;
+  }
+  return "classroom";
+}
+
+function Booking({ isOpen, onClose, onCreate, theme = "light", mode = "modal", initialValues = null }) {
   const [formData, setFormData] = useState({
-    resource: "",
-    resourceType: "classroom",
-    date: "",
-    startTime: "",
-    endTime: "",
-    purpose: "",
-    attendees: "",
-    needsProjector: false,
-    needsWhiteboard: false,
+    ...DEFAULT_FORM_DATA,
   });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const todayDate = new Date().toISOString().split("T")[0];
+  const hasLockedPrefill = Boolean(initialValues?.resourceId);
+
+  useEffect(() => {
+    if (!initialValues) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      resource: initialValues.resourceName || prev.resource,
+      resourceId: initialValues.resourceId || prev.resourceId,
+      resourceType: normalizeResourceType(initialValues.resourceType || prev.resourceType),
+      attendees: initialValues.resourceCapacity ? String(initialValues.resourceCapacity) : prev.attendees,
+      purpose: initialValues.resourceDescription || prev.purpose,
+    }));
+  }, [initialValues]);
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -26,15 +55,7 @@ function Booking({ isOpen, onClose, onCreate, theme = "light", mode = "modal" })
 
   const handleCancel = () => {
     setFormData({
-      resource: "",
-      resourceType: "classroom",
-      date: "",
-      startTime: "",
-      endTime: "",
-      purpose: "",
-      attendees: "",
-      needsProjector: false,
-      needsWhiteboard: false,
+      ...DEFAULT_FORM_DATA,
     });
     setError("");
     if (onClose) {
@@ -46,9 +67,31 @@ function Booking({ isOpen, onClose, onCreate, theme = "light", mode = "modal" })
     event.preventDefault();
     setError("");
 
+    if (formData.date && formData.date < todayDate) {
+      setError("Past dates are not allowed. Please select today or a future date.");
+      return;
+    }
+
     if (formData.startTime && formData.endTime && formData.startTime >= formData.endTime) {
       setError("End time must be later than start time.");
       return;
+    }
+
+    if (formData.date === todayDate) {
+      const now = new Date();
+      const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(
+        now.getMinutes()
+      ).padStart(2, "0")}`;
+
+      if (formData.startTime && formData.startTime <= currentTime) {
+        setError("Selected start time has already passed. Please choose a future time.");
+        return;
+      }
+
+      if (formData.endTime && formData.endTime <= currentTime) {
+        setError("Selected end time has already passed. Please choose a future time.");
+        return;
+      }
     }
 
     const resourceName = (formData.resource || "").trim();
@@ -59,6 +102,7 @@ function Booking({ isOpen, onClose, onCreate, theme = "light", mode = "modal" })
 
     const newBooking = {
       id: Date.now(),
+      resourceId: formData.resourceId ? Number(formData.resourceId) : undefined,
       resource: resourceName,
       resourceType: formData.resourceType,
       date: formData.date,
@@ -116,6 +160,7 @@ function Booking({ isOpen, onClose, onCreate, theme = "light", mode = "modal" })
                 required
                 placeholder="e.g. Lab 3, Lecture Hall A, Meeting Room 2"
                 autoComplete="off"
+                readOnly={hasLockedPrefill}
               />
             </div>
 
@@ -130,6 +175,7 @@ function Booking({ isOpen, onClose, onCreate, theme = "light", mode = "modal" })
                 value={formData.resourceType}
                 onChange={handleChange}
                 required
+                disabled={hasLockedPrefill}
               >
                 <option value="classroom">Classroom</option>
                 <option value="lab">Lab</option>
@@ -150,6 +196,7 @@ function Booking({ isOpen, onClose, onCreate, theme = "light", mode = "modal" })
                 type="date"
                 value={formData.date}
                 onChange={handleChange}
+                min={todayDate}
                 required
               />
             </div>
@@ -167,6 +214,7 @@ function Booking({ isOpen, onClose, onCreate, theme = "light", mode = "modal" })
                 value={formData.attendees}
                 onChange={handleChange}
                 placeholder="e.g. 25"
+                readOnly={hasLockedPrefill}
               />
             </div>
           </div>
@@ -213,6 +261,7 @@ function Booking({ isOpen, onClose, onCreate, theme = "light", mode = "modal" })
             value={formData.purpose}
             onChange={handleChange}
             placeholder="Describe the purpose (lecture, meeting, event, etc.)"
+            readOnly={hasLockedPrefill}
           />
 
           <div className="booking-options">

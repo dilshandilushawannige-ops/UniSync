@@ -180,11 +180,14 @@ function BrowseResourcesModernPage() {
       return;
     }
 
-    navigate('/dashboard', {
+    navigate('/resource-booking', {
       state: {
         resourceId: resource.id,
         resourceName: resource.name,
         resourceType: resource.type,
+        resourceLocation: resource.location || '',
+        resourceCapacity: resource.capacity ?? '',
+        resourceDescription: resource.description || '',
       },
     });
   };
