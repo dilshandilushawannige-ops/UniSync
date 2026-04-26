@@ -1,6 +1,8 @@
 package com.smartcampus.unisync.config;
 
+import com.smartcampus.unisync.security.CustomAuthorizationRequestRepository;
 import com.smartcampus.unisync.security.CustomOAuth2UserService;
+import com.smartcampus.unisync.security.OAuth2AuthorizationRequestFilter;
 import com.smartcampus.unisync.security.OAuth2LoginSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -19,11 +22,17 @@ public class SecurityConfig {
 
         private final CustomOAuth2UserService customOAuth2UserService;
         private final OAuth2LoginSuccessHandler successHandler;
+        private final OAuth2AuthorizationRequestFilter oAuth2AuthorizationRequestFilter;
+        private final CustomAuthorizationRequestRepository customAuthorizationRequestRepository;
 
         public SecurityConfig(CustomOAuth2UserService customOAuth2UserService,
-                        OAuth2LoginSuccessHandler successHandler) {
+                        OAuth2LoginSuccessHandler successHandler,
+                        OAuth2AuthorizationRequestFilter oAuth2AuthorizationRequestFilter,
+                        CustomAuthorizationRequestRepository customAuthorizationRequestRepository) {
                 this.customOAuth2UserService = customOAuth2UserService;
                 this.successHandler = successHandler;
+                this.oAuth2AuthorizationRequestFilter = oAuth2AuthorizationRequestFilter;
+                this.customAuthorizationRequestRepository = customAuthorizationRequestRepository;
         }
 
         @Bean
@@ -35,10 +44,13 @@ public class SecurityConfig {
                                 .csrf(csrf -> csrf.disable())
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/oauth2/**", "/login/oauth2/**", "/error").permitAll()
-                                                .anyRequest().permitAll()); // Allow all requests for development
+                                                .anyRequest().permitAll()) // Allow all requests for development
+                                .addFilterBefore(oAuth2AuthorizationRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
                 http.oauth2Login(oauth -> oauth
-                                .authorizationEndpoint(endpoint -> endpoint.baseUri("/oauth2/authorization"))
+                                .authorizationEndpoint(endpoint -> endpoint
+                                        .baseUri("/oauth2/authorization")
+                                        .authorizationRequestRepository(customAuthorizationRequestRepository))
                                 .redirectionEndpoint(endpoint -> endpoint.baseUri("/login/oauth2/code/*"))
                                 .userInfoEndpoint(userInfo -> userInfo
                                                 .userService(customOAuth2UserService))

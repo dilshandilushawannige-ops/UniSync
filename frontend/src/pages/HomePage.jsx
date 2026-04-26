@@ -919,7 +919,8 @@ const HomePage = () => {
 
                 const fallbackApiBaseUrl = `${window.location.protocol}//${window.location.hostname}:8081`;
                 const backendBaseUrl = (import.meta.env.VITE_API_BASE_URL || fallbackApiBaseUrl).replace(/\/$/, '');
-                const googleOAuthUrl = `${backendBaseUrl}/oauth2/authorization/google`;
+                // Pass the selected role as a query parameter
+                const googleOAuthUrl = `${backendBaseUrl}/oauth2/authorization/google?role=${selectedRole}`;
                 window.location.assign(googleOAuthUrl);
               }}
               style={{
