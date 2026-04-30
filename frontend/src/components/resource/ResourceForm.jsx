@@ -1,4 +1,5 @@
 ﻿import React, { useState } from 'react';
+import Swal from 'sweetalert2';
 
 const TYPE_OPTIONS = ['LECTURE_HALL', 'LAB', 'MEETING_ROOM', 'EQUIPMENT'];
 const STATUS_OPTIONS = ['ACTIVE', 'OUT_OF_SERVICE'];
@@ -101,8 +102,36 @@ const ResourceForm = ({ initialData, onSubmit, onCancel }) => {
     endTime: toDisplayTime(initialData?.availableTo) || DEFAULT_END_TIME_DISPLAY,
   });
 
+  // Get today's date in YYYY-MM-DD format for min date validation
+  const getTodayDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const handleChange = (event) => {
     const { name, value } = event.target;
+    
+    // Validate booking date - prevent past dates
+    if (name === 'bookingDate' && value) {
+      const selectedDate = new Date(value);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+      
+      if (selectedDate < today) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Invalid Date',
+          text: 'Please select today or a future date. Past dates are not allowed.',
+          confirmButtonColor: '#3B82F6',
+          confirmButtonText: 'OK'
+        });
+        return; // Don't update state with past date
+      }
+    }
+    
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -221,8 +250,11 @@ const ResourceForm = ({ initialData, onSubmit, onCancel }) => {
             type="date"
             value={formData.bookingDate}
             onChange={handleChange}
+            min={getTodayDate()}
             style={styles.input}
+            title="Please select today or a future date"
           />
+          <span style={styles.fieldHint}>Select a date (cannot be in the past)</span>
         </div>
 
         <div style={styles.gridTwo}>
@@ -327,6 +359,13 @@ const styles = {
     fontWeight: '500',
     color: '#94a3b8',
     textTransform: 'none',
+  },
+  fieldHint: {
+    display: 'block',
+    fontSize: '0.75rem',
+    color: '#64748b',
+    marginTop: '6px',
+    fontStyle: 'italic',
   },
   input: {
     width: '100%',

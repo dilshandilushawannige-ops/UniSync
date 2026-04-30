@@ -60,8 +60,8 @@ function CreateTicketPage() {
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files || []);
         const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
-        if (files.length + selectedFiles.length > 4) {
-            setUploadError("You can upload a maximum of 4 images.");
+        if (files.length + selectedFiles.length > 3) {
+            setUploadError("You can upload a maximum of 3 images.");
             return;
         }
         const invalid = files.find((f) => !allowedTypes.includes(f.type));
@@ -285,7 +285,7 @@ function CreateTicketPage() {
                             ))}
 
                             {/* Empty placeholders */}
-                            {Array.from({ length: Math.max(0, 3 - selectedFiles.length) }).map((_, i) => (
+                            {Array.from({ length: Math.max(0, 2 - selectedFiles.length) }).map((_, i) => (
                                 <div key={`empty-${i}`} className="attachment-placeholder">
                                     <MdImage className="placeholder-icon" />
                                     <span>NO MEDIA</span>
@@ -294,7 +294,7 @@ function CreateTicketPage() {
                         </div>
 
                         <p className="attachments-hint">
-                            Upload screenshots or photos of the error (Max 4 files, 5MB each).
+                            Upload screenshots or photos of the error (Max 3 files, 5MB each).
                         </p>
                         {uploadError && <p className="upload-error">{uploadError}</p>}
                     </div>

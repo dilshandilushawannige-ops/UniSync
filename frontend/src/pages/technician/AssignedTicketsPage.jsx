@@ -54,7 +54,8 @@ function AssignedTicketsPage() {
         let filtered = tickets;
 
         if (activeFilter === "New") {
-            filtered = filtered.filter(t => t.status === "OPEN");
+            // Sort by newest first (most recent createdAt)
+            filtered = [...filtered].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         } else if (activeFilter === "Priority") {
             filtered = filtered.filter(t => t.priority === "HIGH" || t.priority === "URGENT");
         }
