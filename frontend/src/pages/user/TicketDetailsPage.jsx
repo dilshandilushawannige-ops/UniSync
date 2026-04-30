@@ -244,21 +244,21 @@ function TicketDetailsPage() {
               <form className="td-comment-input-area" onSubmit={handlePostComment}>
                 <textarea 
                   className="td-textarea" 
-                  placeholder="Write a comment..."
+                  placeholder="Write a reply or internal note..."
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                 />
                 <div className="td-input-actions">
                   <div className="td-input-tools">
-                    <button type="button" className="td-tool-btn"><FiPaperclip /></button>
-                    <button type="button" className="td-tool-btn"><FiSmile /></button>
+                    <button type="button" className="td-tool-btn">📎</button>
+                    <button type="button" className="td-tool-btn">@</button>
                   </div>
                   <button 
                     type="submit" 
                     className="td-btn-send"
                     disabled={submittingComment || !newComment.trim()}
                   >
-                    {submittingComment ? "Sending..." : "Send Message"}
+                    Send Message ➤
                   </button>
                 </div>
               </form>

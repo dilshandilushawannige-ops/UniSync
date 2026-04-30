@@ -440,7 +440,7 @@
   color: #9CA3AF;
 }
 
-/* Comment Input Area - Matching Technician Style */
+/* Comment Input Area - Matching Admin Style */
 .td-comment-input-area {
   border-top: 1px solid #E5E7EB;
   padding-top: 16px;
@@ -471,7 +471,7 @@
 
 .td-input-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -491,7 +491,6 @@
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  color: #6B7280;
   transition: all 0.2s ease;
 }
 

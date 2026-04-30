@@ -1,94 +1,216 @@
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import StudentPortalLayout from "../../components/user/StudentPortalLayout";
 import AnnouncementList from "../../components/announcement/AnnouncementList";
 import { useAnnouncements } from "../../context/AnnouncementContext";
+import api from "../../services/api";
+import {
+    MdLibraryBooks,
+    MdEventAvailable,
+    MdConfirmationNumber,
+    MdAddCircleOutline,
+    MdNotifications,
+    MdPerson,
+    MdArrowForward,
+    MdCheckCircle,
+    MdHourglassEmpty,
+    MdPending,
+    MdCancel
+} from "react-icons/md";
+import "./StudentDashboardPage.css";
 
 function StudentDashboardPage() {
+    const navigate = useNavigate();
     const { announcements } = useAnnouncements();
+    const [stats, setStats] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchTicketStats();
+    }, []);
+
+    const fetchTicketStats = async () => {
+        try {
+            setLoading(true);
+            const userId = localStorage.getItem("userId");
+            if (!userId) {
+                setLoading(false);
+                return;
+            }
+
+            const response = await api.get(`/tickets/user/${userId}`);
+            const tickets = response.data;
+
+            const total = tickets.length;
+            const open = tickets.filter(t => t.status === "OPEN").length;
+            const inProgress = tickets.filter(t => t.status === "IN_PROGRESS").length;
+            const resolved = tickets.filter(t => t.status === "RESOLVED" || t.status === "CLOSED").length;
+
+            setStats({ total, open, inProgress, resolved });
+        } catch (err) {
+            console.error("Error fetching ticket statistics:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const quickAccessCards = [
+        {
+            title: "Resources",
+            description: "Browse available labs, halls and equipment on campus",
+            icon: MdLibraryBooks,
+            path: "/resources",
+            color: "#3B82F6",
+            bgColor: "#EFF6FF"
+        },
+        {
+            title: "Resource Booking",
+            description: "Book and manage your resource reservations",
+            icon: MdEventAvailable,
+            path: "/resource-booking",
+            color: "#10B981",
+            bgColor: "#D1FAE5"
+        },
+        {
+            title: "My Tickets",
+            description: "View and track all your support tickets",
+            icon: MdConfirmationNumber,
+            path: "/my-tickets",
+            color: "#F59E0B",
+            bgColor: "#FEF3C7",
+            count: stats?.total || 0
+        },
+        {
+            title: "New Ticket",
+            description: "Report a new issue and get support",
+            icon: MdAddCircleOutline,
+            path: "/create-ticket",
+            color: "#EF4444",
+            bgColor: "#FEE2E2"
+        },
+        {
+            title: "Notifications",
+            description: "Check announcements and system updates",
+            icon: MdNotifications,
+            path: "/my-notifications",
+            color: "#8B5CF6",
+            bgColor: "#F3E8FF",
+            count: announcements.filter(a => 
+                a.status === 'ACTIVE' && 
+                (a.target.includes('ALL') || a.target.includes('STUDENT'))
+            ).length
+        },
+        {
+            title: "Profile",
+            description: "Manage your account and preferences",
+            icon: MdPerson,
+            path: "/profile",
+            color: "#6B7280",
+            bgColor: "#F3F4F6"
+        }
+    ];
 
     return (
         <StudentPortalLayout title="Welcome to Student Dashboard">
-            {/* Announcements Section */}
-            <section style={styles.card}>
-                <h2 style={styles.cardTitle}>📢 Announcements</h2>
-                <p style={styles.cardText}>
-                    Review unread alerts, track recent updates, and clear items after reading them.
-                </p>
-                <AnnouncementList announcements={announcements} userRole="STUDENT" />
-            </section>
-
-            <section style={{ ...styles.card, marginTop: '20px' }}>
-                <h2 style={styles.cardTitle}>Quick Actions</h2>
-                <p style={styles.cardText}>
-                    Welcome to your portal. Use the sidebar to publish tickets or open resource booking.
-                </p>
-
-                <div style={styles.actionGrid}>
-                    <Link to="/create-ticket" style={styles.actionCard}>
-                        <strong style={styles.actionLabel}>Publish Ticket</strong>
-                        <span style={styles.actionCopy}>Report a new issue and follow its progress.</span>
-                    </Link>
-
-                    <Link to="/resources" style={styles.actionCard}>
-                        <strong style={styles.actionLabel}>Browse Resources</strong>
-                        <span style={styles.actionCopy}>Find labs, halls and equipment available on campus.</span>
-                    </Link>
-
-                    <Link to="/my-notifications" style={styles.actionCard}>
-                        <strong style={styles.actionLabel}>Check Notifications</strong>
-                        <span style={styles.actionCopy}>Review updates from the support team.</span>
-                    </Link>
-
-                    <Link to="/profile" style={styles.actionCard}>
-                        <strong style={styles.actionLabel}>Open Profile</strong>
-                        <span style={styles.actionCopy}>View your student details and account info.</span>
-                    </Link>
+            <div className="student-dashboard-container">
+                <div className="student-dashboard-welcome">
+                    <h2 className="student-dashboard-title">Welcome Back, Student!</h2>
+                    <p className="student-dashboard-subtitle">
+                        Here's an overview of your tickets and quick access to all portal features.
+                    </p>
                 </div>
-            </section>
+
+                {/* Ticket Statistics */}
+                {!loading && stats && (
+                    <div className="student-stats-grid">
+                        <div className="student-stat-card student-stat-blue">
+                            <div className="student-stat-icon">
+                                <MdConfirmationNumber />
+                            </div>
+                            <div className="student-stat-content">
+                                <div className="student-stat-number">{stats.total}</div>
+                                <div className="student-stat-label">Total Tickets</div>
+                            </div>
+                        </div>
+                        <div className="student-stat-card student-stat-yellow">
+                            <div className="student-stat-icon">
+                                <MdPending />
+                            </div>
+                            <div className="student-stat-content">
+                                <div className="student-stat-number">{stats.open}</div>
+                                <div className="student-stat-label">Open</div>
+                            </div>
+                        </div>
+                        <div className="student-stat-card student-stat-orange">
+                            <div className="student-stat-icon">
+                                <MdHourglassEmpty />
+                            </div>
+                            <div className="student-stat-content">
+                                <div className="student-stat-number">{stats.inProgress}</div>
+                                <div className="student-stat-label">In Progress</div>
+                            </div>
+                        </div>
+                        <div className="student-stat-card student-stat-green">
+                            <div className="student-stat-icon">
+                                <MdCheckCircle />
+                            </div>
+                            <div className="student-stat-content">
+                                <div className="student-stat-number">{stats.resolved}</div>
+                                <div className="student-stat-label">Resolved</div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Quick Access Section */}
+                <div className="student-quick-access-section">
+                    <h3 className="student-section-title">Quick Access</h3>
+                    <div className="student-quick-access-grid">
+                        {quickAccessCards.map((card) => {
+                            const IconComponent = card.icon;
+                            return (
+                                <div 
+                                    key={card.path}
+                                    className="student-quick-card"
+                                    onClick={() => navigate(card.path)}
+                                >
+                                    <div className="student-quick-card-header">
+                                        <div 
+                                            className="student-quick-icon"
+                                            style={{ 
+                                                backgroundColor: card.bgColor,
+                                                color: card.color 
+                                            }}
+                                        >
+                                            <IconComponent />
+                                        </div>
+                                        {card.count !== undefined && card.count > 0 && (
+                                            <span className="student-quick-badge">{card.count}</span>
+                                        )}
+                                    </div>
+                                    <h4 className="student-quick-title">{card.title}</h4>
+                                    <p className="student-quick-description">{card.description}</p>
+                                    <div className="student-quick-action">
+                                        <span>Go to {card.title}</span>
+                                        <MdArrowForward />
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Announcements Section */}
+                <section className="student-announcements-section">
+                    <h3 className="student-section-title">📢 Recent Announcements</h3>
+                    <p className="student-section-subtitle">
+                        Review unread alerts, track recent updates, and stay informed.
+                    </p>
+                    <AnnouncementList announcements={announcements} userRole="STUDENT" />
+                </section>
+            </div>
         </StudentPortalLayout>
     );
 }
-
-const styles = {
-    card: {
-        backgroundColor: "#ffffff",
-        border: "1px solid #e2e8f0",
-        borderRadius: "18px",
-        padding: "24px",
-        boxShadow: "0 14px 32px rgba(15, 23, 42, 0.05)",
-    },
-    cardTitle: {
-        margin: "0 0 8px",
-        color: "#0f172a",
-        fontSize: "1.15rem",
-    },
-    cardText: {
-        margin: "0 0 20px",
-        color: "#64748b",
-        lineHeight: 1.6,
-    },
-    actionGrid: {
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-        gap: "14px",
-    },
-    actionCard: {
-        textDecoration: "none",
-        borderRadius: "16px",
-        padding: "18px",
-        backgroundColor: "#f8fafc",
-        border: "1px solid #dbeafe",
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px",
-    },
-    actionLabel: {
-        color: "#1e3a8a",
-    },
-    actionCopy: {
-        color: "#64748b",
-        lineHeight: 1.5,
-    },
-};
 
 export default StudentDashboardPage;

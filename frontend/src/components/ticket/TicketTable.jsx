@@ -4,19 +4,22 @@ import "./TicketTable.css";
 
 /**
  * Displays a list of tickets in a table format.
- * Used on MyTicketsPage (student) and ManageTicketsPage (admin).
+ * Used on MyTicketsPage (student), ManageTicketsPage (admin), and technician pages.
  *
  * Props:
- *   tickets (array)   — list of ticket objects from the API
- *   isAdmin (boolean) — if true, shows extra admin columns
+ *   tickets (array)        — list of ticket objects from the API
+ *   isAdmin (boolean)      — if true, shows extra admin columns and routes to admin details
+ *   isTechnician (boolean) — if true, routes to technician ticket details
  */
-function TicketTable({ tickets = [], isAdmin = false }) {
+function TicketTable({ tickets = [], isAdmin = false, isTechnician = false }) {
   const navigate = useNavigate();
 
   // When a row is clicked, go to the ticket detail page
   const handleRowClick = (ticketId) => {
     if (isAdmin) {
       navigate(`/admin/tickets/${ticketId}`);
+    } else if (isTechnician) {
+      navigate(`/technician/tickets/${ticketId}`);
     } else {
       navigate(`/tickets/${ticketId}`);
     }

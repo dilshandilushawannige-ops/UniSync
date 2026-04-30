@@ -144,12 +144,13 @@ public class ResourceServiceImpl implements ResourceService {
 
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
-             CSVParser parser = CSVFormat.DEFAULT
-                     .withHeader()
-                     .withSkipHeaderRecord(true)
-                     .withIgnoreEmptyLines(true)
-                     .withTrim(true)
-                     .parse(reader)) {
+             CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT
+                     .builder()
+                     .setHeader()
+                     .setSkipHeaderRecord(true)
+                     .setIgnoreEmptyLines(true)
+                     .setTrim(true)
+                     .build())) {
 
             int rowNumber = 1;
             for (CSVRecord record : parser) {
